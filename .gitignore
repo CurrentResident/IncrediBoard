@@ -1,0 +1,21 @@
+
+# Stuff produced by the Avr-gcc / teensy makefile
+#
+
+*.eep
+*.elf
+*.hex
+*.lss
+*.lst
+*.map
+*.sym
+
+# Typical stuff.
+#
+
+*.d
+*.exe
+*.log
+*.o
+*.swp
+*.swo
