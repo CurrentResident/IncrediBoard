@@ -3,6 +3,7 @@
 
 #include <boost/fusion/algorithm.hpp>
 
+#include "BoardController.h"
 #include "Key.h"
 #include "Platform.h"
 
@@ -11,7 +12,8 @@ class Column
 {
     public:
 
-        void Process(Platform::InputValuesType& io_inputs)
+        void Process(BoardController&           io_controller,
+                     Platform::InputValuesType& io_inputs)
         {
             // Make some easily-inlineable temporary function objects.
             SelectColumn s;
@@ -24,25 +26,31 @@ class Column
             const unsigned long now = Platform::GetMsec();
             c();
 
-            // With inputs in-hand, send them to the key objects in order.
-            boost::fusion::fold(m_keys, 0, ProcessKey(io_inputs, now));
+            // With inputs in-hand, send them to the key objects in order, and update the given controller.
+            boost::fusion::fold(m_keys, 0, ProcessKey(io_controller, io_inputs, now));
         }
 
     private:
 
-        ColumnKeys   m_keys;
+        ColumnKeys m_keys;
 };
 
 struct ProcessColumn
 {
+    BoardController&           m_controller;
     Platform::InputValuesType& m_inputs;
 
-    ProcessColumn(Platform::InputValuesType& i_inputs):m_inputs(i_inputs) {}
+    ProcessColumn(BoardController&           i_controller,
+                  Platform::InputValuesType& i_inputs)
+    :
+        m_controller(i_controller),
+        m_inputs    (i_inputs)
+    { }
 
     template <typename T>
     void operator() (T& column) const
     {
-        column.Process(m_inputs);
+        column.Process(m_controller, m_inputs);
     }
 };
 

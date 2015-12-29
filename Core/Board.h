@@ -3,6 +3,7 @@
 
 #include <boost/fusion/algorithm.hpp>
 
+#include "BoardController.h"
 #include "Column.h"
 #include "Platform.h"
 
@@ -21,13 +22,14 @@ class Board
 
         void Process()
         {
-            boost::fusion::for_each(m_matrix, ProcessColumn(m_inputs));
+            boost::fusion::for_each(m_matrix, ProcessColumn(m_controller, m_inputs));
         }
 
     private:
 
         MatrixType                m_matrix;
         Platform::InputValuesType m_inputs;
+        BoardController           m_controller;
 };
 
 #endif

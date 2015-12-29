@@ -6,16 +6,17 @@
 class BoardController
 {
     private:
+
+        uint8_t m_modifiers;
+
+        //static BoardController s_instance;
+
+    public:
         BoardController() :
             m_modifiers(0)
         {
         }
 
-        uint8_t m_modifiers;
-
-        static BoardController s_instance;
-
-    public:
         // So, I wanted to do a Meyers singleton, but the compiler is required to insert synchronization code
         // for runtime initialization of local statics, which Meyers singletons need.  This is problematic on
         // avr-gcc, which does not provide the sync primitives.  So I'm copping out with a static member variable,
@@ -28,12 +29,12 @@ class BoardController
         //     static BoardController s_instance;
         //     return s_instance;
         // }
-
+/*
         static BoardController& Get()
         {
             return s_instance;
         }
-
+*/
         void SetModifier(const uint8_t i_modifier)
         {
             m_modifiers |= i_modifier;

@@ -1,3 +1,3 @@
 #include "BoardController.h"
 
-BoardController BoardController::s_instance;
+//BoardController BoardController::s_instance;

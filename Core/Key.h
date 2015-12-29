@@ -96,11 +96,14 @@ template <> class Key<0>
 // than RAM for data.
 struct ProcessKey
 {
+    BoardController&                 m_controller;
     const Platform::InputValuesType& m_inputs;
     const unsigned long&             m_now;
 
-    ProcessKey (const Platform::InputValuesType& i_inputs,
+    ProcessKey (BoardController&                 io_controller,
+                const Platform::InputValuesType& i_inputs,
                 const unsigned long&             i_now) :
+        m_controller(io_controller),
         m_inputs(i_inputs),
         m_now   (i_now)
     {}
@@ -126,10 +129,10 @@ struct ProcessKey
             switch (key.GetState())
             {
                 case 0:
-                    BoardController::Get().ClearModifier(T_KEYMODCODE);
+                    m_controller.ClearModifier(T_KEYMODCODE);
                     break;
                 default:
-                    BoardController::Get().SetModifier(T_KEYMODCODE);
+                    m_controller.SetModifier(T_KEYMODCODE);
                     break;
             }
         }
