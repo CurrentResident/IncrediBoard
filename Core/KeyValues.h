@@ -217,4 +217,14 @@ typedef Key <KEY_KP_8>        KeyKP_8;
 typedef Key <KEY_KP_9>        KeyKP_9;
 typedef Key <KEY_KP_0>        KeyKP_0;
 
+typedef KeyModifier<KEY_MOD_LEFT_CTRL>  KeyMOD_LEFT_CTRL;
+typedef KeyModifier<KEY_MOD_LEFT_SHIFT> KeyMOD_LEFT_SHIFT;
+typedef KeyModifier<KEY_MOD_LEFT_ALT>   KeyMOD_LEFT_ALT;
+typedef KeyModifier<KEY_MOD_LEFT_GUI>   KeyMOD_LEFT_GUI;
+
+typedef KeyModifier<KEY_MOD_RIGHT_CTRL>  KeyMOD_RIGHT_CTRL;
+typedef KeyModifier<KEY_MOD_RIGHT_SHIFT> KeyMOD_RIGHT_SHIFT;
+typedef KeyModifier<KEY_MOD_RIGHT_ALT>   KeyMOD_RIGHT_ALT;
+typedef KeyModifier<KEY_MOD_RIGHT_GUI>   KeyMOD_RIGHT_GUI;
+
 #endif

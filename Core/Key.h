@@ -4,9 +4,10 @@
 #include <boost/static_assert.hpp>
 #include <stdint.h>
 
+#include "BoardController.h"
 #include "Platform.h"
 
-template<unsigned long t_debouncePeriod, uint8_t t_keyValue>
+template<unsigned long t_debouncePeriod>
 class DebouncedButton
 {
     BOOST_STATIC_ASSERT(t_debouncePeriod > 0);
@@ -30,13 +31,10 @@ class DebouncedButton
             return m_debouncedState;
         }
 
-        uint8_t GetData() const
+        bool Process(const uint8_t currentState, const unsigned long now)
         {
-            return t_keyValue;
-        }
+            bool result = false;
 
-        void Process(const uint8_t currentState, const unsigned long now)
-        {
             // Because time is represented as an unsigned long with millisecond units, time will eventually
             // overflow at 49.71-ish days.  This algorithm deals with it okay (but not perfect) by just bailing
             // out of the debounce if it extends thru the overflown duration.
@@ -52,18 +50,42 @@ class DebouncedButton
                 if (m_debouncedState != m_readState)
                 {
                     m_debouncedState = m_readState;
+                    result = true;
                 }
             }
+
+            return result;
         }
 };
 
 template <uint8_t t_keyValue>
-class Key : public DebouncedButton<5, t_keyValue>   // 5 msec per cherry spec.
+class BaseKey : public DebouncedButton<5>   // 5 msec per cherry spec.
+{
+    static uint8_t GetValue()
+    {
+        return t_keyValue;
+    }
+};
+
+template <uint8_t t_keyValue>
+class Key : public BaseKey<t_keyValue>
+{
+};
+
+template <uint8_t t_keyValue>
+class KeyModifier : public BaseKey<t_keyValue>
 {
 };
 
 // Specialization for 'None' key does nothing.
-template <> class Key<0> { public: void Process(const uint8_t currentState, const unsigned long now) {} };
+template <> class Key<0>
+{
+    public:
+        bool Process(const uint8_t currentState, const unsigned long now)
+        {
+            return false;
+        }
+};
 
 // Functor that updates key objects.
 //
@@ -85,10 +107,32 @@ struct ProcessKey
 
     typedef uint8_t result_type;    // result_type must be defined if we intend to pass ProcessKey to fusion::fold.
 
-    template <typename T>
-    uint8_t operator() (const uint8_t rowIndex, T& key) const
+    // Here's what the functor does when handed an ordinary Key.
+    //
+    template <uint8_t T_KEYCODE>
+    uint8_t operator() (const uint8_t rowIndex, Key<T_KEYCODE>& key) const
     {
         key.Process(m_inputs.row[rowIndex], m_now);
+        return rowIndex + 1;
+    }
+
+    // Here's what the functor does when handed a KeyModifier.
+    //
+    template <uint8_t T_KEYMODCODE>
+    uint8_t operator() (const uint8_t rowIndex, KeyModifier<T_KEYMODCODE>& key) const
+    {
+        if(key.Process(m_inputs.row[rowIndex], m_now))
+        {
+            switch (key.GetState())
+            {
+                case 0:
+                    BoardController::Get().ClearModifier(T_KEYMODCODE);
+                    break;
+                default:
+                    BoardController::Get().SetModifier(T_KEYMODCODE);
+                    break;
+            }
+        }
         return rowIndex + 1;
     }
 };

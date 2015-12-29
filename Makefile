@@ -75,7 +75,8 @@ OBJDIR = obj
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = Boards/TestBoardAvr/$(TARGET).cpp \
+CPPSRC = Core/BoardController.cpp \
+		 Boards/TestBoardAvr/$(TARGET).cpp \
 		 Boards/TestBoardAvr/new.cpp \
 		 Boards/TestBoardAvr/PlatformTeensy.cpp
 
