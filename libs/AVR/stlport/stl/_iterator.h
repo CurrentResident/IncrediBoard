@@ -64,12 +64,10 @@ public:
   explicit reverse_iterator(iterator_type __x) : current(__x) {}
   reverse_iterator(const _Self& __x) : current(__x.current) {}
   _Self& operator = (const _Self& __x) { current = __x.base(); return *this; }
-#  if defined (_STLP_MEMBER_TEMPLATES)
   template <class _Iter>
   reverse_iterator(const reverse_iterator<_Iter>& __x) : current(__x.base()) {}
   template <class _Iter>
   _Self& operator = (const reverse_iterator<_Iter>& __x) { current = __x.base(); return *this; }
-#  endif /* _STLP_MEMBER_TEMPLATES */
 
   iterator_type base() const { return current; }
   reference operator*() const {
@@ -254,7 +252,7 @@ inserter(_Container& __x, _Iterator __i) {
 
 _STLP_END_NAMESPACE
 
-#if ! defined (_STLP_CLASS_PARTIAL_SPECIALIZATION) || defined (_STLP_USE_OLD_HP_ITERATOR_QUERIES)
+#if ! defined (_STLP_CLASS_PARTIAL_SPECIALIZATION)
 #  include <stl/_iterator_old.h>
 #endif
 

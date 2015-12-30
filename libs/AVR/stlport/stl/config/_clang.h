@@ -28,13 +28,12 @@
 
 #if (__GNUC__ < 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ < 4))
 /* define for gcc versions before 3.4.0. */
-#  define _STLP_NO_MEMBER_TEMPLATE_KEYWORD
+#  define _STLP_NO_MEMBER_TEMPLATE_KEYWORD /* support removed */
 #endif
 
 #if !defined (_REENTRANT) && (defined (_THREAD_SAFE) || \
                              (defined (__OpenBSD__) && defined (_POSIX_THREADS)) || \
-                             (defined (__MINGW32__) && defined (_MT)) || \
-                              defined(__APPLE__))
+                             (defined (__MINGW32__) && defined (_MT)))
 #  define _REENTRANT
 #endif
 
@@ -51,8 +50,6 @@
 /* For gcc before version 3 this macro is defined below */
 #    define _STLP_VENDOR_GLOBAL_CSTD
 #  endif
-#  undef  _STLP_NO_DRAND48
-#  define _STLP_NO_DRAND48
 #  define _STLP_CALL
 #endif /* __MINGW32__ */
 
@@ -116,7 +113,6 @@ typedef unsigned int wint_t;
 
 #endif /* __APPLE__ */
 
-/* g++ 2.7.x and above */
 #define _STLP_LONG_LONG long long
 
 #ifdef _STLP_USE_UCLIBC
@@ -150,31 +146,21 @@ typedef unsigned int wint_t;
 #  define _STLP_HAS_NO_NEW_C_HEADERS 1
 #endif
 
-#if (__GNUC__ >= 3)
-#  ifndef _STLP_HAS_NO_NEW_C_HEADERS
+#ifndef _STLP_HAS_NO_NEW_C_HEADERS
+#  define _STLP_HAS_NO_NEW_C_HEADERS /* experiment */
+#endif
+#ifndef _STLP_HAS_NO_NEW_C_HEADERS
 /*
-#    ifndef _STLP_USE_UCLIBC
+#  ifndef _STLP_USE_UCLIBC
 */
 #    define _STLP_HAS_NATIVE_FLOAT_ABS
 /*
-#    endif
+#  endif
 */
-#  else
-#    ifdef _STLP_USE_GLIBC
-#      define _STLP_VENDOR_LONG_DOUBLE_MATH  1
-#    endif
+#else
+#  ifdef _STLP_USE_GLIBC
+#    define _STLP_VENDOR_LONG_DOUBLE_MATH  1
 #  endif
-#endif
-
-#if (__GNUC__ < 3)
-#  define _STLP_HAS_NO_NEW_C_HEADERS     1
-#  define _STLP_VENDOR_GLOBAL_CSTD       1
-#  define _STLP_DONT_USE_PTHREAD_SPINLOCK 1
-#  ifndef __HONOR_STD
-#    define _STLP_VENDOR_GLOBAL_EXCEPT_STD 1
-#  endif
-/* egcs fails to initialize builtin types in expr. like this : new(p) char();  */
-#  define _STLP_DEF_CONST_PLCT_NEW_BUG 1
 #endif
 
 #ifndef __ANDROID__
@@ -192,9 +178,57 @@ typedef unsigned int wint_t;
 #  define _STLP_DONT_USE_EXCEPTIONS 1
 #endif
 
-#if (__GNUC__ >= 3)
-/* Instantiation scheme that used (default) in gcc 3 made void of sense explicit
-   instantiation within library: nothing except increased library size. - ptr
- */
-#  define _STLP_NO_FORCE_INSTANTIATE
+/* #define _STLP_NO_EXCEPTION_HEADER */
+
+#define _STLP_NO_FORCE_INSTANTIATE
+
+/* #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)) */
+#  define _STLP_IS_POD(T)             __is_pod(T)
+#  define _STLP_IS_STANDARD_LAYOUT(T) __is_standard_layout(T)
+#  define _STLP_IS_ABSTRACT(T)        __is_abstract(T)
+#  define _STLP_IS_POLYMORPHIC(T)     __is_polymorphic(T)
+#  define _STLP_IS_TRIVIAL(T)         __is_trivial(T)
+#  define _STLP_IS_EMPTY(T)           __is_empty(T)
+#  define _STLP_IS_CLASS(T)           __is_class(T)
+#  define _STLP_IS_UNION(T)           __is_union(T)
+#  define _STLP_IS_ENUM(T)            __is_enum(T)
+#  define _STLP_IS_BASE_OF(B,D)       __is_base_of(B,D)
+/* #  define _STLP_IS_LITERAL_TYPE(T)    __is_literal_type(T) */
+/* in 4.5.1 known, but not implemented: */
+/* #  define _STLP_IS_CONVERTIBLE(F,T)  __is_convertible_to(F,T) */
+#  define _STLP_HAS_VIRTUAL_DESTRUCTOR(T) __has_virtual_destructor(T)
+#  define _STLP_HAS_TRIVIAL_DESTRUCTOR(T) __has_trivial_destructor(T)
+#  define _STLP_HAS_TRIVIAL_COPY(T)   __has_trivial_copy(T)
+#  define _STLP_HAS_NOTHROW_COPY(T)   __has_nothrow_copy(T)
+#  define _STLP_HAS_TRIVIAL_CONSTRUCTOR(T) __has_trivial_constructor(T)
+#  define _STLP_HAS_NOTHROW_CONSTRUCTOR(T) __has_nothrow_constructor(T)
+#  define _STLP_HAS_TRIVIAL_ASSIGN(T) __has_trivial_assign(T)
+#  define _STLP_HAS_NOTHROW_ASSIGN(T) __has_nothrow_assign(T)
+/* #  define _STLP_UNDERLYING_TYPE(T) __underlying_type(T) */
+/* #endif */
+
+/* #ifdef __GXX_EXPERIMENTAL_CXX0X__ */
+#  define _STLP_RVR /* we have rvalue reference, T&& */
+/* #  if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3)) */
+#if __has_feature(cxx_variadic_templates)
+#  define _STLP_VARIADIC_TEMPLATES
 #endif
+
+#define _STLP_CPP_0X
+/* #  endif */
+/* #  if ((__GNUC__ == 4) && (__GNUC_MINOR__ < 6)) */
+  /* at least for __clang_major__ >= 3 */
+#if !__has_feature(cxx_nullptr)
+#  define _STLP_NO_NULLPTR_T
+#endif
+
+#define _STLP_NOEXCEPT noexcept
+
+/* #endif */
+
+#define _STLP_OPERATORS_NEW_DELETE /* use own implemenation of new and delete */
+#define _STLP_VENDOR_BAD_ALLOC /* use vendor's std::bad_alloc, but don't include vendor's header */
+#if (__clang_major__ < 3) || ((__clang_major__ == 3) && (__clang_minor__ < 1))
+#  define _STLP_LAMBDA_PAR_BUG /* can't parse lambda expression with parameters */
+#endif /* CLang before 3.1 */
+#define _STLP_VENDOR_EXCEPTION /* use vendor's std::exception, but don't include vendor's header */

@@ -22,9 +22,7 @@
 #  include <stl/_num_get.h>
 #endif
 
-#ifndef _STLP_INTERNAL_LIMITS
-#  include <stl/_limits.h>
-#endif
+#include <limits>
 
 _STLP_BEGIN_NAMESPACE
 
@@ -117,7 +115,7 @@ template <class _InputIter, class _Integer, class _CharT>
 bool _STLP_CALL
 __get_integer(_InputIter& __first, _InputIter& __last,
               int __base, _Integer& __val,
-              int __got, bool __is_negative, _CharT __separator, const string& __grouping, const __true_type& /*_IsSigned*/) {
+              int __got, bool __is_negative, _CharT __separator, const string& __grouping, const true_type& /*_IsSigned*/) {
   bool __ovflow = false;
   _Integer __result = 0;
   bool __is_group = !__grouping.empty();
@@ -177,7 +175,7 @@ template <class _InputIter, class _Integer, class _CharT>
 bool _STLP_CALL
 __get_integer(_InputIter& __first, _InputIter& __last,
               int __base, _Integer& __val,
-              int __got, bool __is_negative, _CharT __separator, const string& __grouping, const __false_type& /*_IsSigned*/) {
+              int __got, bool __is_negative, _CharT __separator, const string& __grouping, const false_type& /*_IsSigned*/) {
   bool __ovflow = false;
   _Integer __result = 0;
   bool __is_group = !__grouping.empty();
@@ -239,13 +237,8 @@ bool _STLP_CALL
 __get_decimal_integer(_InputIter& __first, _InputIter& __last, _Integer& __val, _CharT* /*dummy*/) {
   string __grp;
   //Here there is no grouping so separator is not important, we just pass the default character.
-  return __get_integer(__first, __last, 10, __val, 0, false, _CharT() /*separator*/, __grp, __false_type());
+  return __get_integer(__first, __last, 10, __val, 0, false, _CharT() /*separator*/, __grp, false_type());
 }
-
-#ifdef __ARMCC_VERSION
-#define __old_ctype __ctype
-#undef __ctype
-#endif
 
 template <class _InputIter, class _Integer, class _CharT>
 _InputIter _STLP_CALL
@@ -257,7 +250,7 @@ __do_get_integer(_InputIter& __in_ite, _InputIter& __end, ios_base& __str,
 #if defined (__HP_aCC) && (__HP_aCC == 1)
   bool _IsSigned = !((_Integer)(-1) > 0);
 #else
-  typedef typename __bool2type<numeric_limits<_Integer>::is_signed>::_Ret _IsSigned;
+  typedef typename is_signed<_Integer>::type::type _IsSigned;
 #endif
 
   const int __base_or_zero = __get_base_or_zero(__in_ite, __end, __str.flags(), __ctype);
@@ -449,11 +442,6 @@ __do_get_float(_InputIter& __in_ite, _InputIter& __end, ios_base& __str,
   return __in_ite;
 }
 
-#ifdef __ARMCC_VERSION
-#define __ctype __old_ctype
-#undef __old_ctype
-#endif
-
 template <class _InputIter, class _CharT>
 _InputIter _STLP_CALL
 __do_get_alphabool(_InputIter& __in_ite, _InputIter& __end, ios_base& __str,
@@ -597,7 +585,7 @@ _InputIter
 num_get<_CharT, _InputIter>::do_get(_InputIter __in_ite, _InputIter __end, ios_base& __str,
                                     ios_base::iostate& __err,
                                     void*& __p) const {
-#if defined (_STLP_LONG_LONG) && !defined (__MRC__) && !defined (__ARMCC_VERSION)    //*ty 12/07/2001 - MrCpp can not cast from long long to void*
+#if defined (_STLP_LONG_LONG) && !defined (__MRC__)    //*ty 12/07/2001 - MrCpp can not cast from long long to void*
   unsigned _STLP_LONG_LONG __val;
 #else
   unsigned long __val;

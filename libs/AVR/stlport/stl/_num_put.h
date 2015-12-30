@@ -158,10 +158,9 @@ void _STLP_CALL __get_money_digits(_STLP_BASIC_IOSTRING(_CharT)&, ios_base&, _ST
 #  if !defined (_STLP_NO_WCHAR_T)
 extern _STLP_DECLSPEC void _STLP_CALL __convert_float_buffer(__iostring const&, __iowstring&, const ctype<wchar_t>&, wchar_t, bool = true);
 #  endif
-extern void _STLP_CALL __adjust_float_buffer(__iostring&, char);
+extern _STLP_DECLSPEC void _STLP_CALL __adjust_float_buffer(__iostring&, char);
 
-extern char* _STLP_CALL
-__write_integer(char* buf, ios_base::fmtflags flags, long x);
+extern _STLP_DECLSPEC char* _STLP_CALL __write_integer(char* buf, ios_base::fmtflags flags, long x);
 
 extern _STLP_DECLSPEC ptrdiff_t _STLP_CALL __insert_grouping(char* first, char* last, const string&, char, char, char, int);
 extern _STLP_DECLSPEC void _STLP_CALL __insert_grouping(__iostring&, size_t, const string&, char, char, char, int);
@@ -176,7 +175,7 @@ _STLP_MOVE_TO_STD_NAMESPACE
 
 _STLP_END_NAMESPACE
 
-#if defined (_STLP_EXPOSE_STREAM_IMPLEMENTATION) && !defined (_STLP_LINK_TIME_INSTANTIATION)
+#if defined (_STLP_EXPOSE_STREAM_IMPLEMENTATION)
 #  include <stl/_num_put.c>
 #endif
 

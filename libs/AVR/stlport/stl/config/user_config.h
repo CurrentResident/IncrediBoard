@@ -209,6 +209,17 @@
 */
 
 /*
+ * Some compilers support the automatic linking feature.
+ * Uncomment the following if you prefer to specify the STLport library
+ * to link with yourself.
+ * For the moment, this feature is only supported and implemented within STLport
+ * by the Microsoft compilers.
+ */
+/*
+#define _STLP_DONT_USE_AUTO_LINK 1
+*/
+
+/*
  * If you customize the STLport generated library names don't forget to give
  * the motif you used during configuration here if you still want the auto link
  * to work. (Do not remove double quotes in the macro value)
@@ -274,7 +285,7 @@
 
 /*
  * To reduce the famous code bloat trouble due to the use of templates STLport grant
- * a specialization of some containers for pointer types. So all instanciations
+ * a specialization of some containers for pointer types. So all instantiations
  * of those containers with a pointer type will use the same implementation based on
  * a container of void*. This feature has shown very good result on object files size
  * but after link phase and optimization you will only experiment benefit if you use
@@ -282,7 +293,7 @@
  * There are however a number of limitation to use this option:
  *   - with compilers not supporting partial template specialization feature, you won't
  *     be able to access some nested container types like iterator as long as the
- *     definition of the type used to instanciate the container will be incomplete
+ *     definition of the type used to instantiate the container will be incomplete
  *     (see IncompleteClass definition in test/unit/vector_test.cpp).
  *   - you won't be able to use complex Standard allocator implementations which are
  *     allocators having pointer nested type not being a real C pointer.
@@ -298,23 +309,14 @@
  * integration and a better support. If you only define this macro once the STLport has been
  * built you just have to add the boost install path within your include path. If you want
  * to use this feature at STLport built time you will have to define the
- * STLP_BUILD_BOOST_PATH enrironment variable with the value of the boost library path.
+ * STLP_BUILD_BOOST_PATH environment variable with the value of the boost library path.
  */
 
 /*
 #define _STLP_USE_BOOST_SUPPORT 1
 */
 
-
-/*
- * The Windows CE C runtime library chooses to omit certain functions.  Replacements are
- * provided for some of the more basic of these functions.  Defining this macro chooses
- * to include these replacement CRT functions in the libraries.
- */
-
-/*
-#define _STLP_USE_WINCE_CRT_FUNCTIONS 1
- */
+#  define _STLP_NO_MOVE_SEMANTIC
 
 /*==========================================================*/
 

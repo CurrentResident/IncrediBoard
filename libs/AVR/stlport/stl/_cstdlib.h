@@ -16,15 +16,7 @@
 #ifndef _STLP_INTERNAL_CSTDLIB
 #define _STLP_INTERNAL_CSTDLIB
 
-#if defined (_STLP_USE_NEW_C_HEADERS)
-#  if defined (_STLP_HAS_INCLUDE_NEXT)
-#    include_next <cstdlib>
-#  else
-#    include _STLP_NATIVE_CPP_C_HEADER(cstdlib)
-#  endif
-#else
-#  include <stdlib.h>
-#endif
+#include <stdlib.h>
 
 #if defined (__BORLANDC__) && !defined (__linux__)
 /* Borland process.h header do not bring anything here and is just included
@@ -61,13 +53,11 @@ using _STLP_VENDOR_CSTD::size_t;
 #    if !defined(_STLP_WCE) && !defined(_STLP_AVR)
 // these functions just don't exist on Windows CE or AVR
 using _STLP_VENDOR_CSTD::abort;
-using _STLP_VENDOR_CSTD::system;
-using _STLP_VENDOR_CSTD::bsearch;
-#    endif
-#    if (!defined(_STLP_WCE) || defined(_STLP_USE_WINCE_CRT_FUNCTIONS)) && !defined(_STLP_AVR)
 using _STLP_VENDOR_CSTD::getenv;
 using _STLP_VENDOR_CSTD::mblen;
 using _STLP_VENDOR_CSTD::mbtowc;
+using _STLP_VENDOR_CSTD::system;
+using _STLP_VENDOR_CSTD::bsearch;
 #    endif
 #    if !defined(_STLP_AVR)
 using _STLP_VENDOR_CSTD::atexit;
@@ -89,7 +79,7 @@ using _STLP_VENDOR_CSTD::strtoul;
 
 #    if !(defined (_STLP_NO_NATIVE_WIDE_STREAMS) || defined (_STLP_NO_NATIVE_MBSTATE_T))
 using _STLP_VENDOR_CSTD::wcstombs;
-#      if !defined(_STLP_WCE) || defined(_STLP_USE_WINCE_CRT_FUNCTIONS)
+#      ifndef _STLP_WCE
 using _STLP_VENDOR_CSTD::wctomb;
 #      endif
 #    endif
@@ -132,14 +122,13 @@ inline _STLP_VENDOR_CSTD::div_t div(int __x, int __y) { return _STLP_VENDOR_CSTD
     (!defined (__HP_aCC) || (__HP_aCC < 30000))
 
 //MSVC starting with .Net 2003 already define all math functions in global namespace:
-#  if !defined (__WATCOMC__) && !defined (__ARMCC_VERSION) && \
-     (!defined (_STLP_MSVC_LIB) || (_STLP_MSVC_LIB < 1310) || defined (UNDER_CE)) \
-     && !defined(_STLP_AVR)
+#  if !defined (__WATCOMC__) && \
+     (!defined (_STLP_MSVC_LIB) || (_STLP_MSVC_LIB < 1310) || defined (UNDER_CE)) && !defined(_STLP_AVR)
 inline long abs(long __x) { return _STLP_VENDOR_CSTD::labs(__x); }
 #  endif
 
 /** VC since version 8 has this, the platform SDK and CE SDKs hanging behind. */
-#  if !defined (__WATCOMC__)  && !defined (__ARMCC_VERSION) && \
+#  if !defined (__WATCOMC__) && \
      (!defined (_STLP_MSVC_LIB) || (_STLP_MSVC_LIB < 1400) || defined (_STLP_USING_PLATFORM_SDK_COMPILER) || defined (UNDER_CE))
 inline _STLP_VENDOR_CSTD::ldiv_t div(long __x, long __y) { return _STLP_VENDOR_CSTD::ldiv(__x, __y); }
 #  endif

@@ -1,4 +1,4 @@
-// -*- C++ -*- Time-stamp: <2012-02-28 13:46:18 ptr>
+// -*- C++ -*- Time-stamp: <2012-03-02 13:23:52 ptr>
 
 /*
  * Copyright (c) 1997-1999, 2002-2012
@@ -18,46 +18,33 @@
 #ifndef _STLP_THREAD
 #define _STLP_THREAD
 
+#include <memory>
+#include <cstddef>
 #include <climits>
+#include <stdexcept>
 
-#ifdef __unix
+#ifdef _STLP_UNIX
 # include <pthread.h>
 # include <semaphore.h>
 # include <sched.h>
 # include <signal.h>
-#endif // __unix
+#endif // _STLP_UNIX
 
 #include <cerrno>
+#include <chrono>
 #include <mutex>
 #include <condition_variable>
+// #include <callstack.h>
 
 #ifndef _STLP_OUTERMOST_HEADER_ID
 #  define _STLP_OUTERMOST_HEADER_ID 0x6
 #  include <stl/_prolog.h>
 #endif
 
-#ifndef _STLP_INTERNAL_ALLOC_H
-#  include <stl/_alloc.h>
-#endif
-
-#ifndef _STLP_INTERNAL_CSTDDEF
-#  include <stl/_cstddef.h>
-#endif
-
-#ifndef _STLP_INTERNAL_STDEXCEPT
-#  include <stl/_stdexcept.h>
-#endif
-
 _STLP_BEGIN_NAMESPACE
 
 namespace this_thread
 { }
-
-#ifdef _STLP_WIN32THREADS
-#define _STLP_CALL_CONVENTION WINAPI
-#else
-#define _STLP_CALL_CONVENTION
-#endif
 
 class thread_base
 {
@@ -66,7 +53,7 @@ class thread_base
     typedef void * ret_t;
 #endif
 #ifdef _STLP_WIN32THREADS
-    typedef unsigned long ret_t;
+    typedef long ret_t;
 #endif
 
     typedef ret_t (*entrance_type)( void * );
@@ -113,7 +100,7 @@ class thread_base
         _thread_id_type _id;
 
         friend class thread_base;
-        friend _STLP_DECLSPEC id get_id(void);
+        friend id get_id(void);
         // friend __FIT_DECLSPEC void fork() throw( fork_in_parent, std::runtime_error );
     };
 
@@ -304,7 +291,7 @@ class basic_thread :
     semaphore sem;
 
     template <class Entry>
-    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+    static void *_call( void *p )
       {
          basic_thread<F,S>& me = *reinterpret_cast<basic_thread<F,S>*>(p);
          Entry entry( *static_cast<Entry *>(me._entry) );
@@ -327,7 +314,7 @@ class basic_thread :
       }
 
     template <class Entry, class Arg1 >
-    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+    static void *_call( void *p )
       {
          basic_thread<F,S>& me = *reinterpret_cast<basic_thread<F,S>*>(p);
          Entry entry( *static_cast<Entry *>( static_cast<void **>(me._entry)[0] ) );
@@ -361,9 +348,8 @@ class basic_thread<0,0> :
     template <class Entry>
     basic_thread( Entry e )
       {
-        _entry = static_cast<void *>( new Entry( e ) );
-
 #ifdef _STLP_PTHREADS
+        _entry = static_cast<void *>( new Entry( e ) );
 #ifdef _STLP_CREATE_THREAD_STACK_INFO
         // _stack_on_create
         {
@@ -374,26 +360,19 @@ class basic_thread<0,0> :
 #endif
         int err = pthread_create( &this->_id, 0, &_call<Entry>, this );
         if ( err != 0 ) {
-#endif
-
-#ifdef _STLP_WIN32THREADS
-        _id = CreateThread( NULL, 0, _call<Entry>, this, 0, NULL );
-        if ( _id == NULL ) {
-#endif
-
           // _id = id(); -- not required, already set
           delete static_cast<Entry *>(_entry);
         }
+#endif
       }
 
     template <class Entry, class Arg1 >
     basic_thread( Entry e, Arg1 arg1 )
       {
+#ifdef _STLP_PTHREADS
         _entry = static_cast<void *>(new void *[2]);
         static_cast<void **>(_entry)[0] = static_cast<void *>( new Entry( e ) );
         static_cast<void **>(_entry)[1] = static_cast<void *>( new Arg1( arg1 ) );
-
-#ifdef _STLP_PTHREADS
 #ifdef _STLP_CREATE_THREAD_STACK_INFO
         // _stack_on_create
         {
@@ -404,18 +383,12 @@ class basic_thread<0,0> :
 #endif
         int err = pthread_create( &this->_id, 0, &_call<Entry,Arg1>, this );
         if ( err != 0 ) {
-#endif
-
-#ifdef _STLP_WIN32THREADS
-        _id = CreateThread( NULL, 0, _call<Entry,Arg1>, this, 0, NULL );
-        if ( _id == NULL ) {
-#endif
-
           // _id = id(); -- not required, already set
           delete static_cast<Arg1 *>( static_cast<void **>(_entry)[1] );
           delete static_cast<Entry *>( static_cast<void **>(_entry)[0] );
           delete [] static_cast<void **>(_entry);
         }
+#endif
       }
 
     ~basic_thread()
@@ -432,7 +405,7 @@ class basic_thread<0,0> :
     void *_entry;
 
     template <class Entry>
-    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+    static void *_call( void *p )
       {
          basic_thread<0,0>& me = *reinterpret_cast<basic_thread<0,0>*>(p);
          Entry entry( *static_cast<Entry *>(me._entry) );
@@ -450,7 +423,7 @@ class basic_thread<0,0> :
       }
 
     template <class Entry, class Arg1 >
-    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+    static void *_call( void *p )
       {
          basic_thread<0,0>& me = *reinterpret_cast<basic_thread<0,0>*>(p);
          Entry entry( *static_cast<Entry *>( static_cast<void **>(me._entry)[0] ) );
@@ -550,7 +523,7 @@ class basic_thread<0,S> :
     void *_entry;
 
     template <class Entry>
-    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+    static void *_call( void *p )
       {
          basic_thread<0,S>& me = *reinterpret_cast<basic_thread<0,S>*>(p);
          Entry entry( *static_cast<Entry *>(me._entry) );
@@ -568,7 +541,7 @@ class basic_thread<0,S> :
       }
 
     template <class Entry, class Arg1 >
-    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+    static void *_call( void *p )
       {
          basic_thread<0,S>& me = *reinterpret_cast<basic_thread<0,S>*>(p);
          Entry entry( *static_cast<Entry *>( static_cast<void **>(me._entry)[0] ) );
@@ -611,17 +584,40 @@ inline void yield()
 #endif
 }
 
-// _STLP_DECLSPEC void sleep( const std::tr2::system_time& abs_t );
+template <class Clock, class Duration>
+void sleep_until( const chrono::time_point<Clock, Duration>& abs_time )
+{
+#ifdef _STLP_PTHREADS
+  chrono::time_point<Clock, Duration> t( Clock::now() );
+  if ( t < abs_time ) {
+    Duration d( abs_time - t );
+    chrono::seconds s = chrono::duration_cast<chrono::seconds>( d );
 
-// _STLP_DECLSPEC void sleep( const std::tr2::nanoseconds& rel_t );
+    ::timespec ts;
+    ts.tv_sec = s.count();
+    ts.tv_nsec = chrono::duration_cast<chrono::nanoseconds>( d ).count();
 
-// template <class Duration>
-// void sleep( const Duration& rel_t )
-// { std::this_thread::sleep( static_cast<std::tr2::nanoseconds>(rel_t) ); }
+    ::nanosleep( &ts, 0 );
+  }
+#endif
+}
+
+template <class Rep, class Period>
+void sleep_for( const chrono::duration<Rep, Period>& rel_time )
+{
+#ifdef _STLP_PTHREADS
+  chrono::seconds s = chrono::duration_cast<chrono::seconds>( rel_time );
+
+  ::timespec ts;
+  ts.tv_sec = s.count();
+  ts.tv_nsec = chrono::duration_cast<chrono::nanoseconds>( rel_time ).count();
+
+  ::nanosleep( &ts, 0 );
+#endif
+}
+
 
 } // namespace this_thread
-
-#undef _STLP_CALL_CONVENTION
 
 _STLP_END_NAMESPACE
 

@@ -24,24 +24,7 @@
 #  endif
 #endif
 
-#if defined (_STLP_USE_NEW_C_HEADERS)
-#  if defined (_STLP_HAS_INCLUDE_NEXT)
-#    include_next <cstdio>
-#  else
-#    include _STLP_NATIVE_CPP_C_HEADER(cstdio)
-#  endif
-#else
-#  include <stdio.h>
-#endif
-
-#if defined (__MWERKS__)
-#  undef stdin
-#  undef stdout
-#  undef stderr
-#  define stdin   (&_STLP_VENDOR_CSTD::__files[0])
-#  define stdout  (&_STLP_VENDOR_CSTD::__files[1])
-#  define stderr  (&_STLP_VENDOR_CSTD::__files[2])
-#endif
+#include <stdio.h>
 
 #if defined (_STLP_MSVC_LIB) && (_STLP_MSVC_LIB < 1400) || defined (_STLP_USING_PLATFORM_SDK_COMPILER)
 inline int vsnprintf(char *s1, size_t n, const char *s2, va_list v)
@@ -108,7 +91,7 @@ using _STLP_VENDOR_CSTD::perror;
 #    endif
 using _STLP_VENDOR_CSTD::printf;
 using _STLP_VENDOR_CSTD::puts;
-#    if (!defined (_WIN32_WCE) || (_WIN32_WCE < 400) || defined(_STLP_USE_WINCE_CRT_FUNCTIONS)) && !defined (_STLP_AVR)
+#    if (!defined (_WIN32_WCE) || (_WIN32_WCE < 400)) && !defined (_STLP_AVR)
 using _STLP_VENDOR_CSTD::remove;
 using _STLP_VENDOR_CSTD::rename;
 using _STLP_VENDOR_CSTD::rewind;
@@ -126,8 +109,7 @@ using _STLP_VENDOR_CSTD::ungetc;
 using _STLP_VENDOR_CSTD::vfprintf;
 using _STLP_VENDOR_CSTD::vprintf;
 using _STLP_VENDOR_CSTD::vsprintf;
-#    if (defined (__MWERKS__) || (defined (_STLP_MSVC_LIB) && (_STLP_MSVC_LIB < 1400)) || \
-        (defined (__BORLANDC__)))
+#    if (defined (_STLP_MSVC_LIB) && (_STLP_MSVC_LIB < 1400)) || defined (__BORLANDC__)
 using _STLP_VENDOR_CSTD::vsnprintf;
 #    endif
 #  endif /* _STLP_NO_CSTD_FUNCTION_IMPORTS */

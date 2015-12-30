@@ -42,13 +42,6 @@
 #    include <stl/config/_gcc.h>
 #  elif defined (__SUNPRO_CC) || defined (__SUNPRO_C)
 #    include <stl/config/_sunprocc.h>
-/*
-#  ifdef __KCC
-#    include <stl/config/_kai.h>
-#  endif
-*/
-#  elif defined (__APOGEE__)  /* Apogee 4.x */
-#    include <stl/config/_apcc.h>
 #  elif defined (__FCC_VERSION) /* Fujitsu Compiler, v4.0 assumed */
 #    include <stl/config/_fujitsu.h>
 #  endif
@@ -61,7 +54,7 @@
 #  elif defined (__HP_aCC)
 #    include <stl/config/_hpacc.h>
 #  endif
-#elif (defined (linux) || defined (__linux__)) && !defined (__ARMCC_VERSION)
+#elif defined (linux) || defined (__linux__)
 #  include <stl/config/_linux.h>
 #  if defined (__BORLANDC__)
 #    include <stl/config/_bc.h> /* Borland C++ 0x570 */
@@ -73,16 +66,9 @@
 #  elif defined (__GNUC__)
 #    include <stl/config/_gcc.h>
 #  endif
-/*
-#  ifdef __KCC
-#    include <stl/config/_kai.h>
-#  endif
-*/
 #elif defined (__ANDROID__)
 #  include <stl/config/_android.h>
-#  if defined (__clang__)
-#    include <stl/config/_clang.h>
-#  elif defined (__GNUC__)
+#  if defined (__GNUC__)
 #    include <stl/config/_gcc.h>
 #  endif
 #elif defined (__FreeBSD__)
@@ -99,20 +85,9 @@
 #  elif defined (__GNUC__)
 #    include <stl/config/_gcc.h>
 #  endif
-#elif defined (__sgi) /* IRIX? */
-#  define _STLP_PLATFORM "SGI Irix"
-#  if defined (__clang__)
-#    include <stl/config/_clang.h>
-#  elif defined (__GNUC__)
-#    include <stl/config/_gcc.h>
-#  else
-#    include <stl/config/_sgi.h>
-#  endif
 #elif defined (__OS400__) /* AS/400 C++ */
 #  define _STLP_PLATFORM "OS 400"
-#  if defined (__clang__)
-#    include <stl/config/_clang.h>
-#  elif defined (__GNUC__)
+#  if defined (__GNUC__)
 #    include <stl/config/_gcc.h>
 #  else
 #    include <stl/config/_as400.h>
@@ -126,23 +101,11 @@
 #elif defined (_CRAY) /* Cray C++ 3.4 or 3.5 */
 #  define _STLP_PLATFORM "Cray"
 #  include <config/_cray.h>
-#elif defined (__DECCXX) || defined (__DECC)
-#  define _STLP_PLATFORM "DECC"
-#  ifdef __vms
-#    include <stl/config/_dec_vms.h>
-#  else
-#    include <stl/config/_dec.h>
-#  endif
 #elif defined (macintosh) || defined (_MAC)
 #  include <stl/config/_mac.h>
-#  if defined (__MWERKS__)
-#    include <stl/config/_mwerks.h>
-#  endif
 #elif defined (__APPLE__)
 #  include <stl/config/_macosx.h>
-#  if defined (__clang__)
-#    include <stl/config/_clang.h>
-#  elif defined(__GNUC__)
+#  ifdef __GNUC__
 #    include <stl/config/_gcc.h>
 #  endif
 #elif defined (__CYGWIN__)
@@ -162,18 +125,8 @@
 #  include <stl/config/_windows.h>
 #elif defined (_WIN32) || defined (__WIN32) || defined (WIN32) || defined (__WIN32__) || \
       defined (__WIN16) || defined (WIN16) || defined (_WIN16)
-#  if defined ( __BORLANDC__ )  /* Borland C++ / CodeGear C++ */
-#    include <stl/config/_bc.h>
-#  elif defined (__WATCOM_CPLUSPLUS__) || defined (__WATCOMC__)  /* Watcom C++ */
-#    include <stl/config/_watcom.h>
-#  elif defined (__COMO__) || defined (__COMO_VERSION_)
-#    include <stl/config/_como.h>
-#  elif defined (__DMC__)   /* Digital Mars C++ */
-#    include <stl/config/_dm.h>
-#  elif defined (__ICL) /* Intel reference compiler for Win */
+#  if defined (__ICL) /* Intel reference compiler for Win */
 #    include <stl/config/_intel.h>
-#  elif defined (__MWERKS__)
-#    include <stl/config/_mwerks.h>
 #  elif defined (_MSC_VER) && (_MSC_VER >= 1200) && defined (UNDER_CE)
      /* Microsoft eMbedded Visual C++ 3.0, 4.0 (.NET) */
 #    include <stl/config/_evc.h>
@@ -183,15 +136,14 @@
 #  endif
 
 #  include <stl/config/_windows.h>
-#  elif defined ( __ARMCC_VERSION) 
-#    include <stl/config/_armcc.h>
 
 #elif defined (__AVR__)
 #  include <stl/config/_avr.h>
 #  ifdef __GNUC__
 #    include <stl/config/_gcc.h>
 #  endif
-#  undef _STLP_USE_NEW_C_HEADERS
+//#  undef _STLP_LONG_LONG
+//#  define  _STLP_NO_UNCAUGHT_EXCEPT_SUPPORT
 #else
 #  error Unknown platform !!
 #endif
@@ -201,6 +153,5 @@
  * Edit <config/stl_mycomp.h> to set STLport up for your compiler. */
 #  include <stl/config/stl_mycomp.h>
 #endif
-
 
 #endif /* __stl_config__system_h */

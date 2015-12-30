@@ -29,8 +29,8 @@
 // threads standard), and Win32 threads.  Uithread support by Jochen
 // Schlick, 1999, and Solaris threads generalized to them.
 
-#ifndef _STLP_INTERNAL_CSTDDEF
-#  include <stl/_cstddef.h>
+#ifndef _STLP_CSTDDEF
+#  include <cstddef>
 #endif
 
 #ifndef _STLP_INTERNAL_CSTDLIB
@@ -141,14 +141,6 @@ typedef size_t __stl_atomic_t;
 #      endif
 #      define _STLP_ATOMIC_EXCHANGE_PTR(__x, __y)     STLPInterlockedExchangePointer(__x, __y)
 #    endif
-typedef long __stl_atomic_t;
-
-#  elif defined (__DECC) || defined (__DECCXX)
-
-#    include <machine/builtins.h>
-#    define _STLP_ATOMIC_EXCHANGE __ATOMIC_EXCH_LONG
-#    define _STLP_ATOMIC_INCREMENT(__x) __ATOMIC_ADD_LONG(__x, 1)
-#    define _STLP_ATOMIC_DECREMENT(__x) __ATOMIC_ADD_LONG(__x, -1)
 typedef long __stl_atomic_t;
 
 #  elif defined (_STLP_SPARC_SOLARIS_THREADS)
@@ -676,9 +668,7 @@ inline void _STLP_mutex_base::_M_acquire_lock() {
 
 _STLP_END_NAMESPACE
 
-#if !defined (_STLP_LINK_TIME_INSTANTIATION)
-#  include <stl/_threads.c>
-#endif
+#include <stl/_threads.c>
 
 #endif /* _STLP_INTERNAL_THREADS_H */
 

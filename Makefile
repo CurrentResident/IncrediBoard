@@ -77,7 +77,6 @@ OBJDIR = obj
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = Core/BoardController.cpp \
 		 Boards/TestBoardAvr/$(TARGET).cpp \
-		 Boards/TestBoardAvr/new.cpp \
 		 Boards/TestBoardAvr/PlatformTeensy.cpp
 
 
@@ -118,6 +117,7 @@ EXTRAINCDIRS = libs/boost_headers libs/AVR/stlport Boards/TestBoardAvr Core
 #     gnu99 = c99 plus GCC extensions
 CSTANDARD = -std=gnu99
 
+CPPSTANDARD = -std=c++11
 
 # Place -D or -U options here for C sources
 CDEFS = -DF_CPU=$(F_CPU)UL 
@@ -128,7 +128,8 @@ ADEFS = -DF_CPU=$(F_CPU)
 
 
 # Place -D or -U options here for C++ sources
-CPPDEFS = -DF_CPU=$(F_CPU)UL -DARDUINO=200
+CPPDEFS = -DF_CPU=$(F_CPU)UL 
+#-DARDUINO=200
 #CPPDEFS += -D__STDC_LIMIT_MACROS
 #CPPDEFS += -D__STDC_CONSTANT_MACROS
 
@@ -185,6 +186,7 @@ CPPFLAGS += -Wundef
 #CPPFLAGS += -Wsign-compare
 CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst)
 CPPFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
+CPPFLAGS += $(CPPSTANDARD)
 #CPPFLAGS += $(CSTANDARD)
 
 

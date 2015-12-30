@@ -1,4 +1,4 @@
-// -*- C++ -*- Time-stamp: <2012-02-27 21:24:41 ptr>
+// -*- C++ -*- Time-stamp: <2012-03-02 15:40:50 ptr>
 
 /*
  * Copyright (c) 1997-1999, 2002-2012
@@ -18,28 +18,29 @@
 #ifndef _STLP_MUTEX
 #define _STLP_MUTEX
 
-#include <cstddef>
-#include <stdexcept>
-#include <cerrno>
-#include <system_error>
-
-#ifdef _STLP_WIN32
-# include <windows.h>
-# include <memory>
-# include <limits>
-# define ETIME   62      /* timer expired */
-# pragma warning( disable : 4290)
-#endif // WIN32
-
-#ifdef __unix
-# include <pthread.h>
-# include <sched.h>
-#endif // __unix
-
 #ifndef _STLP_OUTERMOST_HEADER_ID
 #  define _STLP_OUTERMOST_HEADER_ID 0x8
 #  include <stl/_prolog.h>
 #endif
+
+#include <stdexcept>
+#include <cstddef>
+#include <cerrno>
+#include <chrono>
+#include <system_error>
+
+#ifdef WIN32
+//# include <windows.h>
+# include <memory>
+# include <limits>
+//# define ETIME   62      /* timer expired */
+//# pragma warning( disable : 4290)
+#endif // WIN32
+
+#ifdef _STLP_UNIX
+# include <pthread.h>
+# include <sched.h>
+#endif // __unix
 
 _STLP_BEGIN_NAMESPACE
 
@@ -71,8 +72,6 @@ extern _STLP_DECLSPEC _STLP_STD::string _notpshared;
 #ifdef _STLP_XSI_THR
 extern _STLP_DECLSPEC _STLP_STD::string _notrecursive;
 #endif
-
-} // namespace detail
 
 template <bool SCOPE> class __condition_variable;
 template <bool SCOPE> class __condition_variable_any;
@@ -141,12 +140,17 @@ class __mutex_base
     native_handle_type native_handle()
       { return &_M_lock; }
 
+#ifdef _STLP_CPP_0X
+    __mutex_base( const __mutex_base& ) = delete;
+    __mutex_base& operator =( const __mutex_base& ) = delete;
+#else
   private:
     __mutex_base( const __mutex_base& )
       { }
 
     __mutex_base& operator =( const __mutex_base& )
       { return *this; }
+#endif
 
   protected:
 #ifdef _STLP_PTHREADS
@@ -177,6 +181,17 @@ class __spinlock_base
 #endif // _PTHREADS
       }
 
+#ifdef _STLP_CPP_0X
+    __spinlock_base( const __spinlock_base& ) = delete;
+    __spinlock_base& operator =( const __spinlock_base& ) = delete;
+#else
+  private:
+    __spinlock_base( const __spinlock_base& )
+      { }
+    __spinlock_base& operator =( const __spinlock_base& )
+      { return *this; }
+  public:
+#endif
     ~__spinlock_base()
       {
 #ifdef _STLP_PTHREADS
@@ -262,12 +277,139 @@ class __mutex :
 #endif
       }
 
+#ifdef _STLP_CPP_0X
+    __mutex( const __mutex& ) = delete;
+    __mutex& operator =( const __mutex& ) = delete;
+#else
   private:
     __mutex( const __mutex& )
       { }
 
     __mutex& operator =( const __mutex& )
       { return *this; }
+#endif
+
+#ifndef _STLP_WIN32THREADS
+  private:
+    friend class __condition_variable<SCOPE>;
+    friend class __condition_event<SCOPE>;
+#endif
+};
+
+template <bool RECURSIVE_SAFE, bool SCOPE>
+class __timed_mutex :
+    public __mutex_base<RECURSIVE_SAFE,SCOPE>
+{
+  public:
+    __timed_mutex()
+      { }
+
+    ~__timed_mutex()
+      { }
+
+    void lock()
+      {
+#ifdef _STLP_PTHREADS
+        int e = pthread_mutex_lock( &this->_M_lock );
+        if ( e ) {
+          throw _STLP_STD::system_error( e, _STLP_STD::get_posix_category() );
+        }
+#endif
+#ifdef _STLP_WIN32THREADS
+        EnterCriticalSection( &this->_M_lock );
+#endif
+      }
+
+#if !defined( WIN32 ) || (defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400)
+    bool try_lock()
+      {
+#ifdef _STLP_PTHREADS
+        int r = pthread_mutex_trylock( &this->_M_lock );
+        if ( r != 0 ) {
+          if ( r == EBUSY ) {
+            return false;
+          }
+
+          throw _STLP_STD::lock_error( r );
+        }
+
+        return true;
+#endif
+#ifdef _STLP_WIN32THREADS
+        return TryEnterCriticalSection( &this->_M_lock ) != 0;
+#endif
+      }
+#endif // !WIN32 || _WIN32_WINNT >= 0x0400
+
+    template <class Rep, class Period>
+    bool try_lock_for(const _STLP_STD::chrono::duration<Rep, Period>& rel_time)
+      {
+#ifdef _STLP_PTHREADS
+        chrono::system_clock::time_point t( chrono::system_clock::now() );
+        t += rel_time;
+        chrono::seconds s = chrono::duration_cast<chrono::seconds>( t.time_since_epoch() );
+        timespec ts;
+        ts.tv_sec = s.count();
+        ts.tv_nsec = chrono::duration_cast<chrono::nanoseconds>( t.time_since_epoch() - s ).count();
+        int r = pthread_mutex_timedlock( &this->_M_lock, &ts );
+        if ( r != 0 ) {
+          if ( r == ETIMEDOUT ) {
+            return false;
+          }
+
+          throw _STLP_STD::lock_error( r );
+        }
+
+        return true;
+#else
+#  error "Unimplemented"
+#endif
+      }
+
+    template <class Clock, class Duration>
+    bool try_lock_until( const _STLP_STD::chrono::time_point<Clock, Duration>& abs_time )
+      {
+#ifdef _STLP_PTHREADS
+        chrono::seconds s = chrono::duration_cast<chrono::seconds>( abs_time.time_since_epoch() );
+        ::timespec ts;
+        ts.tv_sec = s.count();
+        ts.tv_nsec = chrono::duration_cast<chrono::nanoseconds>( abs_time.time_since_epoch() - s ).count();
+        int r = pthread_mutex_timedlock( &this->_M_lock, &ts );
+        if ( r != 0 ) {
+          if ( r == ETIMEDOUT ) {
+            return false;
+          }
+
+          throw _STLP_STD::lock_error( r );
+        }
+
+        return true;
+#else
+#  error "Unimplemented"
+#endif
+      }
+
+    void unlock()
+      {
+#ifdef _STLP_PTHREADS
+        pthread_mutex_unlock( &this->_M_lock );
+#endif
+#ifdef _STLP_WIN32THREADS
+        LeaveCriticalSection( &this->_M_lock );
+#endif
+      }
+
+#ifdef _STLP_CPP_0X
+    __timed_mutex( const __timed_mutex& ) = delete;
+    __timed_mutex& operator =( const __timed_mutex& ) = delete;
+#else
+  private:
+    __timed_mutex( const __timed_mutex& )
+      { }
+
+    __timed_mutex& operator =( const __timed_mutex& )
+      { return *this; }
+#endif
 
 #ifndef _STLP_WIN32THREADS
   private:
@@ -322,10 +464,16 @@ class __spinlock<false,SCOPE> :
 # endif
       }
 
+#ifdef _STLP_CPP_0X
+    __spinlock( const __spinlock& ) = delete;
+    __spinlock& operator =( const __spinlock& ) = delete;
+#else
   private:
     __spinlock( const __spinlock& )
       { }
-
+    __spinlock& operator =( const __spinlock& )
+      { return *this; }
+#endif
 };
 
 template <bool SCOPE>
@@ -397,9 +545,16 @@ class __spinlock<true,SCOPE> : //  Recursive safe
     pthread_t _id;
 # endif
 
+#ifdef _STLP_CPP_0X
+    __spinlock( const __spinlock& ) = delete;
+    __spinlock& operator =( const __spinlock& ) = delete;
+#else
   private:
     __spinlock( const __spinlock& )
       { }
+    __spinlock& operator =( const __spinlock& )
+      { return *this; }
+#endif
 };
 #endif // _STLP_PTHREAD_SPINLOCK
 
@@ -411,7 +566,7 @@ class __spinlock<true,SCOPE> : //  Recursive safe
 // (or XSI---X/Open System Interfaces Extention) has recursive mutex option.
 // Another specialization?
 
-#if (defined(__unix) && !defined(_STLP_XSI_THR))
+#if (defined(_STLP_UNIX) && !defined(_STLP_XSI_THR))
 
 // This specialization need for old POSIX and DCE threads,
 // before XSI (X/Open System Interfaces Extention) or Unix 98.
@@ -493,11 +648,17 @@ class __mutex<true,SCOPE> : // Recursive Safe
         }
       }
 
+#ifdef _STLP_CPP_0X
+    __mutex( const __mutex& ) = delete;
+    __mutex& operator =( const __mutex& ) = delete;
+#else
   private:
     __mutex( const __mutex& )
       { }
+
     __mutex& operator =( const __mutex& )
       { return *this; }
+#endif
 
   protected:
     unsigned _count;
@@ -506,7 +667,7 @@ class __mutex<true,SCOPE> : // Recursive Safe
     pthread_t _id;
 # endif
 };
-#endif // __unix && !_STLP_XSI_THR
+#endif // _STLP_UNUX && !_STLP_XSI_THR
 
 #ifdef _STLP_RWLOCK
 // Read-write mutex: IEEE Std 1003.1, 2001, 2004 Editions
@@ -550,9 +711,17 @@ class __rw_mutex_base
 #endif
       }
 
+#ifdef _STLP_CPP_0X
+    __rw_mutex_base( const __rw_mutex_base& ) = delete;
+    __rw_mutex_base& operator =( const __rw_mutex_base& ) = delete;
+#else
   private:
     __rw_mutex_base( const __rw_mutex_base& )
       { }
+
+    __rw_mutex_base& operator =( const __rw_mutex_base& )
+      { return *this; }
+#endif
 
   protected:
 #ifdef _STLP_PTHREADS
@@ -647,12 +816,22 @@ class __rw_mutex :
 #endif
       }
 
+#ifdef _STLP_CPP_0X
+    __rw_mutex( const __rw_mutex& ) = delete;
+    __rw_mutex& operator =( const __rw_mutex& ) = delete;
+#else
   private:
     __rw_mutex( const __rw_mutex& )
       { }
+
+    __rw_mutex& operator =( const __rw_mutex& )
+      { return *this; }
+#endif
 };
 
 #endif // _STLP_RWLOCK
+
+} // namespace detail
 
 struct defer_lock_t
 { };
@@ -680,11 +859,18 @@ class lock_guard // scoped_lock
     ~lock_guard()
       { const_cast<M&>(m).unlock(); }
 
+#ifdef _STLP_CPP_0X
+    lock_guard( const lock_guard& ) = delete;
+    lock_guard& operator =( const lock_guard& ) = delete;
+
+  private:
+#else
   private:
     lock_guard( const lock_guard& )
       { }
     lock_guard& operator =( const lock_guard& )
       { return *this; }
+#endif
 
     const M& m;
 };
@@ -707,7 +893,7 @@ class unique_lock
         m( &point ),
         lk( true )
       { }
-    unique_lock( const M& point, defer_lock_t ) :
+    unique_lock( const M& point, defer_lock_t ) /* noexcept */ :
         m( &point ),
         lk( false )
       { }
@@ -715,6 +901,49 @@ class unique_lock
         m( &point ),
         lk( false )
       { try_lock(); }
+
+    template <class Clock, class Duration>
+    unique_lock( mutex_type& point, const chrono::time_point<Clock, Duration>& abs_time ) :
+        m( &point ),
+        lk( false )
+      { try_lock_until( abs_time ); }
+
+    template <class Rep, class Period>
+    unique_lock( mutex_type& point, const chrono::duration<Rep, Period>& rel_time ) :
+        m( &point ),
+        lk( false )
+      { try_lock_for( rel_time ); }
+
+#ifdef _STLP_CPP_0X
+    unique_lock( const unique_lock& ) = delete;
+    unique_lock& operator =( const unique_lock& ) = delete;
+#else
+  private:
+    unique_lock( const unique_lock& )
+      { }
+    unique_lock& operator =( const unique_lock& )
+      { return *this; }
+  public:
+#endif
+
+    unique_lock( unique_lock&& u ) /* noexcept */ :
+        m( u.m ),
+        lk( u.lk )
+      {
+        const_cast<M*>(u.m) = 0;
+        u.lk = false;
+      }
+    unique_lock& operator=(unique_lock&& u) /* noexcept */
+      {
+        if ( lk ) {
+          const_cast<M*>(m)->unlock();
+        }
+        const_cast<M*>(m) = u.m;
+        lk = u.lk;
+        const_cast<M*>(u.m) = 0;
+        u.lk = false;
+      }
+
     ~unique_lock()
       { if ( lk ) const_cast<M*>(m)->unlock(); }
 
@@ -730,7 +959,22 @@ class unique_lock
 
     bool try_lock()
       {
-        if ( const_cast<M*>(m)->try_lock() ) {          
+        if ( const_cast<M*>(m)->try_lock() ) {
+          if ( lk ) {
+            const_cast<M*>(m)->unlock(); // is this correct even for recursive_mutex?
+            throw _STLP_STD::lock_error( 0 );
+          }
+          lk = true;
+          return true;
+        }
+        lk = false;
+        return false;
+      }
+
+    template <class Rep, class Period>
+    bool try_lock_for( const chrono::duration<Rep, Period>& rel_time )
+      {
+        if ( const_cast<M*>(m)->try_lock_for( rel_time ) ) {
           if ( lk ) {
             const_cast<M*>(m)->unlock();
             throw _STLP_STD::lock_error( 0 );
@@ -738,7 +982,23 @@ class unique_lock
           lk = true;
           return true;
         }
-        return false;
+        lk = false;
+        return false;        
+      }
+
+    template <class Clock, class Duration>
+    bool try_lock_until( const chrono::time_point<Clock, Duration>& abs_time )
+      {
+        if ( const_cast<M*>(m)->try_lock_until( abs_time ) ) {
+          if ( lk ) {
+            const_cast<M*>(m)->unlock();
+            throw _STLP_STD::lock_error( 0 );
+          }
+          lk = true;
+          return true;
+        }
+        lk = false;
+        return false;        
       }
 
     void unlock()
@@ -748,6 +1008,12 @@ class unique_lock
         }
         lk = false;
         const_cast<M*>(m)->unlock();
+      }
+
+    void swap( unique_lock& x ) /* noexcept */
+      {
+        _STLP_STD::swap( const_cast<M*>(m), const_cast<M*>(x.m) );
+        _STLP_STD::swap( lk, x.lk );
       }
 
     bool owns_lock() const
@@ -764,10 +1030,10 @@ class unique_lock
         return false;
       }
 
-    operator bool() const
+    operator bool() const /* noexcept */
       { return owns_lock(); }
 
-    mutex_type* mutex() const
+    mutex_type* mutex() const /* noexcept */
       { return m; }
 
     mutex_type* release()
@@ -779,22 +1045,69 @@ class unique_lock
       }
 
   private:
-    unique_lock( const unique_lock& )
-      { }
-    unique_lock& operator =( const unique_lock& )
-      { return *this; }
-
-#if defined(__GNUC__) && (__GNUC__ < 4)
-  public:
-#endif
     const M* m;
-#if defined(__GNUC__) && (__GNUC__ < 4)
-  private:
-#endif
     bool lk;
-    friend class __condition_variable<true>;
-    friend class __condition_variable<false>;
+    friend class detail::__condition_variable<true>;
+    friend class detail::__condition_variable<false>;
 };
+
+namespace detail {
+
+template <int index>
+struct __aux_try_lock
+{
+    template <class L1>
+    static int try_lock( L1& l1 )
+      {
+        static_assert( index > 0, "index must be positive" );
+
+        try {
+          return l1.try_lock() ? -1 : index;
+        }
+        catch ( ... ) {
+        }
+
+        return index;
+      }
+
+    template <class L1, class L2, class... L3>
+    static int try_lock( L1& l1, L2& l2, L3&... lnext )
+      {
+        static_assert( index >= 0, "negative index not permitted" );
+
+        try {
+          if ( l1.try_lock() ) {
+            int nn = __aux_try_lock<index+1>::try_lock( l2, lnext... );
+            if ( nn > 0 ) {
+              l1.unlock();
+              return nn;
+            }
+            return -1;
+          }
+        }
+        catch ( ... ) {
+        }
+
+        return index;
+      }
+
+};
+
+} // detail
+
+template <class L1, class L2, class... L3>
+int try_lock( L1& l1, L2& l2, L3&... lnext )
+{ return detail::__aux_try_lock<0>::try_lock( l1, l2, lnext... ); }
+
+template <class L1, class L2, class... L3>
+void lock( L1& l1, L2& l2, L3&... lnext )
+{
+  while( try_lock( l1, l2, lnext... ) >= 0 ) ;
+}
+
+template <class Mutex>
+void swap( unique_lock<Mutex>& x, unique_lock<Mutex>& y ) /* noexcept */
+{ x.swap( y ); }
 
 #ifdef _STLP_RWLOCK
 template <class M>
@@ -840,24 +1153,26 @@ class basic_read_lock
 };
 #endif // _STLP_RWLOCK
 
-typedef __mutex<false,false>  mutex;
-typedef __mutex<true,false>   recursive_mutex;
-typedef __mutex<false,true>   mutex_ip;
-typedef __mutex<true,true>    recursive_mutex_ip;
+typedef detail::__mutex<false,false>  mutex;
+typedef detail::__mutex<true,false>   recursive_mutex;
+typedef detail::__timed_mutex<false,false>  timed_mutex;
+typedef detail::__timed_mutex<true,false>   timed_recursive_mutex;
+typedef detail::__mutex<false,true>   mutex_ip;
+typedef detail::__mutex<true,true>    recursive_mutex_ip;
 #ifdef _STLP_RWLOCK
-typedef __rw_mutex<false>     rw_mutex;
-typedef __rw_mutex<true>      rw_mutex_ip;
+typedef detail::__rw_mutex<false>     rw_mutex;
+typedef detail::__rw_mutex<true>      rw_mutex_ip;
 #endif // _STLP_RWLOCK
 #ifdef _STLP_PTHREAD_SPINLOCK
-typedef __spinlock<false,false> spinlock;
-typedef __spinlock<true,false>  recursive_spinlock;
+typedef detail::__spinlock<false,false> spinlock;
+typedef detail::__spinlock<true,false>  recursive_spinlock;
 #endif // _STLP_RWLOCK
 
 typedef lock_guard<mutex>           scoped_lock;
 typedef lock_guard<recursive_mutex> recursive_scoped_lock;
 #ifdef _STLP_RWLOCK
-typedef basic_read_lock<__rw_mutex<false> >  rd_scoped_lock;
-typedef lock_guard<__rw_mutex<false> >       wr_scoped_lock;
+typedef basic_read_lock<detail::__rw_mutex<false> >  rd_scoped_lock;
+typedef lock_guard<detail::__rw_mutex<false> >       wr_scoped_lock;
 #endif // _STLP_RWLOCK
 #ifdef _STLP_PTHREAD_SPINLOCK
 typedef lock_guard<spinlock>            spin_scoped_lock;
@@ -885,6 +1200,20 @@ class native_scoped_lock
 #endif
       }
 
+#ifdef _STLP_CPP_0X
+    native_scoped_lock( const native_scoped_lock& ) = delete;
+    native_scoped_lock& operator =( const native_scoped_lock& ) = delete;
+#else
+  private:
+    native_scoped_lock( const native_scoped_lock& m ) :
+        _M_lock( m._M_lock )
+      { }
+    native_scoped_lock& operator =( const native_scoped_lock& )
+      { return *this; }
+
+  public:
+#endif
+
     ~native_scoped_lock()
       {
 #ifdef _STLP_PTHREADS
@@ -896,11 +1225,38 @@ class native_scoped_lock
       }
 
   private:
-    native_scoped_lock( const native_scoped_lock& m ) :
-        _M_lock( m._M_lock )
-      { }
     const mutex_type& _M_lock;
 };
+
+class once_flag
+{
+  private:
+#ifdef _STLP_PTHREADS
+    typedef pthread_once_t _once_type;
+#endif
+
+  public:
+    /* constexpr */ once_flag() /* noexcept */
+#ifdef _STLP_PTHREADS
+        :
+        once_control( PTHREAD_ONCE_INIT )
+#endif
+      { }
+
+
+    once_flag( const once_flag& ) = delete;
+    once_flag& operator =( const once_flag& ) = delete;
+
+  private:
+    _once_type once_control;
+
+    template <class Callable, class ...Args>
+    friend void call_once( once_flag& flag, Callable func, Args&&... args );
+};
+
+template <class Callable, class ...Args>
+void call_once( once_flag& flag, Callable func, Args&&... args );
+
 
 _STLP_END_NAMESPACE
 

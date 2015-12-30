@@ -7,7 +7,7 @@
 #  define _PTHREADS
 # endif
 
-#  define _STLP_NO_NEW_NEW_HEADER 1
+#  define _STLP_NO_NEW_NEW_HEADER 1 /* unsupported more */
 
 #  define _STLP_NO_BOOL
 #  define _STLP_LIMITED_DEFAULT_TEMPLATES
@@ -17,7 +17,7 @@
 #  define _STLP_NEED_EXPLICIT
 #  define _STLP_HAS_NO_EXCEPTIONS
 #  define _STLP_NO_EXCEPTION_SPEC
-#  define _STLP_NO_ARROW_OPERATOR
+#  define _STLP_NO_ARROW_OPERATOR // Unsupported more
 #  define _STLP_NO_NEW_STYLE_CASTS
 
 #  define _STLP_NEED_MUTABLE
@@ -40,7 +40,7 @@
 #  define _STLP_STATIC_CONST_INIT_BUG
 #  define _STLP_THROW_RETURN_BUG
 #  define _STLP_LINK_TIME_INSTANTIATION
-#  define _STLP_NO_TEMPLATE_CONVERSIONS
+#  define _STLP_NO_TEMPLATE_CONVERSIONS /* support removed */
 
 #  define _STLP_NON_TYPE_TMPL_PARAM_BUG 1
 #  define _STLP_TRIVIAL_DESTRUCTOR_BUG  1

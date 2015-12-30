@@ -16,17 +16,9 @@
 #ifndef _STLP_INTERNAL_CTIME
 #define _STLP_INTERNAL_CTIME
 
-#if !defined (_STLP_NO_TIME_SUPPORT)
+#if !defined (_STLP_WCE_EVC3) && !defined(_STLP_AVR)
 
-#  if defined (_STLP_USE_NEW_C_HEADERS)
-#    if defined (_STLP_HAS_INCLUDE_NEXT)
-#      include_next <ctime>
-#    else
-#      include _STLP_NATIVE_CPP_C_HEADER(ctime)
-#    endif
-#  else
-#    include <time.h>
-#  endif
+#  include <time.h>
 
 #  if defined (_STLP_IMPORT_VENDOR_CSTD)
 _STLP_BEGIN_NAMESPACE
@@ -51,6 +43,6 @@ using _STLP_VENDOR_CSTD::time;
 _STLP_END_NAMESPACE
 #  endif /* _STLP_IMPORT_VENDOR_CSTD */
 
-#endif /* _STLP_NO_TIME_SUPPORT */
+#endif
 
 #endif /* _STLP_INTERNAL_CTIME */
