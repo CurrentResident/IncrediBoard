@@ -22,6 +22,7 @@ namespace
     // Please note that the initialization of this structure was moved to an assignment because
     // of a gcc error: "sorry, unimplemented: non-trivial designated initializers not supported"
 
+    void InitHIDs() __attribute__((constructor));
     void InitHIDs()
     {
         Keyboard_HID_Interface.Config.InterfaceNumber        = INTERFACE_ID_Keyboard;
@@ -105,7 +106,6 @@ int main (void)
 {
     Platform::Init();
 
-    InitHIDs();
     USB_Init();
 
     GlobalInterruptEnable();
