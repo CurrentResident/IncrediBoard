@@ -16,9 +16,9 @@ typedef boost::fusion::vector<KeyA,    KeyB,              KeyC,    KeyD,    KeyE
 
 typedef Column <Platform::SetColumn<0>, Column1Keys, Platform::ResetColumn<0> > Column1;
 typedef Column <Platform::SetColumn<1>, Column2Keys, Platform::ResetColumn<1> > Column2;
-typedef Column <Platform::SetColumn<1>, Column3Keys, Platform::ResetColumn<1> > Column3;
-typedef Column <Platform::SetColumn<1>, Column4Keys, Platform::ResetColumn<1> > Column4;
-typedef Column <Platform::SetColumn<0>, Column5Keys, Platform::ResetColumn<0> > Column5;
+typedef Column <Platform::SetColumn<2>, Column3Keys, Platform::ResetColumn<2> > Column3;
+typedef Column <Platform::SetColumn<3>, Column4Keys, Platform::ResetColumn<3> > Column4;
+typedef Column <Platform::SetColumn<4>, Column5Keys, Platform::ResetColumn<4> > Column5;
 
 typedef boost::fusion::vector<Column1, Column2, Column3, Column4, Column5> Matrix;
 
