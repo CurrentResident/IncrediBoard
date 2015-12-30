@@ -13,7 +13,7 @@ class FixedArray
     public:
 
         static const std::size_t LAST_ELEMENT = N - 1;
-        static const std::size_t SIZE         = N;
+        static const std::size_t CAPACITY     = N;
 
         typedef T*       iterator;
         typedef const T* const_iterator;
@@ -36,7 +36,7 @@ class FixedArray
 
         const_iterator end() const
         {
-            return &m_array[0] + SIZE;
+            return &m_array[0] + CAPACITY;
         }
 
         iterator begin()
@@ -46,7 +46,12 @@ class FixedArray
 
         iterator end()
         {
-            return &m_array[0] + SIZE;
+            return &m_array[0] + CAPACITY;
+        }
+
+        std::size_t size() const
+        {
+            return m_nextInsertIndex;
         }
 
         void clear()

@@ -23,6 +23,8 @@ class Board
         void Process()
         {
             boost::fusion::for_each(m_matrix, ProcessColumn(m_controller, m_inputs));
+
+            m_controller.Process();
         }
 
     private:

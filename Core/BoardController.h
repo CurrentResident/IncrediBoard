@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "FixedArray.h"
+#include "UsbInterface.h"
 
 class BoardController
 {
@@ -41,6 +42,13 @@ class BoardController
         void ClearKey(const uint8_t i_key)
         {
             m_keyArray.DeleteElement(i_key);
+        }
+
+        void Process()
+        {
+            //TODO:  Fancy features?
+            //
+            UsbInterface::Process(m_keyArray.Get(), m_keyArray.size(), m_modifiers);
         }
 };
 

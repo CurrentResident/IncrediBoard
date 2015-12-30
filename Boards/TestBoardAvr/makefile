@@ -22,6 +22,7 @@ OBJDIR		 = objs
 SRC          = main.cpp \
 			   Descriptors.c \
 			   PlatformTeensy.cpp \
+			   UsbInterface.cpp \
 			   $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH    = ../../libs/AVR/LUFA
 CPP_FLAGS    = -std=c++11
