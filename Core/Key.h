@@ -7,10 +7,10 @@
 #include "BoardController.h"
 #include "Platform.h"
 
-template<unsigned long t_debouncePeriod>
+template<unsigned long T_DEBOUNCE_PERIOD>
 class DebouncedButton
 {
-    BOOST_STATIC_ASSERT(t_debouncePeriod > 0);
+    BOOST_STATIC_ASSERT (T_DEBOUNCE_PERIOD > 0);
 
     private:
 
@@ -42,7 +42,7 @@ class DebouncedButton
             if (currentState != m_readState)
             {
                 m_readState = currentState;
-                m_debounceTime = now + t_debouncePeriod;
+                m_debounceTime = now + T_DEBOUNCE_PERIOD;
             }
 
             if (m_debounceTime < now)
@@ -58,29 +58,33 @@ class DebouncedButton
         }
 };
 
-template <uint8_t t_keyValue>
+template <uint8_t T_KEY_CODE>
 class BaseKey : public DebouncedButton<5>   // 5 msec per cherry spec.
 {
-    static uint8_t GetValue()
-    {
-        return t_keyValue;
-    }
+    //static const uint8_t KEY_CODE = T_KEY_CODE;
 };
 
-template <uint8_t t_keyValue>
-class Key : public BaseKey<t_keyValue>
+template <uint8_t T_KEY_CODE>
+class Key : public BaseKey<T_KEY_CODE>
 {
 };
 
-template <uint8_t t_keyValue>
-class KeyModifier : public BaseKey<t_keyValue>
+template <uint8_t T_KEY_CODE, uint8_t T_KEY_MODIFIER>
+class KeyModifier : public BaseKey<T_KEY_CODE>
 {
+    //static const uint8_t KEY_MODIFIER = T_KEY_MODIFIER;
 };
 
 // Specialization for 'None' key does nothing.
 template <> class Key<0>
 {
     public:
+
+        uint8_t GetState() const
+        {
+            return 0;
+        }
+
         bool Process(const uint8_t currentState, const unsigned long now)
         {
             return false;
@@ -112,27 +116,38 @@ struct ProcessKey
 
     // Here's what the functor does when handed an ordinary Key.
     //
-    template <uint8_t T_KEYCODE>
-    uint8_t operator() (const uint8_t rowIndex, Key<T_KEYCODE>& key) const
+    template <uint8_t T_KEY_CODE>
+    uint8_t operator() (const uint8_t rowIndex, Key<T_KEY_CODE>& key) const
     {
-        key.Process(m_inputs.row[rowIndex], m_now);
+        if (key.Process(m_inputs.row[rowIndex], m_now))
+        {
+            switch (key.GetState())
+            {
+                case 0:
+                    m_controller.ClearKey(T_KEY_CODE);
+                    break;
+                default:
+                    m_controller.SetKey(T_KEY_CODE);
+                    break;
+            }
+        }
         return rowIndex + 1;
     }
 
     // Here's what the functor does when handed a KeyModifier.
     //
-    template <uint8_t T_KEYMODCODE>
-    uint8_t operator() (const uint8_t rowIndex, KeyModifier<T_KEYMODCODE>& key) const
+    template <uint8_t T_KEY_CODE, uint8_t T_KEY_MODIFIER>
+    uint8_t operator() (const uint8_t rowIndex, KeyModifier<T_KEY_CODE, T_KEY_MODIFIER>& key) const
     {
         if(key.Process(m_inputs.row[rowIndex], m_now))
         {
             switch (key.GetState())
             {
                 case 0:
-                    m_controller.ClearModifier(T_KEYMODCODE);
+                    m_controller.ClearModifier(T_KEY_MODIFIER);
                     break;
                 default:
-                    m_controller.SetModifier(T_KEYMODCODE);
+                    m_controller.SetModifier(T_KEY_MODIFIER);
                     break;
             }
         }

@@ -108,6 +108,19 @@
 
 // TODO:  Fill out tons of other keycodes.
 
+// The modifier keys do actually have their own keycodes.  They aren't reported in the normal USB keyboard
+// keycode array, but rather have modifier values that get or'd into a dedicated modifier byte.  However, we
+// still use the keycodes for internal bookkeeping purposes.
+#define KEY_LEFT_CTRL   0xE0
+#define KEY_LEFT_SHIFT  0xE1
+#define KEY_LEFT_ALT    0xE2
+#define KEY_LEFT_GUI    0xE3
+#define KEY_RIGHT_CTRL  0xE4
+#define KEY_RIGHT_SHIFT 0xE5
+#define KEY_RIGHT_ALT   0xE6
+#define KEY_RIGHT_GUI   0xE7
+
+// The modifier values get or'd into a modifier byte.
 #define KEY_MOD_LEFT_CTRL   0x01
 #define KEY_MOD_LEFT_SHIFT  0x02
 #define KEY_MOD_LEFT_ALT    0x04
@@ -217,14 +230,13 @@ typedef Key <KEY_KP_8>        KeyKP_8;
 typedef Key <KEY_KP_9>        KeyKP_9;
 typedef Key <KEY_KP_0>        KeyKP_0;
 
-typedef KeyModifier<KEY_MOD_LEFT_CTRL>  KeyMOD_LEFT_CTRL;
-typedef KeyModifier<KEY_MOD_LEFT_SHIFT> KeyMOD_LEFT_SHIFT;
-typedef KeyModifier<KEY_MOD_LEFT_ALT>   KeyMOD_LEFT_ALT;
-typedef KeyModifier<KEY_MOD_LEFT_GUI>   KeyMOD_LEFT_GUI;
-
-typedef KeyModifier<KEY_MOD_RIGHT_CTRL>  KeyMOD_RIGHT_CTRL;
-typedef KeyModifier<KEY_MOD_RIGHT_SHIFT> KeyMOD_RIGHT_SHIFT;
-typedef KeyModifier<KEY_MOD_RIGHT_ALT>   KeyMOD_RIGHT_ALT;
-typedef KeyModifier<KEY_MOD_RIGHT_GUI>   KeyMOD_RIGHT_GUI;
+typedef KeyModifier<KEY_LEFT_CTRL,   KEY_MOD_LEFT_CTRL>   KeyMOD_LEFT_CTRL;
+typedef KeyModifier<KEY_LEFT_SHIFT,  KEY_MOD_LEFT_SHIFT>  KeyMOD_LEFT_SHIFT;
+typedef KeyModifier<KEY_LEFT_ALT,    KEY_MOD_LEFT_ALT>    KeyMOD_LEFT_ALT;
+typedef KeyModifier<KEY_LEFT_GUI,    KEY_MOD_LEFT_GUI>    KeyMOD_LEFT_GUI;
+typedef KeyModifier<KEY_RIGHT_CTRL,  KEY_MOD_RIGHT_CTRL>  KeyMOD_RIGHT_CTRL;
+typedef KeyModifier<KEY_RIGHT_SHIFT, KEY_MOD_RIGHT_SHIFT> KeyMOD_RIGHT_SHIFT;
+typedef KeyModifier<KEY_RIGHT_ALT,   KEY_MOD_RIGHT_ALT>   KeyMOD_RIGHT_ALT;
+typedef KeyModifier<KEY_RIGHT_GUI,   KEY_MOD_RIGHT_GUI>   KeyMOD_RIGHT_GUI;
 
 #endif

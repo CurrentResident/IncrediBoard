@@ -13,7 +13,8 @@ class BoardController
 
         // TODO: NKRO.  Until then, keep things really simple...
 
-        FixedArray<uint8_t, 10, 0> m_testArray;
+        // Only track up to 10 keys because really, how often do people have more than 10 keys pressed at a time?
+        FixedArray<uint8_t, 10, 0> m_keyArray;
 
     public:
 
@@ -31,12 +32,16 @@ class BoardController
         {
             m_modifiers &= ~i_modifier;
         }
-/*
+
         void SetKey(const uint8_t i_key)
         {
-            if 
+            m_keyArray.PushElement(i_key);
         }
-*/
+
+        void ClearKey(const uint8_t i_key)
+        {
+            m_keyArray.DeleteElement(i_key);
+        }
 };
 
 #endif

@@ -7,7 +7,7 @@
 // AVR's stlport doesn't provide std::array, so if I want a statically-allocatable fixed size array utility (with
 // my convenience helper functions) I have to roll my own.
 
-template <typename T, std::size_t N, T t_defaultValue>
+template <typename T, std::size_t N, T T_EMPTY_VALUE>
 class FixedArray
 {
     public:
@@ -51,7 +51,7 @@ class FixedArray
 
         void clear()
         {
-            std::fill_n(begin(), N, t_defaultValue);
+            std::fill_n(begin(), N, T_EMPTY_VALUE);
             m_nextInsertIndex = 0;
         }
 
@@ -67,7 +67,7 @@ class FixedArray
 
         bool PushElement(const T& i_data)
         {
-            if (m_nextInsertIndex < N)
+            if (m_nextInsertIndex < N and i_data != T_EMPTY_VALUE)
             {
                 m_array[m_nextInsertIndex] = i_data;
                 ++m_nextInsertIndex;
@@ -78,29 +78,32 @@ class FixedArray
 
         void DeleteElement(const T& i_data)
         {
-            if (i_data != t_defaultValue)
+            if (i_data != T_EMPTY_VALUE)
             {
-                T* reader;
-                T* writer;
+                std::size_t reader;
+                std::size_t writer;
 
-                for(reader = writer = &m_array[0]; reader <= &m_array[LAST_ELEMENT]; ++reader)
+                for (reader = writer = 0; reader < m_nextInsertIndex; ++ reader)
                 {
-                    if (*reader == i_data)
+                    if (m_array[reader] == i_data)
                     {
-                        --m_nextInsertIndex;
+                        // The important detail about this is that reader will advance while writer stays put.
                         continue;
                     }
+
                     if (writer != reader)
                     {
-                        *writer = *reader;
+                        m_array[writer] = m_array[reader];
                     }
 
                     ++writer;
                 }
 
-                while (writer <= &m_array[LAST_ELEMENT])
+                m_nextInsertIndex -= (reader - writer);
+
+                while (writer < reader)
                 {
-                    *writer = t_defaultValue;
+                    m_array[writer] = T_EMPTY_VALUE;
                     ++writer;
                 }
             }
@@ -108,4 +111,3 @@ class FixedArray
 };
 
 #endif
-
