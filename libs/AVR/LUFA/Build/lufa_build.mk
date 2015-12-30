@@ -183,9 +183,9 @@ DEPENDENCY_FILES := $(OBJECT_FILES:%.o=%.d)
 # Create a list of common flags to pass to the compiler/linker/assembler
 BASE_CC_FLAGS    := -pipe -g$(DEBUG_FORMAT) -g$(DEBUG_LEVEL)
 ifeq ($(ARCH), AVR8)
-   BASE_CC_FLAGS += -mmcu=$(MCU) -fshort-enums -fno-inline-small-functions -fpack-struct
+   BASE_CC_FLAGS += -mmcu=$(MCU) -fshort-enums
 else ifeq ($(ARCH), XMEGA)
-   BASE_CC_FLAGS += -mmcu=$(MCU) -fshort-enums -fno-inline-small-functions -fpack-struct
+   BASE_CC_FLAGS += -mmcu=$(MCU) -fshort-enums
 else ifeq ($(ARCH), UC3)
    BASE_CC_FLAGS += -mpart=$(MCU:at32%=%) -masm-addr-pseudos
 endif
