@@ -1,7 +1,8 @@
 
-# Stuff produced by the Avr-gcc / teensy makefile
+# Stuff produced by the Avr-gcc / teensy / LUFA makefile
 #
 
+*.bin
 *.eep
 *.elf
 *.hex
