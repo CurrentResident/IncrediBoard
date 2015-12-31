@@ -229,6 +229,7 @@ typedef Key <KEY_KP_7>        KeyKP_7;
 typedef Key <KEY_KP_8>        KeyKP_8;
 typedef Key <KEY_KP_9>        KeyKP_9;
 typedef Key <KEY_KP_0>        KeyKP_0;
+typedef Key <KEY_KP_PERIOD>   KeyKP_PERIOD;
 
 typedef KeyModifier<KEY_LEFT_CTRL,   KEY_MOD_LEFT_CTRL>   KeyMOD_LEFT_CTRL;
 typedef KeyModifier<KEY_LEFT_SHIFT,  KEY_MOD_LEFT_SHIFT>  KeyMOD_LEFT_SHIFT;
