@@ -21,7 +21,7 @@ namespace Platform
 
     // The following templates need to be specialized for your platform!
     template<uint8_t c>
-    struct SetColumn
+    struct SetRow
     {
         void operator() ()
         {
@@ -29,7 +29,7 @@ namespace Platform
     };
 
     template<uint8_t c>
-    struct ResetColumn
+    struct ResetRow
     {
         void operator() ()
         {

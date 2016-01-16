@@ -1,0 +1,59 @@
+#ifndef ROW_H_
+#define ROW_H_
+
+#include <boost/fusion/algorithm.hpp>
+
+#include "BoardController.h"
+#include "Key.h"
+#include "Platform.h"
+
+template <typename SelectRow, typename RowKeys, typename ClearRow>
+class Row
+{
+    public:
+
+        typedef RowKeys Keys;
+
+        void Process(BoardController&           io_controller,
+                     Platform::InputValuesType& io_inputs)
+        {
+            // Make some easily-inlineable temporary function objects.
+            SelectRow s;
+            ClearRow  c;
+
+            // Connect the row, wait a few microsecs, read the inputs, then disconnect the row.
+            s();
+            Platform::DelayMicrosecs<5>();
+            Platform::ReadInputs(io_inputs);
+            const unsigned long now = Platform::GetMsec();
+            c();
+
+            // With inputs in-hand, send them to the key objects in order, and update the given controller.
+            boost::fusion::fold(m_keys, 0, ProcessKey(io_controller, io_inputs, now));
+        }
+
+    private:
+
+        RowKeys m_keys;
+};
+
+struct ProcessRow
+{
+    BoardController&           m_controller;
+    Platform::InputValuesType& m_inputs;
+
+    ProcessRow(BoardController&           i_controller,
+                  Platform::InputValuesType& i_inputs)
+    :
+        m_controller(i_controller),
+        m_inputs    (i_inputs)
+    { }
+
+    template <typename T>
+    void operator() (T& row) const
+    {
+        row.Process(m_controller, m_inputs);
+    }
+};
+
+#endif
