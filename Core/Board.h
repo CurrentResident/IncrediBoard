@@ -24,7 +24,7 @@ class Board
             using namespace boost::mpl;
 
             typedef typename result_of::value_at<MatrixType, int_<0> >::type FirstRow;
-            typedef typename result_of::size<typename FirstRow::Keys>::type  FirstRowSize;
+            typedef typename result_of::size<FirstRow>::type                 FirstRowSize;
 
             for_each(m_matrix,
                     VerifyColumnCount
@@ -39,7 +39,10 @@ class Board
 
         void Process()
         {
-            boost::fusion::for_each(m_matrix, ProcessRow(m_controller, m_inputs));
+            using namespace boost::fusion;
+
+            boost::fusion::iter_fold(m_matrix, 0, ProcessRow<MatrixType>(m_controller, m_inputs));
+            //boost::fusion::for_each(m_matrix, ProcessRow(m_controller, m_inputs));
 
             m_controller.Process();
         }
@@ -60,7 +63,7 @@ class Board
 
                 BOOST_MPL_ASSERT_MSG((equal_to
                                       <
-                                        int_<boost::fusion::result_of::size<typename T::Keys>::type::value>,
+                                        int_<boost::fusion::result_of::size<T>::type::value>,
                                         int_<FIRST_ROW_SIZE>
                                       >::value
                                      ),

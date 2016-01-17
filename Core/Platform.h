@@ -1,6 +1,10 @@
 #ifndef PLATFORM_GENERIC_H_
 #define PLATFORM_GENERIC_H_
 
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/comparison.hpp>
+#include <boost/mpl/int.hpp>
+
 #include <stdint.h>
 
 namespace Platform
@@ -20,22 +24,25 @@ namespace Platform
     unsigned long GetMsec();
 
     // The following templates need to be specialized for your platform!
-    template<uint8_t c>
-    struct SetRow
+    template<int c>
+    void SetRow ()
     {
-        void operator() ()
-        {
-        }
+        using namespace boost::mpl;
+
+        BOOST_MPL_ASSERT_MSG ((equal_to<int_<c>, int_<-1> >::value ),
+                              YOU_MUST_SPECIALIZE_SetRow_FOR_THIS_ROW__SEE_c_PARAMETER,
+                              (void));
     };
 
-    template<uint8_t c>
-    struct ResetRow
+    template<int c>
+    void ClearRow ()
     {
-        void operator() ()
-        {
-        }
-    };
+        using namespace boost::mpl;
 
+        BOOST_MPL_ASSERT_MSG ((equal_to<int_<c>, int_<-1> >::value ),
+                              YOU_MUST_SPECIALIZE_ClearRow_FOR_THIS_ROW__SEE_c_PARAMETER,
+                              (void));
+    };
 }
 
 #endif

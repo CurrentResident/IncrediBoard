@@ -8,18 +8,18 @@
 
 #include "Row.h"
 
-typedef boost::fusion::vector<KeyA,     KeyE, KeyE,     KeyNONE,            KeyA> Row0Keys;
-typedef boost::fusion::vector<KeyB,     KeyF, KeyF,     KeyMOD_LEFT_SHIFT,  KeyB> Row1Keys;
-typedef boost::fusion::vector<KeyC,     KeyG, KeyNONE,  KeyNONE,            KeyC> Row2Keys;
-typedef boost::fusion::vector<KeyD,     KeyH, KeyNONE,  KeyH,               KeyD> Row3Keys;
-typedef boost::fusion::vector<KeyNONE,  KeyI, KeyNONE,  KeyI,               KeyE> Row4Keys;
-
+typedef boost::fusion::vector<KeyA,     KeyE, KeyE,     KeyNONE,            KeyA> Row0;
+typedef boost::fusion::vector<KeyB,     KeyF, KeyF,     KeyMOD_LEFT_SHIFT,  KeyB> Row1;
+typedef boost::fusion::vector<KeyC,     KeyG, KeyNONE,  KeyNONE,            KeyC> Row2;
+typedef boost::fusion::vector<KeyD,     KeyH, KeyNONE,  KeyH,               KeyD> Row3;
+typedef boost::fusion::vector<KeyNONE,  KeyI, KeyNONE,  KeyI,               KeyE> Row4;
+/*
 typedef Row <Platform::SetRow<0>, Row0Keys, Platform::ResetRow<0> > Row0;
 typedef Row <Platform::SetRow<1>, Row1Keys, Platform::ResetRow<1> > Row1;
 typedef Row <Platform::SetRow<2>, Row2Keys, Platform::ResetRow<2> > Row2;
 typedef Row <Platform::SetRow<3>, Row3Keys, Platform::ResetRow<3> > Row3;
 typedef Row <Platform::SetRow<4>, Row4Keys, Platform::ResetRow<4> > Row4;
-
+*/
 typedef boost::fusion::vector<Row0, Row1, Row2, Row3, Row4> Matrix;
 
 /*

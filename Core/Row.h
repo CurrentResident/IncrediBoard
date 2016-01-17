@@ -7,36 +7,7 @@
 #include "Key.h"
 #include "Platform.h"
 
-template <typename SelectRow, typename RowKeys, typename ClearRow>
-class Row
-{
-    public:
-
-        typedef RowKeys Keys;
-
-        void Process(BoardController&           io_controller,
-                     Platform::InputValuesType& io_inputs)
-        {
-            // Make some easily-inlineable temporary function objects.
-            SelectRow s;
-            ClearRow  c;
-
-            // Connect the row, wait a few microsecs, read the inputs, then disconnect the row.
-            s();
-            Platform::DelayMicrosecs<5>();
-            Platform::ReadInputs(io_inputs);
-            const unsigned long now = Platform::GetMsec();
-            c();
-
-            // With inputs in-hand, send them to the key objects in order, and update the given controller.
-            boost::fusion::fold(m_keys, 0, ProcessKey(io_controller, io_inputs, now));
-        }
-
-    private:
-
-        RowKeys m_keys;
-};
-
+template <typename MatrixType>
 struct ProcessRow
 {
     BoardController&           m_controller;
@@ -49,11 +20,35 @@ struct ProcessRow
         m_inputs    (i_inputs)
     { }
 
+    typedef int result_type;
+
+    typedef typename boost::fusion::result_of::begin<MatrixType>::type BeginIteratorType;
+
+    template <typename T>
+    int operator() (const int i, T& rowIter) const
+    {
+        using namespace boost::fusion;
+
+        typedef typename result_of::distance<BeginIteratorType, T>::type RowPositionType;
+
+        Platform::SetRow   <RowPositionType::value>();
+        Platform::DelayMicrosecs<5>();
+        Platform::ReadInputs(m_inputs);
+        const unsigned long now = Platform::GetMsec();
+        Platform::ClearRow <RowPositionType::value>();
+
+        fold(deref(rowIter), 0, ProcessKey(m_controller, m_inputs, now));
+
+        return 0;
+    }
+
+/*
     template <typename T>
     void operator() (T& row) const
     {
         row.Process(m_controller, m_inputs);
     }
+*/
 };
 
 #endif

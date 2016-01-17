@@ -18,5 +18,6 @@
 *.exe
 *.log
 *.o
+*.original
 *.swp
 *.swo
