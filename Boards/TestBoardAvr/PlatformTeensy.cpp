@@ -34,17 +34,7 @@ namespace Platform
         TIMSK0 = (1 << TOIE0);
         sei();
     }
-/*
-    void ReadInputs(InputValuesType& o_inputs)
-    {
-        o_inputs.row[0] = (PINF & (1 << PF2));
-        o_inputs.row[1] = (PINF & (1 << PF3));
-        o_inputs.row[2] = (PINF & (1 << PF4));
-        o_inputs.row[3] = (PINF & (1 << PF5));
-        o_inputs.row[4] = (PINF & (1 << PF6));
-        o_inputs.row[5] = (PINF & (1 << PF7));
-    }
-*/
+
     unsigned long GetMsec()
     {
         unsigned long result;

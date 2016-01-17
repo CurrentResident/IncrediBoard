@@ -37,7 +37,11 @@ struct ProcessRow
         const unsigned long now = Platform::GetMsec();
         Platform::ClearRow <RowPositionType::value>();
 
-        fold(deref(rowIter), 0, ProcessKey<InputArrayType>(m_controller, m_inputs, now));
+        fold (deref (rowIter),
+              0,
+              ProcessKey<InputArrayType>(m_controller,
+                                         m_inputs,
+                                         now));
 
         return 0;
     }

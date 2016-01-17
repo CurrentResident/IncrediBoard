@@ -42,18 +42,6 @@ namespace Platform
     template <> inline void ClearRow<3>() { PORTD &= ~0x08; }
     template <> inline void SetRow  <4>() { PORTD |=  0x10; }
     template <> inline void ClearRow<4>() { PORTD &= ~0x10; }
-/*
-    template <> inline void SetRow  <0>::operator()() { PORTD |=  0x01; }
-    template <> inline void ResetRow<0>::operator()() { PORTD &= ~0x01; }
-    template <> inline void SetRow  <1>::operator()() { PORTD |=  0x02; }
-    template <> inline void ResetRow<1>::operator()() { PORTD &= ~0x02; }
-    template <> inline void SetRow  <2>::operator()() { PORTD |=  0x04; }
-    template <> inline void ResetRow<2>::operator()() { PORTD &= ~0x04; }
-    template <> inline void SetRow  <3>::operator()() { PORTD |=  0x08; }
-    template <> inline void ResetRow<3>::operator()() { PORTD &= ~0x08; }
-    template <> inline void SetRow  <4>::operator()() { PORTD |=  0x10; }
-    template <> inline void ResetRow<4>::operator()() { PORTD &= ~0x10; }
-*/
 }
 
 
