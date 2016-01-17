@@ -24,6 +24,8 @@ namespace
     
     // Please note that the initialization of this structure was moved to an assignment because
     // of a gcc error: "sorry, unimplemented: non-trivial designated initializers not supported"
+    //
+    // It works in C, but not C++ apparently.  Huh.
 
     void InitHIDs() __attribute__((constructor));
     void InitHIDs()

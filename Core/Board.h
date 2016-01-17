@@ -42,7 +42,6 @@ class Board
 
         MatrixType                m_matrix;
         InputArrayType            m_inputs;
-        //Platform::InputValuesType m_inputs;
         BoardController           m_controller;
 };
 
