@@ -9,6 +9,11 @@
 
 namespace Platform
 {
+    unsigned long GetMsec();
+
+    // =================================================================
+    // The following templates need to be specialized for your platform!
+    //
     template<typename InputElementType, int N>
     void ReadInputs(InputElementType (& o_inputs)[N])
     {
@@ -19,9 +24,6 @@ namespace Platform
                               (void));
     }
 
-    unsigned long GetMsec();
-
-    // The following templates need to be specialized for your platform!
     template<int c>
     void SetRow ()
     {

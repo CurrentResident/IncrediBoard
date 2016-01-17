@@ -20,9 +20,13 @@ namespace Platform
         CLKPR = 0x80;   // Enable writes to this register's bits
         CLKPR = 0x00;   // 4lsbs = 0 == divisor of 1
 
-        // Configure Port E to be inputs.
-        DDRF  = 0x00;   
-        PORTF = 0x00;   // Normal inputs.  This keyboard's rows are wired with pull-down resistors.
+        // Configure Port F to be column inputs.
+        DDRF  = 0x00;
+        PORTF = 0xFF;   // Column inputs with pull-up resistors.  They will source current to the rows.
+
+        // Configure Port D to be row open-drain-ish outputs.  They will sink current.
+        DDRD  = 0x00;   // Default to floating inputs.  (0 == input, 1 == output)
+        PORTD = 0x00;   // Leave PORT as 0 because...   (0 == normal input, low output (sink))
 
         // Configure timer to generate 1msec interrupts.
         cli();
