@@ -7,14 +7,14 @@
 #include "Key.h"
 #include "Platform.h"
 
-template <typename MatrixType>
+template <typename MatrixType, typename InputArrayType>
 struct ProcessRow
 {
-    BoardController&           m_controller;
-    Platform::InputValuesType& m_inputs;
+    BoardController&    m_controller;
+    InputArrayType&     m_inputs;
 
-    ProcessRow(BoardController&           i_controller,
-                  Platform::InputValuesType& i_inputs)
+    ProcessRow(BoardController&     i_controller,
+                  InputArrayType&   i_inputs)
     :
         m_controller(i_controller),
         m_inputs    (i_inputs)
@@ -37,7 +37,7 @@ struct ProcessRow
         const unsigned long now = Platform::GetMsec();
         Platform::ClearRow <RowPositionType::value>();
 
-        fold(deref(rowIter), 0, ProcessKey(m_controller, m_inputs, now));
+        fold(deref(rowIter), 0, ProcessKey<InputArrayType>(m_controller, m_inputs, now));
 
         return 0;
     }

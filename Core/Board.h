@@ -18,12 +18,6 @@ class Board
 
         Board()
         {
-            using namespace boost::fusion;
-            using namespace boost::mpl;
-
-            typedef typename result_of::value_at<MatrixType, int_<0> >::type FirstRow;
-            typedef typename result_of::size<FirstRow>::type                 FirstRowSize;
-
             for_each(m_matrix, VerifyColumnCount<FirstRowSize::value>());
         }
 
@@ -33,17 +27,22 @@ class Board
 
         void Process()
         {
-            using namespace boost::fusion;
-
-            boost::fusion::iter_fold(m_matrix, 0, ProcessRow<MatrixType>(m_controller, m_inputs));
+            boost::fusion::iter_fold(m_matrix, 0, ProcessRow<MatrixType, InputArrayType>(m_controller, m_inputs));
 
             m_controller.Process();
         }
 
     private:
 
+        typedef typename boost::fusion::result_of::value_at<MatrixType,
+                                                            boost::mpl::int_<0> >::type FirstRow;
+        typedef typename boost::fusion::result_of::size<FirstRow>::type                 FirstRowSize;
+
+        typedef Platform::InputElementType InputArrayType [FirstRowSize::value];
+
         MatrixType                m_matrix;
-        Platform::InputValuesType m_inputs;
+        InputArrayType            m_inputs;
+        //Platform::InputValuesType m_inputs;
         BoardController           m_controller;
 };
 

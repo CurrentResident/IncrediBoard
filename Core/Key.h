@@ -98,15 +98,16 @@ template <> class Key<0>
 // states.  GCC is pretty dang smart about inlining the whole thing and optimizing away these "temporary"
 // members, which is very much desired for embedded targets where we have far more flash storage for code
 // than RAM for data.
+template <typename InputArrayType>
 struct ProcessKey
 {
-    BoardController&                 m_controller;
-    const Platform::InputValuesType& m_inputs;
-    const unsigned long&             m_now;
+    BoardController&        m_controller;
+    const InputArrayType&   m_inputs;
+    const unsigned long&    m_now;
 
-    ProcessKey (BoardController&                 io_controller,
-                const Platform::InputValuesType& i_inputs,
-                const unsigned long&             i_now) :
+    ProcessKey (BoardController&        io_controller,
+                const InputArrayType&   i_inputs,
+                const unsigned long&    i_now) :
         m_controller(io_controller),
         m_inputs(i_inputs),
         m_now   (i_now)
@@ -119,7 +120,7 @@ struct ProcessKey
     template <uint8_t T_KEY_CODE>
     uint8_t operator() (const uint8_t rowIndex, Key<T_KEY_CODE>& key) const
     {
-        if (key.Process(m_inputs.row[rowIndex], m_now))
+        if (key.Process(m_inputs[rowIndex], m_now))
         {
             switch (key.GetState())
             {
@@ -139,7 +140,7 @@ struct ProcessKey
     template <uint8_t T_KEY_CODE, uint8_t T_KEY_MODIFIER>
     uint8_t operator() (const uint8_t rowIndex, KeyModifier<T_KEY_CODE, T_KEY_MODIFIER>& key) const
     {
-        if(key.Process(m_inputs.row[rowIndex], m_now))
+        if(key.Process(m_inputs[rowIndex], m_now))
         {
             switch (key.GetState())
             {
