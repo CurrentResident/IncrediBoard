@@ -12,7 +12,7 @@ typedef boost::fusion::vector<KeyA,     KeyE, KeyE,     KeyNONE,            KeyA
 typedef boost::fusion::vector<KeyB,     KeyF, KeyF,     KeyMOD_LEFT_SHIFT,  KeyB> Row1Keys;
 typedef boost::fusion::vector<KeyC,     KeyG, KeyNONE,  KeyNONE,            KeyC> Row2Keys;
 typedef boost::fusion::vector<KeyD,     KeyH, KeyNONE,  KeyH,               KeyD> Row3Keys;
-typedef boost::fusion::vector<KeyNONE,  KeyI, KeyNONE,  KeyI> Row4Keys;
+typedef boost::fusion::vector<KeyNONE,  KeyI, KeyNONE,  KeyI,               KeyE> Row4Keys;
 
 typedef Row <Platform::SetRow<0>, Row0Keys, Platform::ResetRow<0> > Row0;
 typedef Row <Platform::SetRow<1>, Row1Keys, Platform::ResetRow<1> > Row1;

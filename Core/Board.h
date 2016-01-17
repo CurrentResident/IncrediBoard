@@ -20,7 +20,17 @@ class Board
 
         Board()
         {
-            boost::fusion::for_each(m_matrix, VerifyColumnCount<5>());
+            using namespace boost::fusion;
+            using namespace boost::mpl;
+
+            typedef typename result_of::value_at<MatrixType, int_<0> >::type FirstRow;
+            typedef typename result_of::size<typename FirstRow::Keys>::type  FirstRowSize;
+
+            for_each(m_matrix,
+                    VerifyColumnCount
+                    <
+                        FirstRowSize::value
+                    >());
         }
 
         ~Board()
@@ -36,12 +46,6 @@ class Board
 
     private:
 
-        //typedef 
-
-/*
-        typedef boost::mpl::fold<MatrixType,
-                                 boost::fusion::size<boost::fusion::at_c<MatrixType, 0> >,
-*/
         MatrixType                m_matrix;
         Platform::InputValuesType m_inputs;
         BoardController           m_controller;
@@ -52,27 +56,9 @@ class Board
             template <typename T>
             void operator() (const T& row) const
             {
-                //BOOST_STATIC_ASSERT (boost::fusion::result_of::size<typename T::Keys>::type::value > FIRST_ROW_SIZE);
-                //using namespace boost::fusion;
-/*
-                BOOST_MPL_ASSERT_MSG(boost::fusion::result_of::size<typename T::Keys>::type::value == FIRST_ROW_SIZE,
-                                     Bad_number_of_columns_detected_on_row,
-                                     (typename T::Keys));
-*/
-                //BOOST_MPL_ASSERT((boost::result_of::size<typename T::Keys>::type::value == FIRST_ROW_SIZE));
-                //BOOST_MPL_ASSERT((boost::mpl::is_same<boost::fusion::result_of::size<T>::type::value, FIRST_ROW_SIZE>));
-/*                BOOST_MPL_ASSERT((boost::mpl::equal_to
-                                 <
-                                    boost::mpl::int_<boost::fusion::result_of::size<typename T::Keys>::type::value>,
-                                    boost::mpl::int_<FIRST_ROW_SIZE>
-                                  >));
-*/
                 using namespace boost::mpl;
 
-//                BOOST_MPL_ASSERT(( equal_to<int_<4>, int_<FIRST_ROW_SIZE> > ));
-
-                BOOST_MPL_ASSERT_MSG( //GOOD:  (boost::mpl::equal_to<int_<5>, int_<FIRST_ROW_SIZE> >::value) ,
-                                     (equal_to
+                BOOST_MPL_ASSERT_MSG((equal_to
                                       <
                                         int_<boost::fusion::result_of::size<typename T::Keys>::type::value>,
                                         int_<FIRST_ROW_SIZE>
@@ -81,17 +67,8 @@ class Board
                                      BAD_NUMBER_OF_COLUMNS_DETECTED_ON_ROW,
                                      (void));
 
-                //BOOST_MPL_ASSERT_RELATION(boost::fusion::result_of::size<typename T::Keys>::type::value, ==, FIRST_ROW_SIZE);
             }
         };
-/*
-        boost::fusion::result_of::for_each
-        <
-            MatrixType,
-            //VerifyColumnCount<boost::result_of::size<boost::fusion::at_c<MatrixType, 0> >::value >::type m_throwaway;
-            VerifyColumnCount<3>
-        >::type m_throwaway;
-*/
 };
 
 #endif
