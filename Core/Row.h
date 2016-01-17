@@ -41,14 +41,6 @@ struct ProcessRow
 
         return 0;
     }
-
-/*
-    template <typename T>
-    void operator() (T& row) const
-    {
-        row.Process(m_controller, m_inputs);
-    }
-*/
 };
 
 #endif
