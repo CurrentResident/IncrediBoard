@@ -1,6 +1,7 @@
 #include "PlatformTeensy.h"
 
 #include <avr/interrupt.h>
+#include <boost/utility/binary.hpp>
 
 namespace
 {
@@ -20,9 +21,32 @@ namespace Platform
         CLKPR = 0x80;   // Enable writes to this register's bits
         CLKPR = 0x00;   // 4lsbs = 0 == divisor of 1
 
-        // Configure Port E to be inputs.
-        DDRF  = 0x00;   
-        PORTF = 0x00;   // Normal inputs.  This keyboard's rows are wired with pull-down resistors.
+        // TODO:  Automate the initialization of IOs and tie in with IO functions in header.
+        //
+        // Initialize input and output pins.
+        //  Because we want column output pins to be open/drain style, start as "open" free-floating inputs.
+        DDRB  = 0x00;
+        PORTB = 0x00;
+        DDRC  = 0x00;
+        PORTC = 0x00;
+        DDRD  = 0x00;
+        PORTD = 0x00;
+        DDRE  = 0x00;
+        PORTE = 0x00;
+        DDRF  = 0x00;
+        PORTF = 0x00;
+
+        // Now enable pull-ups on column inputs.  Keep this in synch with the header file!
+        //                   7654 3210
+        PORTB = BOOST_BINARY(0111 1111); //0x7F;
+        PORTC = BOOST_BINARY(0000 0101); //0x05;
+        PORTD = BOOST_BINARY(0001 0010); //0x12;
+        PORTE = BOOST_BINARY(1100 0000); //0xC0;
+        PORTF = BOOST_BINARY(1111 1111); //0xFF;
+
+        // Configure outputs.
+        // Currently we just want to flash the LED...
+        DDRD |= (1 << 6);
 
         // Configure timer to generate 1msec interrupts.
         cli();
@@ -33,16 +57,6 @@ namespace Platform
 
         TIMSK0 = (1 << TOIE0);
         sei();
-    }
-
-    void ReadInputs(InputValuesType& o_inputs)
-    {
-        o_inputs.row[0] = (PINF & (1 << PF2));
-        o_inputs.row[1] = (PINF & (1 << PF3));
-        o_inputs.row[2] = (PINF & (1 << PF4));
-        o_inputs.row[3] = (PINF & (1 << PF5));
-        o_inputs.row[4] = (PINF & (1 << PF6));
-        o_inputs.row[5] = (PINF & (1 << PF7));
     }
 
     unsigned long GetMsec()
