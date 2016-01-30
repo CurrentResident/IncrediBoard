@@ -9,7 +9,10 @@
 
 namespace Platform
 {
+    void Init();
     unsigned long GetMsec();
+
+    void JumpToBootloader();
 
     // =================================================================
     // The following templates need to be specialized for your platform!

@@ -120,7 +120,11 @@ struct ProcessKey
     {
         if (key.Process(m_inputs[rowIndex], m_now))
         {
-            switch (key.GetState())
+            const uint8_t state = key.GetState();
+
+            m_controller.SetActive(T_KEY_CODE, state);
+
+            switch (state)
             {
                 case 0:
                     m_controller.ClearKey(T_KEY_CODE);
@@ -140,7 +144,11 @@ struct ProcessKey
     {
         if(key.Process(m_inputs[rowIndex], m_now))
         {
-            switch (key.GetState())
+            const uint8_t state = key.GetState();
+
+            m_controller.SetActive(T_KEY_CODE, state);
+
+            switch (state)
             {
                 case 0:
                     m_controller.ClearModifier(T_KEY_MODIFIER);

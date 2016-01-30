@@ -36,13 +36,13 @@ int main (void)
     Platform::Init();
     UsbInterface::Init();
 
-    Platform::DelayMicrosecs<1000>();
+    Platform::DelayMicrosecs<1000000>();
 
     Flasher flash;
     while(1)
     {
         keyboard.Process();
-        flash.Process();
+        //flash.Process();
     }
 
     return 0;

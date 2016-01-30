@@ -27,7 +27,9 @@ class FixedArray
 
         FixedArray()
             : m_nextInsertIndex(0)
-        { }
+        { 
+            clear();
+        }
 
         const_iterator begin() const
         {
