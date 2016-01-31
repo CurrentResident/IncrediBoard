@@ -3,8 +3,7 @@
 
 #include <boost/fusion/include/vector.hpp>
 
-#include "Key.h"
-#include "KeyValues.h"
+#include "KeyClasses.h"
 
 typedef boost::fusion::vector<KeyESCAPE, KeyNONE, KeyF1,   KeyF2,   KeyF3,   KeyF4,    KeyF5,   KeyF6,   KeyF7,    KeyF8,   KeyF9,    KeyF10,        KeyF11,         KeyF12,       KeyPRTSCR, KeySCRLK, KeyPAUSE,     KeyNONE,     KeyNONE,     KeyNONE,        KeyNONE>     Row0;
 typedef boost::fusion::vector<KeyTILDE,  Key1,    Key2,    Key3,    Key4,    Key5,     Key6,    Key7,    Key8,     Key9,    Key0,     KeyMINUS,      KeyEQUALS,      KeyBACKSPACE, KeyINSERT, KeyHOME,  KeyPAGE_UP,   KeyKP_NUMLK, KeyKP_SLASH, KeyKP_ASTERISK, KeyKP_MINUS> Row1;

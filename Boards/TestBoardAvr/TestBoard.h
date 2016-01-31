@@ -3,10 +3,7 @@
 
 #include <boost/fusion/include/vector.hpp>
 
-#include "Key.h"
-#include "KeyValues.h"
-
-#include "Row.h"
+#include "KeyClasses.h"
 
 typedef boost::fusion::vector<KeyA,     KeyE, KeyE,     KeyNONE,   KeyA> Row0;
 typedef boost::fusion::vector<KeyB,     KeyF, KeyF,     KeyLSHIFT, KeyB> Row1;
