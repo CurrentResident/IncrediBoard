@@ -1,5 +1,5 @@
-#ifndef KEY_VALUES_H_
-#define KEY_VALUES_H_
+#ifndef KEY_CLASSES_H_
+#define KEY_CLASSES_H_
 
 #include "KeyCodes.h"
 #include "Key.h"
