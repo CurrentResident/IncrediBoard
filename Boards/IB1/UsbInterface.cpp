@@ -10,6 +10,7 @@
 namespace
 {
     uint8_t s_previousKeyboardReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
+    uint8_t s_previousMouseReportBuffer   [sizeof(USB_MouseReport_Data_t)];
 
     const uint8_t   s_keycodesRollOverError[6] = {1, 1, 1, 1, 1, 1};
     const uint8_t*  s_keycodesPointer;
@@ -21,6 +22,7 @@ namespace
      *  within a device can be differentiated from one another.
      */
     USB_ClassInfo_HID_Device_t Keyboard_HID_Interface; 
+    USB_ClassInfo_HID_Device_t Mouse_HID_Interface; 
     
     // Please note that the initialization of this structure was moved to an assignment because
     // of a gcc error: "sorry, unimplemented: non-trivial designated initializers not supported"
@@ -34,9 +36,18 @@ namespace
         Keyboard_HID_Interface.Config.PrevReportINBuffer     = &s_previousKeyboardReportBuffer[0];
         Keyboard_HID_Interface.Config.PrevReportINBufferSize = sizeof(s_previousKeyboardReportBuffer);
 
-        Keyboard_HID_Interface.Config.ReportINEndpoint.Address              = KEYBOARD_EPADDR;
-        Keyboard_HID_Interface.Config.ReportINEndpoint.Size                 = KEYBOARD_EPSIZE;
-        Keyboard_HID_Interface.Config.ReportINEndpoint.Banks                = 1;
+        Keyboard_HID_Interface.Config.ReportINEndpoint.Address = KEYBOARD_EPADDR;
+        Keyboard_HID_Interface.Config.ReportINEndpoint.Size    = EPSIZE;
+        Keyboard_HID_Interface.Config.ReportINEndpoint.Banks   = 1;
+        Keyboard_HID_Interface.Config.ReportINEndpoint.Type    = EP_TYPE_INTERRUPT;
+
+        Mouse_HID_Interface.Config.InterfaceNumber          = INTERFACE_ID_Mouse;
+        Mouse_HID_Interface.Config.PrevReportINBuffer       = &s_previousMouseReportBuffer[0];
+        Mouse_HID_Interface.Config.PrevReportINBufferSize   = sizeof(s_previousMouseReportBuffer);
+        Mouse_HID_Interface.Config.ReportINEndpoint.Address = MOUSE_EPADDR;
+        Mouse_HID_Interface.Config.ReportINEndpoint.Banks   = 1;
+        Mouse_HID_Interface.Config.ReportINEndpoint.Size    = EPSIZE;
+        Mouse_HID_Interface.Config.ReportINEndpoint.Type    = EP_TYPE_INTERRUPT;
     }
 }
 
@@ -53,17 +64,20 @@ extern "C"
     void EVENT_USB_Device_ConfigurationChanged(void)
     {
         HID_Device_ConfigureEndpoints(& Keyboard_HID_Interface);
+        HID_Device_ConfigureEndpoints(& Mouse_HID_Interface);
         USB_Device_EnableSOFEvents();
     }
 
     void EVENT_USB_Device_ControlRequest(void)
     {
         HID_Device_ProcessControlRequest(& Keyboard_HID_Interface);
+        HID_Device_ProcessControlRequest(& Mouse_HID_Interface);
     }
 
     void EVENT_USB_Device_StartOfFrame(void)
     {
         HID_Device_MillisecondElapsed(& Keyboard_HID_Interface);
+        HID_Device_MillisecondElapsed(& Mouse_HID_Interface);
     }
 
     /** HID class driver callback function for the creation of HID reports to the host.
@@ -82,24 +96,37 @@ extern "C"
                                              void*                              ReportData,
                                              uint16_t* const                    ReportSize)
     {
-        USB_KeyboardReport_Data_t* KeyboardReport = static_cast<USB_KeyboardReport_Data_t*>(ReportData);
-
-        if (s_keycodesCount > 6)
+        if (HIDInterfaceInfo == & Keyboard_HID_Interface)
         {
-            std::memcpy(KeyboardReport->KeyCode, s_keycodesRollOverError, 6);
+            USB_KeyboardReport_Data_t* KeyboardReport = static_cast<USB_KeyboardReport_Data_t*>(ReportData);
+    
+            if (s_keycodesCount > 6)
+            {
+                std::memcpy(KeyboardReport->KeyCode, s_keycodesRollOverError, 6);
+            }
+            else
+            {
+                // The FixedArray class that we used to generate the keycode array is setup to fill empty
+                // elements with 0, so it is safe to do this here.  It would be nice to figure out a more
+                // explicit way of showing that here.
+                //
+                std::memcpy(KeyboardReport->KeyCode, s_keycodesPointer, 6);
+            }
+    
+            KeyboardReport->Modifier = s_modifiers;
+    
+            *ReportSize = sizeof(USB_KeyboardReport_Data_t);
         }
         else
         {
-            // The FixedArray class that we used to generate the keycode array is setup to fill empty
-            // elements with 0, so it is safe to do this here.  It would be nice to figure out a more
-            // explicit way of showing that here.
-            //
-            std::memcpy(KeyboardReport->KeyCode, s_keycodesPointer, 6);
+            USB_MouseReport_Data_t* mouseReport = static_cast<USB_MouseReport_Data_t*>(ReportData);
+
+            mouseReport->Button = 0;
+            mouseReport->X      = 0;
+            mouseReport->Y      = 0;
+
+            *ReportSize = sizeof(USB_MouseReport_Data_t);
         }
-
-        KeyboardReport->Modifier = s_modifiers;
-
-        *ReportSize = sizeof(USB_KeyboardReport_Data_t);
 
         return false;
     }
@@ -137,6 +164,7 @@ namespace UsbInterface
         s_modifiers       = i_modifiers;
 
         HID_Device_USBTask(& Keyboard_HID_Interface);
+        HID_Device_USBTask(& Mouse_HID_Interface);
         USB_USBTask();
     }
 }
