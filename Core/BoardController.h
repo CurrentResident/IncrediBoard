@@ -12,13 +12,10 @@ class BoardController
 {
     private:
 
-        uint8_t       m_functionKey;                ///< The function key state.
-        uint8_t       m_modifiers;                  ///< USB modifier report byte
-        bool          m_isRebootingToBootloader;    ///< Indicates we're going to the bootloader shortly.
-        unsigned long m_bootLoaderJumpTime;         ///< The time in msec that we'll make the actual jump.
-
-        // TODO: NKRO.  Until then, keep things really simple...
-
+        // Keyboard state
+        // ------------------------------------------------------------------------------
+        uint8_t m_functionKey;                ///< The function key state.
+        uint8_t m_modifiers;                  ///< USB modifier report byte
         /// USB report array.
         /// Only track up to 10 keys because really, how often do people have more than 10 keys pressed at a time?
         /// Also, I don't know how I want to deal with NKRO yet.
@@ -27,11 +24,25 @@ class BoardController
         /// Key truth state.
         FixedArray<uint8_t, 256, 0> m_activeKeyTable;
 
+        // Mouse state
+        // ------------------------------------------------------------------------------
+        uint8_t m_mouseX;
+        uint8_t m_mouseY;
+
+        // Reboot state
+        // ------------------------------------------------------------------------------
+        bool          m_isRebootingToBootloader;    ///< Indicates we're going to the bootloader shortly.
+        unsigned long m_bootLoaderJumpTime;         ///< The time in msec that we'll make the actual jump.
+
+        // TODO: NKRO.  Until then, keep things really simple...
+
     public:
 
         BoardController() :
             m_functionKey             (0),
             m_modifiers               (0),
+            m_mouseX                  (0),
+            m_mouseY                  (0),
             m_isRebootingToBootloader (false),
             m_bootLoaderJumpTime      (0)
         {
@@ -74,6 +85,23 @@ class BoardController
             //
 
             // TODO: Carve features off into a generic fusion collection defined in board-specific area.
+
+            if (m_functionKey)
+            {
+                m_keyReportArray.clear();
+
+                m_mouseY = (m_activeKeyTable[KEY_W] ? -2 :
+                           (m_activeKeyTable[KEY_S] ?  2 : 0));
+                m_mouseX = (m_activeKeyTable[KEY_A] ? -2 :
+                           (m_activeKeyTable[KEY_D] ?  2 : 0));
+            }
+            else
+            {
+                m_mouseX = 0;
+                m_mouseY = 0;
+            }
+
+            UsbInterface::MouseMove(m_mouseX, m_mouseY);
 
             // Four-finger salute to put the keyboard into the bootloader.  Not concerned about latching this.
             // Once all four keys are down, the keyboard reports all keys cleared/reset, and the reboot happens

@@ -12,10 +12,16 @@ namespace
     uint8_t s_previousKeyboardReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
     uint8_t s_previousMouseReportBuffer   [sizeof(USB_MouseReport_Data_t)];
 
+    // Keyboard bookkeeping
     const uint8_t   s_keycodesRollOverError[6] = {1, 1, 1, 1, 1, 1};
     const uint8_t*  s_keycodesPointer;
     uint8_t         s_keycodesCount;
     uint8_t         s_modifiers;
+
+    // Mouse bookkeeping
+    uint8_t s_mouseButtons;
+    uint8_t s_mouseX;
+    uint8_t s_mouseY;
 
     /** LUFA HID Class driver interface configuration and state information. This structure is
      *  passed to all HID Class driver functions, so that multiple instances of the same class
@@ -96,6 +102,8 @@ extern "C"
                                              void*                              ReportData,
                                              uint16_t* const                    ReportSize)
     {
+        bool forceSend = false;
+
         if (HIDInterfaceInfo == & Keyboard_HID_Interface)
         {
             USB_KeyboardReport_Data_t* KeyboardReport = static_cast<USB_KeyboardReport_Data_t*>(ReportData);
@@ -121,14 +129,16 @@ extern "C"
         {
             USB_MouseReport_Data_t* mouseReport = static_cast<USB_MouseReport_Data_t*>(ReportData);
 
-            mouseReport->Button = 0;
-            mouseReport->X      = 0;
-            mouseReport->Y      = 0;
+            mouseReport->Button = s_mouseButtons;
+            mouseReport->X      = s_mouseX;
+            mouseReport->Y      = s_mouseY;
 
             *ReportSize = sizeof(USB_MouseReport_Data_t);
+
+            forceSend = true;
         }
 
-        return false;
+        return forceSend;
     }
 
     /** HID class driver callback function for the processing of HID reports from the host.
@@ -155,6 +165,22 @@ namespace UsbInterface
         USB_Init();
 
         GlobalInterruptEnable();
+    }
+
+    void MousePress(uint8_t i_button)
+    {
+        s_mouseButtons |= i_button;
+    }
+
+    void MouseRelease(uint8_t i_button)
+    {
+        s_mouseButtons &= ~i_button;
+    }
+
+    void MouseMove(uint8_t i_mouseX, uint8_t i_mouseY)
+    {
+        s_mouseX       = i_mouseX;
+        s_mouseY       = i_mouseY;
     }
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
