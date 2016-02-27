@@ -135,7 +135,8 @@ extern "C"
 
             *ReportSize = sizeof(USB_MouseReport_Data_t);
 
-            forceSend = true;
+            // If we're not doing anything with the mouse controls, no need to force the mouse report.
+            forceSend = s_mouseButtons or s_mouseX or s_mouseY;
         }
 
         return forceSend;
