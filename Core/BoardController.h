@@ -26,8 +26,15 @@ class BoardController
 
         // Mouse state
         // ------------------------------------------------------------------------------
-        uint8_t m_mouseX;
-        uint8_t m_mouseY;
+        enum MouseStateEnum
+        {
+            MOUSE_OFF,
+            MOUSE_ON,
+            MOUSE_TURNING_OFF
+        };
+        uint8_t         m_mouseX;
+        uint8_t         m_mouseY;
+        MouseStateEnum  m_mouseState;
 
         // Reboot state
         // ------------------------------------------------------------------------------
@@ -43,6 +50,7 @@ class BoardController
             m_modifiers               (0),
             m_mouseX                  (0),
             m_mouseY                  (0),
+            m_mouseState              (MOUSE_OFF),
             m_isRebootingToBootloader (false),
             m_bootLoaderJumpTime      (0)
         {
@@ -86,22 +94,41 @@ class BoardController
 
             // TODO: Carve features off into a generic fusion collection defined in board-specific area.
 
-            if (m_functionKey)
+            switch (m_mouseState)
             {
-                m_keyReportArray.clear();
+                case MOUSE_ON:
+                    m_keyReportArray.clear();
 
-                m_mouseY = (m_activeKeyTable[KEY_W] ? -2 :
-                           (m_activeKeyTable[KEY_S] ?  2 : 0));
-                m_mouseX = (m_activeKeyTable[KEY_A] ? -2 :
-                           (m_activeKeyTable[KEY_D] ?  2 : 0));
-            }
-            else
-            {
-                m_mouseX = 0;
-                m_mouseY = 0;
-            }
+                    m_mouseY = (m_activeKeyTable[KEY_W] ? -2 :
+                               (m_activeKeyTable[KEY_S] ?  2 : 0));
+                    m_mouseX = (m_activeKeyTable[KEY_A] ? -2 :
+                               (m_activeKeyTable[KEY_D] ?  2 : 0));
 
-            UsbInterface::MouseMove(m_mouseX, m_mouseY);
+                    UsbInterface::MouseMove(m_mouseX, m_mouseY);
+
+                    if (not m_functionKey)
+                    {
+                        m_mouseState = MOUSE_TURNING_OFF;
+                    }
+                    break;
+
+                case MOUSE_TURNING_OFF:
+                    m_mouseState = MOUSE_OFF;
+                    m_mouseX     = 0;
+                    m_mouseY     = 0;
+                    UsbInterface::MouseMove(m_mouseX, m_mouseY);
+                    UsbInterface::MouseRelease(0xFF);
+                    break;
+
+                default:
+                case MOUSE_OFF:
+
+                    if (m_functionKey)
+                    {
+                        m_mouseState = MOUSE_ON;
+                    }
+                    break;
+            }
 
             // Four-finger salute to put the keyboard into the bootloader.  Not concerned about latching this.
             // Once all four keys are down, the keyboard reports all keys cleared/reset, and the reboot happens
