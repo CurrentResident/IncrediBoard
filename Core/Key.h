@@ -58,18 +58,21 @@ class DebouncedButton
         }
 };
 
-template <uint8_t T_KEY_CODE>
 class BaseKey : public DebouncedButton<5>   // 5 msec per cherry spec.
 {
 };
 
 template <uint8_t T_KEY_CODE>
-class Key : public BaseKey<T_KEY_CODE>
+class Key : public BaseKey
 {
 };
 
 template <uint8_t T_KEY_CODE, uint8_t T_KEY_MODIFIER>
-class KeyModifier : public BaseKey<T_KEY_CODE>
+class KeyModifier : public BaseKey
+{
+};
+
+class KeyFn : public BaseKey
 {
 };
 
@@ -116,9 +119,9 @@ struct ProcessKey
     // Here's what the functor does when handed an ordinary Key.
     //
     template <uint8_t T_KEY_CODE>
-    uint8_t operator() (const uint8_t rowIndex, Key<T_KEY_CODE>& key) const
+    uint8_t operator() (const uint8_t colIndex, Key<T_KEY_CODE>& key) const
     {
-        if (key.Process(m_inputs[rowIndex], m_now))
+        if (key.Process(m_inputs[colIndex], m_now))
         {
             const uint8_t state = key.GetState();
 
@@ -134,15 +137,15 @@ struct ProcessKey
                     break;
             }
         }
-        return rowIndex + 1;
+        return colIndex + 1;
     }
 
     // Here's what the functor does when handed a KeyModifier.
     //
     template <uint8_t T_KEY_CODE, uint8_t T_KEY_MODIFIER>
-    uint8_t operator() (const uint8_t rowIndex, KeyModifier<T_KEY_CODE, T_KEY_MODIFIER>& key) const
+    uint8_t operator() (const uint8_t colIndex, KeyModifier<T_KEY_CODE, T_KEY_MODIFIER>& key) const
     {
-        if(key.Process(m_inputs[rowIndex], m_now))
+        if(key.Process(m_inputs[colIndex], m_now))
         {
             const uint8_t state = key.GetState();
 
@@ -158,7 +161,18 @@ struct ProcessKey
                     break;
             }
         }
-        return rowIndex + 1;
+        return colIndex + 1;
+    }
+
+    // Here's what to do when processing an update to the Func key.
+    uint8_t operator() (const uint8_t colIndex, KeyFn& key) const
+    {
+        if(key.Process(m_inputs[colIndex], m_now))
+        {
+            m_controller.SetFunctionKey(key.GetState());
+        }
+
+        return colIndex + 1;
     }
 };
 

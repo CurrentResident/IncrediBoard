@@ -12,6 +12,7 @@ class BoardController
 {
     private:
 
+        uint8_t       m_functionKey;                ///< The function key state.
         uint8_t       m_modifiers;                  ///< USB modifier report byte
         bool          m_isRebootingToBootloader;    ///< Indicates we're going to the bootloader shortly.
         unsigned long m_bootLoaderJumpTime;         ///< The time in msec that we'll make the actual jump.
@@ -29,6 +30,7 @@ class BoardController
     public:
 
         BoardController() :
+            m_functionKey             (0),
             m_modifiers               (0),
             m_isRebootingToBootloader (false),
             m_bootLoaderJumpTime      (0)
@@ -59,6 +61,11 @@ class BoardController
         void ClearKey(const uint8_t i_key)
         {
             m_keyReportArray.DeleteElement(i_key);
+        }
+
+        void SetFunctionKey(const uint8_t i_state)
+        {
+            m_functionKey = i_state;
         }
 
         void Process()
