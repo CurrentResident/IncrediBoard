@@ -106,6 +106,10 @@ class BoardController
 
                     UsbInterface::MouseMove(m_mouseX, m_mouseY);
 
+                    UsbInterface::MouseSetButtons((m_activeKeyTable[KEY_COMMA]  ? 1 : 0) |
+                                                  (m_activeKeyTable[KEY_SLASH]  ? 2 : 0) |
+                                                  (m_activeKeyTable[KEY_PERIOD] ? 4 : 0));
+
                     if (not m_functionKey)
                     {
                         m_mouseState = MOUSE_TURNING_OFF;
@@ -117,7 +121,7 @@ class BoardController
                     m_mouseX     = 0;
                     m_mouseY     = 0;
                     UsbInterface::MouseMove(m_mouseX, m_mouseY);
-                    UsbInterface::MouseRelease(0xFF);
+                    UsbInterface::MouseSetButtons(0);
                     break;
 
                 default:

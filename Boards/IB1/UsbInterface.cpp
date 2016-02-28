@@ -168,14 +168,9 @@ namespace UsbInterface
         GlobalInterruptEnable();
     }
 
-    void MousePress(uint8_t i_button)
+    void MouseSetButtons(uint8_t i_buttonBitset)
     {
-        s_mouseButtons |= i_button;
-    }
-
-    void MouseRelease(uint8_t i_button)
-    {
-        s_mouseButtons &= ~i_button;
+        s_mouseButtons = i_buttonBitset;
     }
 
     void MouseMove(uint8_t i_mouseX, uint8_t i_mouseY)
