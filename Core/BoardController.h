@@ -94,6 +94,7 @@ class BoardController
 
             // TODO: Carve features off into a generic fusion collection defined in board-specific area.
 
+            // Mouse emulation
             switch (m_mouseState)
             {
                 case MOUSE_ON:

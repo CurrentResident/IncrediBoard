@@ -175,8 +175,8 @@ namespace UsbInterface
 
     void MouseMove(uint8_t i_mouseX, uint8_t i_mouseY)
     {
-        s_mouseX       = i_mouseX;
-        s_mouseY       = i_mouseY;
+        s_mouseX = i_mouseX;
+        s_mouseY = i_mouseY;
     }
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
