@@ -107,9 +107,9 @@ class BoardController
 
                     UsbInterface::MouseMove(m_mouseX, m_mouseY);
 
-                    UsbInterface::MouseSetButtons((m_activeKeyTable[KEY_COMMA]  ? 1 : 0) |
-                                                  (m_activeKeyTable[KEY_SLASH]  ? 2 : 0) |
-                                                  (m_activeKeyTable[KEY_PERIOD] ? 4 : 0));
+                    UsbInterface::MouseSetButtons(((m_activeKeyTable[KEY_COMMA]  or m_activeKeyTable[KEY_DELETE])    ? 1 : 0) |
+                                                  ((m_activeKeyTable[KEY_SLASH]  or m_activeKeyTable[KEY_PAGE_DOWN]) ? 2 : 0) |
+                                                  ((m_activeKeyTable[KEY_PERIOD] or m_activeKeyTable[KEY_END])       ? 4 : 0));
 
                     if (not m_functionKey)
                     {
