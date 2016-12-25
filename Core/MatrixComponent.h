@@ -2,8 +2,6 @@
 #define MATRIX_COMPONENT_H_
 
 #include <boost/fusion/algorithm.hpp>
-#include <boost/fusion/algorithm/iteration/for_each.hpp>
-#include <boost/fusion/include/for_each.hpp>
 #include <boost/mpl/int.hpp>
 
 #include "BoardState.h"
@@ -18,7 +16,7 @@ class MatrixComponent
 
         MatrixComponent()
         {
-            for_each(m_matrix, VerifyColumnCount<FirstRowSize::value>());
+            boost::fusion::for_each(m_matrix, VerifyColumnCount<FirstRowSize::value>());
         }
 
         void Process(BoardState& io_state)
@@ -34,9 +32,8 @@ class MatrixComponent
 
         typedef Platform::InputElementType InputArrayType [FirstRowSize::value];
 
-        InputArrayType            m_inputs;
-
-        MatrixType m_matrix;
+        InputArrayType m_inputs;
+        MatrixType     m_matrix;
 };
 
 #endif
