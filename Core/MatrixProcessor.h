@@ -1,28 +1,29 @@
-#ifndef MATRIX_PROCESSOR_H_
-#define MATRIX_PROCESSOR_H_
+#ifndef MATRIX_COMPONENT_H_
+#define MATRIX_COMPONENT_H_
 
 #include <boost/fusion/algorithm.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/include/for_each.hpp>
 #include <boost/mpl/int.hpp>
 
+#include "BoardState.h"
 #include "Platform.h"
 #include "Row.h"
 #include "VerifyColumnCount.h"
 
 template <typename MatrixType>
-class MatrixProcessor
+class MatrixComponent
 {
     public:
 
-        MatrixProcessor()
+        MatrixComponent()
         {
             for_each(m_matrix, VerifyColumnCount<FirstRowSize::value>());
         }
 
-        void Process()
+        void Process(BoardState& io_state)
         {
-            boost::fusion::iter_fold(m_matrix, 0, ProcessRow<MatrixType, InputArrayType>(m_controller, m_inputs));
+            boost::fusion::iter_fold(m_matrix, 0, ProcessRow<MatrixType, InputArrayType>(io_state, m_inputs));
         }
 
     private:

@@ -3,21 +3,21 @@
 
 #include <boost/fusion/algorithm.hpp>
 
-#include "BoardController.h"
+#include "BoardState.h"
 #include "Key.h"
 #include "Platform.h"
 
 template <typename MatrixType, typename InputArrayType>
 struct ProcessRow
 {
-    BoardController&    m_controller;
-    InputArrayType&     m_inputs;
+    BoardState&     m_state;
+    InputArrayType& m_inputs;
 
-    ProcessRow(BoardController&     i_controller,
-                  InputArrayType&   i_inputs)
+    ProcessRow(BoardState&     io_state,
+               InputArrayType& i_inputs)
     :
-        m_controller(i_controller),
-        m_inputs    (i_inputs)
+        m_state(io_state),
+        m_inputs(i_inputs)
     { }
 
     typedef int result_type;
@@ -39,7 +39,7 @@ struct ProcessRow
 
         fold (deref (rowIter),
               0,
-              ProcessKey<InputArrayType>(m_controller,
+              ProcessKey<InputArrayType>(m_state,
                                          m_inputs,
                                          now));
 

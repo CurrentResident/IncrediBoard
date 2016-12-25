@@ -12,18 +12,6 @@ class BoardController
 {
     private:
 
-        // Keyboard state
-        // ------------------------------------------------------------------------------
-        uint8_t m_functionKey;                ///< The function key state.
-        uint8_t m_modifiers;                  ///< USB modifier report byte
-        /// USB report array.
-        /// Only track up to 10 keys because really, how often do people have more than 10 keys pressed at a time?
-        /// Also, I don't know how I want to deal with NKRO yet.
-        FixedArray<uint8_t, 10, 0> m_keyReportArray;
-
-        /// Key truth state.
-        FixedArray<uint8_t, 256, 0> m_activeKeyTable;
-
         // Mouse state
         // ------------------------------------------------------------------------------
         enum MouseStateEnum
@@ -54,37 +42,6 @@ class BoardController
             m_isRebootingToBootloader (false),
             m_bootLoaderJumpTime      (0)
         {
-        }
-
-        void SetActive(const uint8_t i_key, const uint8_t i_value)
-        {
-            m_activeKeyTable[i_key] = i_value;
-            // TODO:  Diagnostic flash?  PIND |= (1 << 6);
-        }
-
-        void SetModifier(const uint8_t i_modifier)
-        {
-            m_modifiers |= i_modifier;
-        }
-
-        void ClearModifier(const uint8_t i_modifier)
-        {
-            m_modifiers &= ~i_modifier;
-        }
-
-        void SetKey(const uint8_t i_key)
-        {
-            m_keyReportArray.PushElement(i_key);
-        }
-
-        void ClearKey(const uint8_t i_key)
-        {
-            m_keyReportArray.DeleteElement(i_key);
-        }
-
-        void SetFunctionKey(const uint8_t i_state)
-        {
-            m_functionKey = i_state;
         }
 
         void Process()

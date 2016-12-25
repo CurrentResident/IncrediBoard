@@ -4,7 +4,7 @@
 #include <boost/static_assert.hpp>
 #include <stdint.h>
 
-#include "BoardController.h"
+#include "BoardState.h"
 #include "Platform.h"
 
 template<unsigned long T_DEBOUNCE_PERIOD>
@@ -102,14 +102,14 @@ template <> class Key<0>
 template <typename InputArrayType>
 struct ProcessKey
 {
-    BoardController&        m_controller;
+    BoardState&             m_state;
     const InputArrayType&   m_inputs;
     const unsigned long&    m_now;
 
-    ProcessKey (BoardController&        io_controller,
+    ProcessKey (BoardState&        io_state,
                 const InputArrayType&   i_inputs,
                 const unsigned long&    i_now) :
-        m_controller(io_controller),
+        m_state (io_state),
         m_inputs(i_inputs),
         m_now   (i_now)
     {}
@@ -125,15 +125,15 @@ struct ProcessKey
         {
             const uint8_t state = key.GetState();
 
-            m_controller.SetActive(T_KEY_CODE, state);
+            m_state.SetActive(T_KEY_CODE, state);
 
             switch (state)
             {
                 case 0:
-                    m_controller.ClearKey(T_KEY_CODE);
+                    m_state.ClearKey(T_KEY_CODE);
                     break;
                 default:
-                    m_controller.SetKey(T_KEY_CODE);
+                    m_state.SetKey(T_KEY_CODE);
                     break;
             }
         }
@@ -149,15 +149,15 @@ struct ProcessKey
         {
             const uint8_t state = key.GetState();
 
-            m_controller.SetActive(T_KEY_CODE, state);
+            m_state.SetActive(T_KEY_CODE, state);
 
             switch (state)
             {
                 case 0:
-                    m_controller.ClearModifier(T_KEY_MODIFIER);
+                    m_state.ClearModifier(T_KEY_MODIFIER);
                     break;
                 default:
-                    m_controller.SetModifier(T_KEY_MODIFIER);
+                    m_state.SetModifier(T_KEY_MODIFIER);
                     break;
             }
         }
@@ -169,7 +169,7 @@ struct ProcessKey
     {
         if(key.Process(m_inputs[colIndex], m_now))
         {
-            m_controller.SetFunctionKey(key.GetState());
+            m_state.SetFunctionKey(key.GetState());
         }
 
         return colIndex + 1;
