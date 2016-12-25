@@ -8,11 +8,13 @@
 #include "Matrix.h"
 #include "MatrixComponent.h"
 #include "UsbComponent.h"
+#include "UsbMouseComponent.h"
 
 typedef Board<
             boost::fusion::vector<
                 MatrixComponent<Matrix>,
                 BootloaderJumpComponent,
+                UsbMouseComponent,
                 UsbComponent
                 >
             >
