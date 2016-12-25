@@ -1,6 +1,8 @@
 #ifndef BOARD_H_
 #define BOARD_H_
 
+#include <boost/fusion/include/for_each.hpp>
+
 #include "BoardState.h"
 
 template <typename ComponentCollectionType>

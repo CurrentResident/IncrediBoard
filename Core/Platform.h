@@ -48,4 +48,8 @@ namespace Platform
     };
 }
 
+#define INSIDE_PLATFORM_H_
+#include "PlatformSpecific.h"
+#undef INSIDE_PLATFORM_H_
+
 #endif

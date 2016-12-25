@@ -1,6 +1,10 @@
 #ifndef BOARD_STATE_H_
 #define BOARD_STATE_H_
 
+#include <stdint.h>
+
+#include "FixedArray.h"
+
 struct BoardState
 {
     // Keyboard state

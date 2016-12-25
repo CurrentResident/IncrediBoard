@@ -1,4 +1,4 @@
-#include "PlatformTeensy.h"
+#include "Platform.h"
 
 #include <avr/interrupt.h>
 #include <boost/utility/binary.hpp>

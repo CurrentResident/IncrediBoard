@@ -1,10 +1,9 @@
-#ifndef PLATFORM_TEENSY_H_
-#define PLATFORM_TEENSY_H_
+#ifndef INSIDE_PLATFORM_H_
+#error "Do not include this file directly!!!
+#endif
 
 #include <avr/io.h>
 #include <util/delay.h>
-
-#include "Platform.h"
 
 namespace Platform
 {

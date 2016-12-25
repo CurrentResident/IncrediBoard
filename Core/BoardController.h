@@ -6,7 +6,6 @@
 #include "FixedArray.h"
 #include "KeyCodes.h"
 #include "Platform.h"
-#include "UsbInterface.h"
 
 class BoardController
 {
@@ -34,8 +33,6 @@ class BoardController
     public:
 
         BoardController() :
-            m_functionKey             (0),
-            m_modifiers               (0),
             m_mouseX                  (0),
             m_mouseY                  (0),
             m_mouseState              (MOUSE_OFF),
@@ -119,9 +116,6 @@ class BoardController
                 }
             }
 
-            UsbInterface::Process(m_keyReportArray.Get(),
-                                  m_keyReportArray.size(),
-                                  m_modifiers);
         }
 };
 
