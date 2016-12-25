@@ -21,15 +21,14 @@ struct BoardState
     FixedArray<uint8_t, 256, 0> m_activeKeyTable;
 
     BoardState() :
-        m_functionKey             (0),
-        m_modifiers               (0)
+        m_functionKey(0),
+        m_modifiers  (0)
     {
     }
 
     void SetActive(const uint8_t i_key, const uint8_t i_value)
     {
         m_activeKeyTable[i_key] = i_value;
-        // TODO:  Diagnostic flash?  PIND |= (1 << 6);
     }
 
     void SetModifier(const uint8_t i_modifier)
@@ -56,8 +55,6 @@ struct BoardState
     {
         m_functionKey = i_state;
     }
-
-
 };
 
 #endif

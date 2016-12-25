@@ -33,7 +33,7 @@ class Board
         };
 
         ComponentCollectionType m_components;
-        BoardState m_state;
+        BoardState              m_state;
 };
 
 #endif
