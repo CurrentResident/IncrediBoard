@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "BoardState.h"
+#include "KeyCodes.h"
 #include "UsbInterface.h"
 
 class UsbMouseComponent
