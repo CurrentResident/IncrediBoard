@@ -37,6 +37,6 @@ class MatrixComponent
         InputArrayType            m_inputs;
 
         MatrixType m_matrix;
-}
+};
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef KEYBOARD_DEFINITION_H_
 #define KEYBOARD_DEFINITION_H_
 
-#include <boost/fusion/include/vector.hpp>
+#include <boost/fusion/container/vector.hpp>
 
 #include "Board.h"
 #include "Matrix.h"
@@ -13,6 +13,7 @@ typedef Board<
                 MatrixComponent<Matrix>,
                 UsbComponent
                 >
+            >
             KeyboardType;
 
 #endif

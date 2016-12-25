@@ -1,5 +1,5 @@
 #ifndef INSIDE_PLATFORM_H_
-#error "Do not include this file directly!!!
+#error "Do not include this file directly!!!"
 #endif
 
 #include <avr/io.h>
@@ -61,6 +61,3 @@ namespace Platform
     MAKE_ROW_PIN(4, DDRB, 2)
     MAKE_ROW_PIN(5, DDRB, 1)
 }
-
-
-#endif

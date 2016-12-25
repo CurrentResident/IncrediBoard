@@ -21,7 +21,7 @@ TARGET       = IB1
 OBJDIR		 = objs
 SRC          = main.cpp \
 			   Descriptors.c \
-			   PlatformTeensy.cpp \
+			   PlatformSpecific.cpp \
 			   UsbInterface.cpp \
 			   $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH    = ../../libs/AVR/LUFA
