@@ -5,6 +5,7 @@
 
 #include "Board.h"
 #include "BootloaderJumpComponent.h"
+#include "ConsoleComponent.h"
 #include "Matrix.h"
 #include "MatrixComponent.h"
 #include "UsbComponent.h"
@@ -15,6 +16,7 @@ typedef Board
             boost::fusion::vector
             <
                 MatrixComponent<Matrix>,
+                ConsoleComponent,
                 BootloaderJumpComponent,
                 UsbMouseComponent,
                 UsbComponent
