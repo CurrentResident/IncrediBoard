@@ -56,6 +56,11 @@ class FixedArray
             return m_nextInsertIndex;
         }
 
+        std::size_t capacity() const
+        {
+            return CAPACITY;
+        }
+
         void clear()
         {
             std::fill_n(begin(), N, T_EMPTY_VALUE);
@@ -115,6 +120,18 @@ class FixedArray
                 }
             }
         }
+
+        bool DeleteLastElement()
+        {
+            if (m_nextInsertIndex > 0)
+            {
+                --m_nextInsertIndex;
+                m_array[m_nextInsertIndex] = T_EMPTY_VALUE;
+                return true;
+            }
+            return false;
+        }
+
 };
 
 #endif

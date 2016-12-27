@@ -2,6 +2,7 @@
 #define CONSOLE_COMPONENT_H_
 
 #include "BoardState.h"
+#include "Console.h"
 #include "KeyCodes.h"
 
 class ConsoleComponent
@@ -35,6 +36,10 @@ class ConsoleComponent
 
                 case CONSOLE_EMITTING_PROMPT:
 
+                    // TODO:  Write the prompt.
+
+                    m_consoleState = CONSOLE_COLLECTING_INPUT;
+
                     if (magicSequenceActivate)
                     {
                         DeactivateConsole();
@@ -42,6 +47,11 @@ class ConsoleComponent
                     break;
 
                 case CONSOLE_COLLECTING_INPUT:
+
+                    if (not m_console.AddInput(io_state))
+                    {
+                        //io_state.m_keyReportArray.clear();
+                    }
 
                     if (magicSequenceActivate)
                     {
@@ -68,6 +78,7 @@ class ConsoleComponent
         void DeactivateConsole()
         {
             m_consoleState = CONSOLE_OFF;
+            m_console.Reset();
 
             //TODO: Clear output buffer
             //TODO: Throw away saved stack contexts
@@ -81,6 +92,7 @@ class ConsoleComponent
             CONSOLE_EMITTING_OUTPUT
         };
 
+        Console          m_console;
         ConsoleStateEnum m_consoleState;
         bool             m_magicSequenceWasActive;
 };
