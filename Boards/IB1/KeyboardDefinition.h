@@ -16,9 +16,9 @@ typedef Board
             boost::fusion::vector
             <
                 MatrixComponent<Matrix>,
-                ConsoleComponent,
                 BootloaderJumpComponent,
                 UsbMouseComponent,
+                ConsoleComponent,
                 UsbComponent
             >
         >
