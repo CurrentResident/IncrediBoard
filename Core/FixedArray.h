@@ -77,6 +77,14 @@ class FixedArray
             return m_array[i];
         }
 
+        FixedArray& operator=(const FixedArray& i_rhs)
+        {
+            std::copy(i_rhs.begin(), i_rhs.end(), begin());
+            m_nextInsertIndex = i_rhs.m_nextInsertIndex;
+
+            return *this;
+        }
+
         bool PushElement(const T& i_data)
         {
             if (m_nextInsertIndex < N and i_data != T_EMPTY_VALUE)

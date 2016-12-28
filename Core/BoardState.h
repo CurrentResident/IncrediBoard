@@ -15,7 +15,8 @@ struct BoardState
     /// USB report array.
     /// Only track up to 10 keys because really, how often do people have more than 10 keys pressed at a time?
     /// Also, I don't know how I want to deal with NKRO yet.
-    FixedArray<uint8_t, 10, 0> m_keyReportArray;
+    typedef FixedArray<uint8_t, 10, 0> ReportType;
+    ReportType m_keyReportArray;
 
     /// Key truth state.
     FixedArray<uint8_t, 256, 0> m_activeKeyTable;
