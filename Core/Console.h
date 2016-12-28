@@ -4,11 +4,13 @@
 #include "BoardState.h"
 #include "FixedArray.h"
 #include "KeyCodes.h"
+#include "Platform.h"
 
 class Console
 {
     public:
         Console() :
+            m_nextLiftoffTime(0),
             m_lastInputKeycode(0)
         {
         }
@@ -79,6 +81,7 @@ class Console
                         if (result)
                         {
                             m_consoleOutputReport.PushElement(inputKeycode);
+                            m_nextLiftoffTime = Platform::GetMsec() + 10;
                             ++writerI;
                         }
                     }
@@ -89,6 +92,12 @@ class Console
                 }
             }
 
+            if (0 < m_nextLiftoffTime and m_nextLiftoffTime < Platform::GetMsec())
+            {
+                m_consoleOutputReport.DeleteElement(m_consoleOutputReport[0]);
+                m_nextLiftoffTime = (m_consoleOutputReport.size() > 0 ? m_nextLiftoffTime + 10 : 0);
+            }
+
             i_state.m_keyReportArray = m_consoleOutputReport;
 
             return false;
@@ -97,6 +106,7 @@ class Console
         void Reset()
         {
             m_lastInputKeycode = 0;
+            m_nextLiftoffTime = 0;
             m_inputArray.clear();
             m_consoleOutputReport.clear();
         }
@@ -106,6 +116,7 @@ class Console
         FixedArray<uint8_t, BoardState::ReportType::CAPACITY, 0> m_consoleOutputReport;   ///< Our outgoing USB report.
 
         FixedArray<uint8_t, 20, 0> m_inputArray;            ///< The actual input string
+        unsigned long              m_nextLiftoffTime;
         uint8_t                    m_lastInputKeycode;
 };
 

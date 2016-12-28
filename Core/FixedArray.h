@@ -96,7 +96,7 @@ class FixedArray
             return false;
         }
 
-        void DeleteElement(const T& i_data)
+        void DeleteElement(const T i_data)
         {
             if (i_data != T_EMPTY_VALUE)
             {
