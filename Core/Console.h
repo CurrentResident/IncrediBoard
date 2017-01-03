@@ -18,7 +18,7 @@ class Console
             Reset();
         }
 
-        bool AddInput(BoardState& i_state)
+        bool AddInput(BoardState& io_state)
         {
             bool        commandEntered = false;
             std::size_t writerI        = 0;
@@ -27,9 +27,9 @@ class Console
             uint8_t inputKeycode;
             uint8_t outputReportKeycode;
 
-            for (; readerI < i_state.m_keyReportArray.size(); ++readerI)
+            for (; readerI < io_state.m_keyReportArray.size(); ++readerI)
             {
-                inputKeycode        = i_state.m_keyReportArray[readerI];
+                inputKeycode        = io_state.m_keyReportArray[readerI];
                 outputReportKeycode = m_consoleOutputReport[writerI];
 
                 if (inputKeycode != outputReportKeycode)
@@ -107,7 +107,8 @@ class Console
                 m_nextLiftoffTime = (m_consoleOutputReport.size() > 0 ? m_nextLiftoffTime + 10 : 0);
             }
 
-            i_state.m_keyReportArray = m_consoleOutputReport;
+            io_state.m_keyReportArray = m_consoleOutputReport;
+            io_state.m_modifiers      = 0;
 
             return commandEntered;
         }
@@ -158,6 +159,7 @@ class Console
             // due to actual user input.
             //
             io_state.m_keyReportArray.clear();
+            io_state.m_modifiers = 0;
 
             if (m_nextLiftoffTime > 0)
             {
