@@ -19,7 +19,7 @@ class ConsoleComponent
         {
             const bool magicSequenceIsActive = io_state.m_activeKeyTable[KEY_LEFT_CTRL] and
                                                io_state.m_activeKeyTable[KEY_RIGHT_CTRL] and
-                                               io_state.m_activeKeyTable[KEY_P];
+                                               io_state.m_activeKeyTable[KEY_RIGHT_SHIFT];
 
             const bool magicSequenceActivate = magicSequenceIsActive and not m_magicSequenceWasActive;
 
@@ -30,15 +30,27 @@ class ConsoleComponent
                 case CONSOLE_OFF:
                     if (magicSequenceActivate)
                     {
-                        m_consoleState = CONSOLE_EMITTING_PROMPT;
+                        m_consoleState = CONSOLE_PUSH_PROMPT;
                     }
+                    break;
+
+                case CONSOLE_PUSH_PROMPT:
+
+                    m_console.PushOutput("Hi>");
+                    m_consoleState = CONSOLE_EMITTING_PROMPT;
+                    if (magicSequenceActivate)
+                    {
+                        DeactivateConsole();
+                    }
+
                     break;
 
                 case CONSOLE_EMITTING_PROMPT:
 
-                    // TODO:  Write the prompt.
-
-                    m_consoleState = CONSOLE_COLLECTING_INPUT;
+                    if (not m_console.FlushOutput(io_state))
+                    {
+                        m_consoleState = CONSOLE_COLLECTING_INPUT;
+                    }
 
                     if (magicSequenceActivate)
                     {
@@ -48,9 +60,9 @@ class ConsoleComponent
 
                 case CONSOLE_COLLECTING_INPUT:
 
-                    if (not m_console.AddInput(io_state))
+                    if (m_console.AddInput(io_state))
                     {
-                        //io_state.m_keyReportArray.clear();
+                        m_consoleState = CONSOLE_EMITTING_OUTPUT;
                     }
 
                     if (magicSequenceActivate)
@@ -60,6 +72,11 @@ class ConsoleComponent
                     break;
 
                 case CONSOLE_EMITTING_OUTPUT:
+
+                    if (not m_console.FlushOutput(io_state))
+                    {
+                        m_consoleState = CONSOLE_PUSH_PROMPT;
+                    }
 
                     if (magicSequenceActivate)
                     {
@@ -87,6 +104,7 @@ class ConsoleComponent
         enum ConsoleStateEnum
         {
             CONSOLE_OFF,
+            CONSOLE_PUSH_PROMPT,
             CONSOLE_EMITTING_PROMPT,
             CONSOLE_COLLECTING_INPUT,
             CONSOLE_EMITTING_OUTPUT
