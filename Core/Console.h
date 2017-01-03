@@ -56,8 +56,10 @@ class Console
                         }
                         else if (inputKeycode == KEY_ENTER or inputKeycode == KEY_KP_ENTER)
                         {
-                            // TODO:  Lookup command, run it downstream.
                             m_consoleOutputReport.clear();
+                            m_nextLiftoffTime = 0;
+
+                            // TODO:  Lookup command, run it downstream.
                             m_inputArray.clear();
 
                             PushOutput('\n');
@@ -85,7 +87,7 @@ class Console
                             result = m_inputArray.PushElement('0');
                         }
 
-                        if (result)
+                        if (result and not commandEntered)
                         {
                             m_consoleOutputReport.PushElement(inputKeycode);
                             m_nextLiftoffTime = Platform::GetMsec() + 10;
