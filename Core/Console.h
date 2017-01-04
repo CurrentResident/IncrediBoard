@@ -5,6 +5,7 @@
 #include "FixedArray.h"
 #include "KeyCodes.h"
 #include "Platform.h"
+#include "UsbInterface.h"
 
 class Console
 {
@@ -126,16 +127,14 @@ class Console
 
         void PushOutput(const char c)
         {
-            if (m_outputWriter != m_outputReader)
+            if (m_outputWriter == m_outputReader)
             {
-                *m_outputWriter = c;
+                FlushOutput();
+            }
 
-                m_outputWriter = AdvanceOutput(m_outputWriter);
-            }
-            else
-            {
-                //TODO: Handle more output than we have buffer for.
-            }
+            *m_outputWriter = c;
+
+            m_outputWriter = AdvanceOutput(m_outputWriter);
         }
 
         void PushOutput(const char* i_out)
@@ -149,12 +148,25 @@ class Console
             }
         }
 
-        bool FlushOutput(BoardState& io_state)
+        void FlushOutput()
         {
-            OutputBuffer::iterator nextChar      = AdvanceOutput(m_outputReader);
-            const bool             atEndOfOutput = (nextChar == m_outputWriter);
-            bool                   result        = false;
+            BoardState::ReportType localReport;
+            m_nextLiftoffTime = 0;
 
+            for (OutputBuffer::iterator nextChar = AdvanceOutput(m_outputReader); nextChar != m_outputWriter; nextChar = AdvanceOutput(m_outputReader))
+            {
+                m_outputReader = nextChar;
+
+                localReport[0] = CharToCode(*m_outputReader);
+                m_nextLiftoffTime = Platform::GetMsec() + 10;
+
+                while (m_nextLiftoffTime > Platform::GetMsec())
+                {
+                    UsbInterface::Process(localReport.Get(), 1, 0);
+                }
+            }
+        }
+/*
             // We always clear because the upstream matrix component could have pushed more codes
             // due to actual user input.
             //
@@ -188,7 +200,7 @@ class Console
 
             return result;
         }
-
+*/
     private:
 
         typedef FixedArray<uint8_t, 3, 0> OutputBuffer;

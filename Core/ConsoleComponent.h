@@ -47,10 +47,8 @@ class ConsoleComponent
 
                 case CONSOLE_EMITTING_PROMPT:
 
-                    if (not m_console.FlushOutput(io_state))
-                    {
-                        m_consoleState = CONSOLE_COLLECTING_INPUT;
-                    }
+                    m_console.FlushOutput();
+                    m_consoleState = CONSOLE_COLLECTING_INPUT;
 
                     if (magicSequenceActivate)
                     {
@@ -73,10 +71,8 @@ class ConsoleComponent
 
                 case CONSOLE_EMITTING_OUTPUT:
 
-                    if (not m_console.FlushOutput(io_state))
-                    {
-                        m_consoleState = CONSOLE_PUSH_PROMPT;
-                    }
+                    m_console.FlushOutput();
+                    m_consoleState = CONSOLE_PUSH_PROMPT;
 
                     if (magicSequenceActivate)
                     {
