@@ -36,7 +36,7 @@ class ConsoleComponent
 
                 case CONSOLE_PUSH_PROMPT:
 
-                    m_console.PushOutput("Hi>");
+                    m_console.PushOutput("IncrediBoard ");
                     m_consoleState = CONSOLE_EMITTING_PROMPT;
                     if (magicSequenceActivate)
                     {
@@ -92,9 +92,6 @@ class ConsoleComponent
         {
             m_consoleState = CONSOLE_OFF;
             m_console.Reset();
-
-            //TODO: Clear output buffer
-            //TODO: Throw away saved stack contexts
         }
 
         enum ConsoleStateEnum

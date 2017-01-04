@@ -151,86 +151,54 @@ class Console
         void FlushOutput()
         {
             BoardState::ReportType localReport;
+            uint8_t                localModifiers = 0;
+
             m_nextLiftoffTime = 0;
 
             for (OutputBuffer::iterator nextChar = AdvanceOutput(m_outputReader); nextChar != m_outputWriter; nextChar = AdvanceOutput(m_outputReader))
             {
                 m_outputReader = nextChar;
 
-                localReport[0] = CharToCode(*m_outputReader);
+                CharToCode(*m_outputReader, localReport[0], localModifiers);
                 m_nextLiftoffTime = Platform::GetMsec() + 10;
 
                 while (m_nextLiftoffTime > Platform::GetMsec())
                 {
-                    UsbInterface::Process(localReport.Get(), 1, 0);
+                    UsbInterface::Process(localReport.Get(), 1, localModifiers);
                 }
             }
         }
-/*
-            // We always clear because the upstream matrix component could have pushed more codes
-            // due to actual user input.
-            //
-            io_state.m_keyReportArray.clear();
-            io_state.m_modifiers = 0;
 
-            if (m_nextLiftoffTime > 0)
-            {
-                if (m_nextLiftoffTime < Platform::GetMsec())
-                {
-                    m_nextLiftoffTime = 0;
-                }
-                else
-                {
-                    io_state.m_keyReportArray.PushElement(CharToCode(*m_outputReader));
-                }
-
-                result = true;
-            }
-            else
-            {
-                if (not atEndOfOutput)
-                {
-                    result = true;
-                    m_outputReader = nextChar;
-
-                    io_state.m_keyReportArray.PushElement(CharToCode(*m_outputReader));
-                    m_nextLiftoffTime = Platform::GetMsec() + 10;
-                }
-            }
-
-            return result;
-        }
-*/
     private:
 
         typedef FixedArray<uint8_t, 3, 0> OutputBuffer;
 
-        uint8_t CharToCode(uint8_t i_char)
+        void CharToCode(uint8_t i_char, uint8_t& o_code, uint8_t& o_modifiers)
         {
-            uint8_t result = KEY_SPACE;
+            o_code      = KEY_SPACE;
+            o_modifiers = 0;
 
             if ('a' <= i_char and i_char <= 'z')
             {
-                result = KEY_A + (i_char - 'a');
+                o_code = KEY_A + (i_char - 'a');
             }
             else if ('A' <= i_char and i_char <= 'Z')
             {
-                result = KEY_A + (i_char - 'A');
+                o_code = KEY_A + (i_char - 'A');
+                o_modifiers = KEY_MOD_LEFT_SHIFT;
             }
             else if ('1' <= i_char and i_char <= '9')
             {
-                result = KEY_1 + (i_char - KEY_1);
+                o_code = KEY_1 + (i_char - KEY_1);
             }
             else if ('0' == i_char)
             {
-                result = KEY_0;
+                o_code = KEY_0;
             }
             else if ('\n' == i_char)
             {
-                result = KEY_ENTER;
+                o_code = KEY_ENTER;
             }
-
-            return result;
         }
 
         Console::OutputBuffer::iterator AdvanceOutput(OutputBuffer::iterator i_iterator)
