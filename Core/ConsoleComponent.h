@@ -67,6 +67,8 @@ class ConsoleComponent : NeedsAllComponents, WithCommands
 
                     if (m_console.AddInput(io_state))
                     {
+                        m_consoleState = CONSOLE_EMITTING_OUTPUT;
+
                         boost::fusion::fold(io_components, false, ConsoleDispatcher(m_console, m_console.GetInputCommand()));
 
                         if (m_helpRequested)
@@ -77,8 +79,6 @@ class ConsoleComponent : NeedsAllComponents, WithCommands
                         }
 
                         m_console.ClearInputCommand();
-
-                        m_consoleState = CONSOLE_EMITTING_OUTPUT;
                     }
 
                     if (magicSequenceActivate)
@@ -115,7 +115,19 @@ class ConsoleComponent : NeedsAllComponents, WithCommands
             }
         };
 
-        typedef boost::fusion::vector<HelpCommand> Commands;
+        struct ExitCommand : Console::BaseCommand
+        {
+            ExitCommand() : Console::BaseCommand("exit")
+            { }
+
+            void operator()(Console& cons, ConsoleComponent& me) const
+            {
+                cons.PushOutput('\n');
+                me.DeactivateConsole();
+            }
+        };
+
+        typedef boost::fusion::vector<HelpCommand, ExitCommand> Commands;
 
     private:
 
