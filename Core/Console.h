@@ -10,6 +10,14 @@
 class Console
 {
     public:
+
+        struct BaseCommand
+        {
+            BaseCommand(const char* i_name) : name(i_name)
+            {}
+            const char* name;
+        };
+
         Console() :
             m_outputReader(m_outputArray.end() - 1),
             m_outputWriter(m_outputArray.begin()),
@@ -60,9 +68,6 @@ class Console
                             m_consoleOutputReport.clear();
                             m_nextLiftoffTime = 0;
 
-                            // TODO:  Lookup command, run it downstream.
-                            m_inputArray.clear();
-
                             PushOutput('\n');
                             result = true;
                             commandEntered = true;
@@ -102,6 +107,7 @@ class Console
                 }
             }
 
+            // Make sure we lift off the "earliest" key so that the host doesn't think it's held down.
             if (0 < m_nextLiftoffTime and m_nextLiftoffTime < Platform::GetMsec())
             {
                 m_consoleOutputReport.DeleteElement(m_consoleOutputReport[0]);
@@ -169,6 +175,16 @@ class Console
             }
         }
 
+        const char* GetInputCommand() const
+        {
+            return m_inputArray.begin();
+        }
+
+        void ClearInputCommand()
+        {
+            return m_inputArray.clear();
+        }
+
     private:
 
         typedef FixedArray<uint8_t, 3, 0> OutputBuffer;
@@ -214,7 +230,7 @@ class Console
 
         FixedArray<uint8_t, BoardState::ReportType::CAPACITY, 0> m_consoleOutputReport;   ///< Our outgoing USB report.
 
-        FixedArray<uint8_t, 20, 0> m_inputArray;            ///< The actual input string
+        FixedArray<char, 20, 0>    m_inputArray;            ///< The actual input string
         OutputBuffer               m_outputArray;
         OutputBuffer::iterator     m_outputReader;
         OutputBuffer::iterator     m_outputWriter;

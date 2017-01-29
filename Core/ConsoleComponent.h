@@ -1,18 +1,23 @@
 #ifndef CONSOLE_COMPONENT_H_
 #define CONSOLE_COMPONENT_H_
 
+#include <boost/fusion/algorithm.hpp>
+#include <boost/fusion/container.hpp>
+
 #include "BoardState.h"
 #include "Console.h"
+#include "ConsoleDispatcher.h"
 #include "Decorators.h"
 #include "KeyCodes.h"
 
-class ConsoleComponent : NeedsAllComponents
+class ConsoleComponent : NeedsAllComponents, WithCommands
 {
     public:
 
         ConsoleComponent() :
-            m_consoleState (CONSOLE_OFF),
-            m_magicSequenceWasActive(false)
+            m_consoleState          (CONSOLE_OFF),
+            m_magicSequenceWasActive(false),
+            m_helpRequested         (false)
         {
         }
 
@@ -62,6 +67,17 @@ class ConsoleComponent : NeedsAllComponents
 
                     if (m_console.AddInput(io_state))
                     {
+                        boost::fusion::fold(io_components, false, ConsoleDispatcher(m_console, m_console.GetInputCommand()));
+
+                        if (m_helpRequested)
+                        {
+                            m_helpRequested = false;
+
+                            boost::fusion::for_each(io_components, ConsoleDispatcher(m_console, m_console.GetInputCommand()));
+                        }
+
+                        m_console.ClearInputCommand();
+
                         m_consoleState = CONSOLE_EMITTING_OUTPUT;
                     }
 
@@ -88,6 +104,19 @@ class ConsoleComponent : NeedsAllComponents
             }
         }
 
+        struct HelpCommand : Console::BaseCommand
+        {
+            HelpCommand() : Console::BaseCommand("help")
+            { }
+
+            void operator()(Console& cons, ConsoleComponent& me) const
+            {
+                me.m_helpRequested = true;
+            }
+        };
+
+        typedef boost::fusion::vector<HelpCommand> Commands;
+
     private:
 
         void DeactivateConsole()
@@ -108,6 +137,7 @@ class ConsoleComponent : NeedsAllComponents
         Console          m_console;
         ConsoleStateEnum m_consoleState;
         bool             m_magicSequenceWasActive;
+        bool             m_helpRequested;
 };
 
 #endif
