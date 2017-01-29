@@ -3,9 +3,10 @@
 
 #include "BoardState.h"
 #include "Console.h"
+#include "Decorators.h"
 #include "KeyCodes.h"
 
-class ConsoleComponent
+class ConsoleComponent : NeedsAllComponents
 {
     public:
 
@@ -15,7 +16,8 @@ class ConsoleComponent
         {
         }
 
-        void Process(BoardState& io_state)
+        template <typename ComponentCollectionType>
+        void Process(BoardState& io_state, ComponentCollectionType& io_components)
         {
             const bool magicSequenceIsActive = io_state.m_activeKeyTable[KEY_LEFT_CTRL] and
                                                io_state.m_activeKeyTable[KEY_RIGHT_CTRL] and
