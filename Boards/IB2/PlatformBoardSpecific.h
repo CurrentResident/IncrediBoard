@@ -1,21 +1,27 @@
-#ifndef PLATFORM_TEENSY_H_
-#define PLATFORM_TEENSY_H_
+#ifndef INSIDE_PLATFORM_SPECIFIC_H_
+#error "Do not include this file directly!!!"
+#endif
 
 #include <avr/io.h>
-#include <util/delay.h>
 
-#include "Platform.h"
+#include <boost/utility/binary.hpp>
 
 namespace Platform
 {
-    template<uint32_t usec>
-    void DelayMicrosecs()
-    {
-        _delay_us(usec);
-    }
-
     // Needed by Board.
     typedef uint8_t InputElementType;
+
+    inline void EnablePullupInputs()
+    {
+        // Now enable pull-ups on column inputs.  Remember to keep this in synch with ReadInputs!
+        //                   7654 3210
+
+        PORTB = BOOST_BINARY(0111 1111);
+        PORTC = BOOST_BINARY(0000 0000);
+        PORTD = BOOST_BINARY(1011 1111);
+        PORTE = BOOST_BINARY(1100 0011);
+        PORTF = BOOST_BINARY(1000 1001);
+    }
 
     // Template specializations
     //
@@ -62,6 +68,3 @@ namespace Platform
     MAKE_ROW_PIN(4, DDRF, 4)
     MAKE_ROW_PIN(5, DDRF, 6)
 }
-
-
-#endif
