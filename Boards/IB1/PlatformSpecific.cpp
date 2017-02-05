@@ -1,7 +1,8 @@
 #include "Platform.h"
 
 #include <avr/interrupt.h>
-#include <boost/utility/binary.hpp>
+
+#include "PlatformBoardSpecific.h"
 
 namespace
 {
@@ -36,14 +37,7 @@ namespace Platform
         DDRF  = 0x00;
         PORTF = 0x00;
 
-        // Now enable pull-ups on column inputs.  Keep this in synch with the header file!
-        //                   7654 3210
-
-        PORTB = BOOST_BINARY(1000 0001);
-        PORTC = BOOST_BINARY(1111 1111);
-        PORTD = BOOST_BINARY(1011 1111);
-        PORTE = BOOST_BINARY(0000 0011);
-        PORTF = BOOST_BINARY(0010 0010);
+        EnablePullupInputs();
 
         // Configure push-pull outputs.
         // Currently we just want to flash the LED...
@@ -58,6 +52,12 @@ namespace Platform
 
         TIMSK0 = (1 << TOIE0);
         sei();
+    }
+
+    template<uint32_t usec>
+    void DelayMicrosecs()
+    {
+        _delay_us(usec);
     }
 
     unsigned long GetMsec()

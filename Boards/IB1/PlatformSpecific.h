@@ -5,16 +5,24 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include <boost/utility/binary.hpp>
+
 namespace Platform
 {
-    template<uint32_t usec>
-    void DelayMicrosecs()
-    {
-        _delay_us(usec);
-    }
-
     // Needed by Board.
     typedef uint8_t InputElementType;
+
+    void EnablePullupInputs()
+    {
+        // Now enable pull-ups on column inputs.  Remember to keep this in synch with ReadInputs!
+        //                   7654 3210
+
+        PORTB = BOOST_BINARY(1000 0001);
+        PORTC = BOOST_BINARY(1111 1111);
+        PORTD = BOOST_BINARY(1011 1111);
+        PORTE = BOOST_BINARY(0000 0011);
+        PORTF = BOOST_BINARY(0010 0010);
+    }
 
     // Template specializations
     //
