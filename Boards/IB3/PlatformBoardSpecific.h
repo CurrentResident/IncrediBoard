@@ -11,8 +11,10 @@ namespace Platform
     // Needed by Board.
     typedef uint8_t InputElementType;
 
-    inline void EnablePullupInputs()
+    inline void ConfigurePins()
     {
+        // In the common Teensy2 platform, we've already configured outputs.
+        //
         // Now enable pull-ups on column inputs.  Remember to keep this in synch with ReadInputs!
         //                   7654 3210
 

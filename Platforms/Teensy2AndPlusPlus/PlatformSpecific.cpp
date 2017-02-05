@@ -35,7 +35,7 @@ namespace Platform
         DDRF  = 0x00;
         PORTF = 0x00;
 
-        EnablePullupInputs();
+        ConfigurePins();
 
         // Configure push-pull outputs.
         // Currently we just want to flash the LED...

@@ -15,7 +15,7 @@ int main (void)
 
     keyboard.Init();
 
-    Platform::DelayMicrosecs<1000000>();
+    Platform::DelayMillisecs<1000>();
 
     while(1)
     {

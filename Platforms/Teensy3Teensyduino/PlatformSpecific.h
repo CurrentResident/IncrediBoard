@@ -2,20 +2,20 @@
 #error "Do not include this file directly!!!"
 #endif
 
-#include <util/delay.h>
+#include "Arduino.h"
 
 namespace Platform
 {
     template<uint32_t usec>
     void DelayMicrosecs()
     {
-        _delay_us(usec);
+        delayMicroseconds(usec);
     }
 
     template<uint32_t msec>
     void DelayMillisecs()
     {
-        _delay_ms(msec);
+        delay(msec);
     }
 }
 
