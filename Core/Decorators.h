@@ -5,6 +5,10 @@ struct NeedsAllComponents
 {
 };
 
+struct WithInit
+{
+};
+
 struct WithCommands
 {
 };

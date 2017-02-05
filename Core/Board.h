@@ -17,7 +17,32 @@ class Board
             boost::fusion::for_each(m_components, Dispatch(m_state, m_components));
         }
 
+        void Init()
+        {
+            boost::fusion::for_each(m_components, InitComponent());
+        }
+
     private:
+
+        struct InitComponent
+        {
+            template <typename ComponentType>
+            void Call(ComponentType& component, std::false_type) const
+            {
+            }
+
+            template <typename ComponentType>
+            void Call(ComponentType& component, std::true_type) const
+            {
+                component.Init();
+            }
+
+            template <typename ComponentType>
+            void operator()(ComponentType& component) const
+            {
+                Call(component, std::is_base_of<WithInit, ComponentType>());
+            }
+        };
 
         struct Dispatch
         {

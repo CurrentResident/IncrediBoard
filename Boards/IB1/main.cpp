@@ -13,6 +13,8 @@ int main (void)
     Platform::Init();
     UsbInterface::Init();
 
+    keyboard.Init();
+
     Platform::DelayMicrosecs<1000000>();
 
     while(1)
