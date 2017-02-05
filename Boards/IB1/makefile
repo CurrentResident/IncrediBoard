@@ -19,10 +19,10 @@ F_USB        = $(F_CPU)
 OPTIMIZATION = s
 TARGET       = IB1
 OBJDIR		 = objs
-SRC          = main.cpp \
-			   Descriptors.c \
-			   PlatformSpecific.cpp \
-			   UsbInterface.cpp \
+SRC          = ../../Core/main.cpp \
+			   ../../Platforms/Teensy2AndPlusPlus/Descriptors.c \
+			   ../../Platforms/Teensy2AndPlusPlus/PlatformSpecific.cpp \
+			   ../../Platforms/Teensy2AndPlusPlus/UsbInterface.cpp \
 			   $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH    = ../../libs/AVR/LUFA
 CPP_FLAGS    = -std=c++11
@@ -31,6 +31,7 @@ CC_FLAGS     = -Wno-attributes \
 			   -DUSE_LUFA_CONFIG_HEADER \
 			   \
 			   -I../../Core \
+			   -I../../Platforms/Teensy2AndPlusPlus \
 			   -I../../libs/boost_headers \
 			   -I../../libs/AVR/stlport
 LD_FLAGS     =

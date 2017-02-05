@@ -1,4 +1,4 @@
-#ifndef INSIDE_PLATFORM_H_
+#ifndef INSIDE_PLATFORM_SPECIFIC_H_
 #error "Do not include this file directly!!!"
 #endif
 
@@ -11,7 +11,7 @@ namespace Platform
     // Needed by Board.
     typedef uint8_t InputElementType;
 
-    void EnablePullupInputs()
+    inline void EnablePullupInputs()
     {
         // Now enable pull-ups on column inputs.  Remember to keep this in synch with ReadInputs!
         //                   7654 3210

@@ -2,8 +2,6 @@
 
 #include <avr/interrupt.h>
 
-#include "PlatformBoardSpecific.h"
-
 namespace
 {
     volatile unsigned long s_msec = 0;
@@ -52,12 +50,6 @@ namespace Platform
 
         TIMSK0 = (1 << TOIE0);
         sei();
-    }
-
-    template<uint32_t usec>
-    void DelayMicrosecs()
-    {
-        _delay_us(usec);
     }
 
     unsigned long GetMsec()
