@@ -1,6 +1,8 @@
 #ifndef CONSOLE_DISPATCHER_H_
 #define CONSOLE_DISPATCHER_H_
 
+#include <cstring>
+
 #include "Console.h"
 
 struct ConsoleDispatcher

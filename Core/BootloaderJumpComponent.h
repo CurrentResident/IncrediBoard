@@ -20,10 +20,10 @@ class BootloaderJumpComponent
             // Four-finger salute to put the keyboard into the bootloader.  Not concerned about latching this.
             // Once all four keys are down, the keyboard reports all keys cleared/reset, and the reboot happens
             // some amount time after the keys are physically released, much like a proper reset button's behavior.
-            if (io_state.m_activeKeyTable[KEY_LEFT_CTRL]  and
-                io_state.m_activeKeyTable[KEY_LEFT_SHIFT] and
-                io_state.m_activeKeyTable[KEY_TAB]        and
-                io_state.m_activeKeyTable[KEY_BACKSPACE])
+            if (io_state.m_activeKeyTable[IB_KEY_LEFT_CTRL]  and
+                io_state.m_activeKeyTable[IB_KEY_LEFT_SHIFT] and
+                io_state.m_activeKeyTable[IB_KEY_TAB]        and
+                io_state.m_activeKeyTable[IB_KEY_BACKSPACE])
             {
                 // Don't jump immediately.  Allow a second to pass so that we can reset the key reports.
                 // Otherwise the OS thinks the board is just holding down the keys when really it's in the

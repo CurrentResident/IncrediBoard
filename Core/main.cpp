@@ -1,7 +1,7 @@
 
 #include "KeyboardDefinition.h"
-#include "Platform.h"
 #include "UsbInterface.h"
+#include "Platform.h"
 
 namespace
 {

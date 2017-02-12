@@ -26,16 +26,16 @@ class UsbMouseComponent
                 case MOUSE_ON:
                     io_state.m_keyReportArray.clear();
 
-                    m_mouseY = (io_state.m_activeKeyTable[KEY_W] ? -2 :
-                               (io_state.m_activeKeyTable[KEY_S] ?  2 : 0));
-                    m_mouseX = (io_state.m_activeKeyTable[KEY_A] ? -2 :
-                               (io_state.m_activeKeyTable[KEY_D] ?  2 : 0));
+                    m_mouseY = (io_state.m_activeKeyTable[IB_KEY_W] ? -2 :
+                               (io_state.m_activeKeyTable[IB_KEY_S] ?  2 : 0));
+                    m_mouseX = (io_state.m_activeKeyTable[IB_KEY_A] ? -2 :
+                               (io_state.m_activeKeyTable[IB_KEY_D] ?  2 : 0));
 
                     UsbInterface::MouseMove(m_mouseX, m_mouseY);
 
-                    UsbInterface::MouseSetButtons(((io_state.m_activeKeyTable[KEY_COMMA]  or io_state.m_activeKeyTable[KEY_DELETE])    ? 1 : 0) |
-                                                  ((io_state.m_activeKeyTable[KEY_SLASH]  or io_state.m_activeKeyTable[KEY_PAGE_DOWN]) ? 2 : 0) |
-                                                  ((io_state.m_activeKeyTable[KEY_PERIOD] or io_state.m_activeKeyTable[KEY_END])       ? 4 : 0));
+                    UsbInterface::MouseSetButtons(((io_state.m_activeKeyTable[IB_KEY_COMMA]  or io_state.m_activeKeyTable[IB_KEY_DELETE])    ? 1 : 0) |
+                                                  ((io_state.m_activeKeyTable[IB_KEY_SLASH]  or io_state.m_activeKeyTable[IB_KEY_PAGE_DOWN]) ? 2 : 0) |
+                                                  ((io_state.m_activeKeyTable[IB_KEY_PERIOD] or io_state.m_activeKeyTable[IB_KEY_END])       ? 4 : 0));
 
                     if (not io_state.m_functionKey)
                     {

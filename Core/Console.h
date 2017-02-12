@@ -59,11 +59,11 @@ class Console
                         bool result = false;
 
                         // Special knowledge: USB keycodes are ranged from a thru z, 1 thru 9, like ASCII, but 0 is not.
-                        if (KEY_A <= inputKeycode and inputKeycode <= KEY_Z)
+                        if (IB_KEY_A <= inputKeycode and inputKeycode <= IB_KEY_Z)
                         {
-                            result = m_inputArray.PushElement('a' + (inputKeycode - KEY_A));
+                            result = m_inputArray.PushElement('a' + (inputKeycode - IB_KEY_A));
                         }
-                        else if (inputKeycode == KEY_ENTER or inputKeycode == KEY_KP_ENTER)
+                        else if (inputKeycode == IB_KEY_ENTER or inputKeycode == IB_KEY_KP_ENTER)
                         {
                             m_consoleOutputReport.clear();
                             m_nextLiftoffTime = 0;
@@ -72,23 +72,23 @@ class Console
                             result = true;
                             commandEntered = true;
                         }
-                        else if (inputKeycode == KEY_BACKSPACE)
+                        else if (inputKeycode == IB_KEY_BACKSPACE)
                         {
                             result = m_inputArray.DeleteLastElement();
                         }
-                        else if (inputKeycode == KEY_SPACE)
+                        else if (inputKeycode == IB_KEY_SPACE)
                         {
                             result = m_inputArray.PushElement(' ');
                         }
-                        else if (KEY_1 <= inputKeycode and inputKeycode <= KEY_9)
+                        else if (IB_KEY_1 <= inputKeycode and inputKeycode <= IB_KEY_9)
                         {
-                            result = m_inputArray.PushElement('1' + (inputKeycode - KEY_1));
+                            result = m_inputArray.PushElement('1' + (inputKeycode - IB_KEY_1));
                         }
-                        else if (KEY_KP_1 <= inputKeycode and inputKeycode <= KEY_KP_9)
+                        else if (IB_KEY_KP_1 <= inputKeycode and inputKeycode <= IB_KEY_KP_9)
                         {
-                            result = m_inputArray.PushElement('1' + (inputKeycode - KEY_KP_1));
+                            result = m_inputArray.PushElement('1' + (inputKeycode - IB_KEY_KP_1));
                         }
-                        else if (inputKeycode == KEY_0 or inputKeycode == KEY_KP_0)
+                        else if (inputKeycode == IB_KEY_0 or inputKeycode == IB_KEY_KP_0)
                         {
                             result = m_inputArray.PushElement('0');
                         }
@@ -191,29 +191,29 @@ class Console
 
         void CharToCode(uint8_t i_char, uint8_t& o_code, uint8_t& o_modifiers)
         {
-            o_code      = KEY_SPACE;
+            o_code      = IB_KEY_SPACE;
             o_modifiers = 0;
 
             if ('a' <= i_char and i_char <= 'z')
             {
-                o_code = KEY_A + (i_char - 'a');
+                o_code = IB_KEY_A + (i_char - 'a');
             }
             else if ('A' <= i_char and i_char <= 'Z')
             {
-                o_code = KEY_A + (i_char - 'A');
-                o_modifiers = KEY_MOD_LEFT_SHIFT;
+                o_code = IB_KEY_A + (i_char - 'A');
+                o_modifiers = IB_KEY_MOD_LEFT_SHIFT;
             }
             else if ('1' <= i_char and i_char <= '9')
             {
-                o_code = KEY_1 + (i_char - KEY_1);
+                o_code = IB_KEY_1 + (i_char - IB_KEY_1);
             }
             else if ('0' == i_char)
             {
-                o_code = KEY_0;
+                o_code = IB_KEY_0;
             }
             else if ('\n' == i_char)
             {
-                o_code = KEY_ENTER;
+                o_code = IB_KEY_ENTER;
             }
         }
 

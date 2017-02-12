@@ -24,9 +24,9 @@ class ConsoleComponent : NeedsAllComponents, WithCommands
         template <typename ComponentCollectionType>
         void Process(BoardState& io_state, ComponentCollectionType& io_components)
         {
-            const bool magicSequenceIsActive = io_state.m_activeKeyTable[KEY_LEFT_CTRL] and
-                                               io_state.m_activeKeyTable[KEY_RIGHT_CTRL] and
-                                               io_state.m_activeKeyTable[KEY_RIGHT_SHIFT];
+            const bool magicSequenceIsActive = io_state.m_activeKeyTable[IB_KEY_LEFT_CTRL] and
+                                               io_state.m_activeKeyTable[IB_KEY_RIGHT_CTRL] and
+                                               io_state.m_activeKeyTable[IB_KEY_RIGHT_SHIFT];
 
             const bool magicSequenceActivate = magicSequenceIsActive and not m_magicSequenceWasActive;
 
