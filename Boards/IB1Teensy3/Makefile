@@ -95,6 +95,7 @@ SIZE = $(COMPILERPATH)/arm-none-eabi-size
 # automatically create lists of the sources and objects
 # TODO: this does not handle Arduino libraries yet...
 
+TEENSYCORESOURCES_ASM := $(wildcard $(TEENSYCOREPATH)/*.S)
 TEENSYCORESOURCES_C   := $(wildcard $(TEENSYCOREPATH)/*.c)
 TEENSYCORESOURCES_CPP := $(subst $(TEENSYCOREPATH)/main.cpp,,$(wildcard $(TEENSYCOREPATH)/*.cpp))
 
@@ -103,7 +104,7 @@ CPP_FILES := $(wildcard *.cpp) \
 			 $(wildcard ../../Core/*.cpp) \
 			 $(wildcard ../../Platforms/Teensy3Teensyduino/*.cpp)
 
-OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TEENSYCORESOURCES_C:.c=.o) $(TEENSYCORESOURCES_CPP:.cpp=.o)
+OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TEENSYCORESOURCES_C:.c=.o) $(TEENSYCORESOURCES_CPP:.cpp=.o) $(TEENSYCORESOURCES_ASM:.S=.o)
 #OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 
 
@@ -116,7 +117,7 @@ $(TARGET).elf: $(OBJS) $(LINKERSCRIPT)
 
 %.hex: %.elf
 	$(SIZE) $<
-#	$(OBJDUMP) -S $<
+	$(OBJDUMP) -S $< > $(notdir $@).lss
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 ifneq (,$(wildcard $(TOOLSPATH)))
 #	$(TOOLSPATH)/teensy_post_compile -file=$(basename $@) -path=$(shell pwd) -tools=$(TOOLSPATH)
