@@ -64,7 +64,12 @@ endif
 #************************************************************************
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-sections -fdata-sections -MMD $(OPTIONS) -I. -I$(TEENSYCOREPATH)
+CPPFLAGS = -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-sections -fdata-sections -MMD $(OPTIONS) \
+		   -I. \
+		   -I$(TEENSYCOREPATH) \
+		   -I../../Core \
+		   -I../../Platforms/Teensy3Teensyduino \
+		   -I../../libs/boost_headers
 
 # compiler options for C++ only
 CXXFLAGS = -std=gnu++11 -felide-constructors -fno-exceptions -fno-rtti
@@ -93,8 +98,11 @@ SIZE = $(COMPILERPATH)/arm-none-eabi-size
 TEENSYCORESOURCES_C   := $(wildcard $(TEENSYCOREPATH)/*.c)
 TEENSYCORESOURCES_CPP := $(subst $(TEENSYCOREPATH)/main.cpp,,$(wildcard $(TEENSYCOREPATH)/*.cpp))
 
-C_FILES := $(wildcard *.c)
-CPP_FILES := $(wildcard *.cpp)
+C_FILES := $(wildcard ../*.c)
+CPP_FILES := $(wildcard *.cpp) \
+			 $(wildcard ../../Core/*.cpp) \
+			 $(wildcard ../../Platforms/Teensy3Teensyduino/*.cpp)
+
 OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TEENSYCORESOURCES_C:.c=.o) $(TEENSYCORESOURCES_CPP:.cpp=.o)
 #OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 
@@ -119,4 +127,4 @@ endif
 -include $(OBJS:.o=.d)
 
 clean:
-	rm -f $(OBJS) *.d $(TARGET).elf $(TARGET).hex
+	rm -f $(OBJS) $(OBJS:.o=.d) $(TARGET).elf $(TARGET).hex
