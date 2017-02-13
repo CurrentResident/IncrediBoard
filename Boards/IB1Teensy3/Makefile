@@ -86,7 +86,9 @@ LIBS = -lm
 
 
 # names for the compiler programs
+AS = $(COMPILERPATH)/arm-none-eabi-as
 CC = $(COMPILERPATH)/arm-none-eabi-gcc
+CPP = $(COMPILERPATH)/arm-none-eabi-cpp
 CXX = $(COMPILERPATH)/arm-none-eabi-g++
 OBJCOPY = $(COMPILERPATH)/arm-none-eabi-objcopy
 OBJDUMP = $(COMPILERPATH)/arm-none-eabi-objdump
@@ -99,18 +101,45 @@ TEENSYCORESOURCES_ASM := $(wildcard $(TEENSYCOREPATH)/*.S)
 TEENSYCORESOURCES_C   := $(wildcard $(TEENSYCOREPATH)/*.c)
 TEENSYCORESOURCES_CPP := $(subst $(TEENSYCOREPATH)/main.cpp,,$(wildcard $(TEENSYCOREPATH)/*.cpp))
 
-C_FILES := $(wildcard ../*.c)
-CPP_FILES := $(wildcard *.cpp) \
-			 $(wildcard ../../Core/*.cpp) \
-			 $(wildcard ../../Platforms/Teensy3Teensyduino/*.cpp)
+TOTAL_SRC := $(wildcard *.cpp) \
+			$(wildcard ../../Core/*.cpp) \
+			$(wildcard ../../Platforms/Teensy3Teensyduino/*.cpp) \
+			$(TEENSYCORESOURCES_ASM) \
+			$(TEENSYCORESOURCES_C) \
+			$(TEENSYCORESOURCES_CPP)
 
-OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TEENSYCORESOURCES_C:.c=.o) $(TEENSYCORESOURCES_CPP:.cpp=.o) $(TEENSYCORESOURCES_ASM:.S=.o)
+#C_FILES := $(wildcard ../*.c)
+#CPP_FILES := $(wildcard *.cpp) \
+#			 $(wildcard ../../Core/*.cpp) \
+#			 $(wildcard ../../Platforms/Teensy3Teensyduino/*.cpp)
+
+VPATH += $(dir $(TOTAL_SRC))
+
+OBJS := $(addprefix objs/,$(addsuffix .o,$(notdir $(basename $(TOTAL_SRC)))))
+
+#INTERMEDIATE_OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TEENSYCORESOURCES_C:.c=.o) $(TEENSYCORESOURCES_CPP:.cpp=.o) $(TEENSYCORESOURCES_ASM:.S=.o)
+
+#OBJS := $(patsubst %,objs/%,$(INTERMEDIATE_OBJS))
 #OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 
-
 # the actual makefile rules (all .o files built by GNU make's default implicit rules)
+objs/%.o : %.c | objs
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+objs/%.o : %.cpp | objs
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+objs/%.s : %.S | objs
+	$(CPP) $(CPPFLAGS) $< -o $@
+objs/%.o : %.s | objs
+	$(AS) $(ASFLAGS) $< -o $@
+
+.PHONY: all
 
 all: $(TARGET).hex
+
+$(OBJS) : | objs
+
+objs:
+	mkdir objs
 
 $(TARGET).elf: $(OBJS) $(LINKERSCRIPT)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -128,4 +157,4 @@ endif
 -include $(OBJS:.o=.d)
 
 clean:
-	rm -f $(OBJS) $(OBJS:.o=.d) $(TARGET).elf $(TARGET).hex
+	rm -f $(OBJS) $(OBJS:.o=.d) $(TARGET).elf $(TARGET).hex $(TARGET).hex.lss
