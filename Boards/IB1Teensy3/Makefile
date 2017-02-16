@@ -64,7 +64,7 @@ endif
 #************************************************************************
 
 # CPPFLAGS = compiler options for C and C++
-CPPFLAGS = -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-sections -fdata-sections -MMD $(OPTIONS) \
+CPPFLAGS = -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-sections -fdata-sections $(OPTIONS) \
 		   -I. \
 		   -I$(TEENSYCOREPATH) \
 		   -I../../Core \
@@ -123,14 +123,26 @@ OBJS := $(addprefix objs/,$(addsuffix .o,$(notdir $(basename $(TOTAL_SRC)))))
 #OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 
 # the actual makefile rules (all .o files built by GNU make's default implicit rules)
-objs/%.o : %.c | objs
+objs/%.d : %.c | objs
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< -MM -MF $@
+objs/%.d : %.S | objs
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< -MM -MF $@
+objs/%.d : %.cpp | objs
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -MM -MF $@
+objs/%.o : %.c objs/%.d | objs
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-objs/%.o : %.cpp | objs
+objs/%.o : %.cpp objs/%.d | objs
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-objs/%.s : %.S | objs
-	$(CPP) $(CPPFLAGS) $< -o $@
-objs/%.o : %.s | objs
-	$(AS) $(ASFLAGS) $< -o $@
+#objs/%.o : %.c | objs
+#	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+#objs/%.o : %.cpp | objs
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+#objs/%.s : %.S | objs
+#	$(CPP) $(CPPFLAGS) $< -o $@
+objs/%.o : %.S objs/%.d | objs
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+#objs/%.o : %.s objs/%.d | objs
+#	$(AS) $(ASFLAGS) $< -o $@
 
 .PHONY: all
 
