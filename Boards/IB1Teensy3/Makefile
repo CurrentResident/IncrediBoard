@@ -94,8 +94,7 @@ OBJCOPY = $(COMPILERPATH)/arm-none-eabi-objcopy
 OBJDUMP = $(COMPILERPATH)/arm-none-eabi-objdump
 SIZE = $(COMPILERPATH)/arm-none-eabi-size
 
-# automatically create lists of the sources and objects
-# TODO: this does not handle Arduino libraries yet...
+# Automatically create lists of the sources and objects.
 
 TEENSYCORESOURCES_ASM := $(wildcard $(TEENSYCOREPATH)/*.S)
 TEENSYCORESOURCES_C   := $(wildcard $(TEENSYCOREPATH)/*.c)
@@ -108,19 +107,9 @@ TOTAL_SRC := $(wildcard *.cpp) \
 			$(TEENSYCORESOURCES_C) \
 			$(TEENSYCORESOURCES_CPP)
 
-#C_FILES := $(wildcard ../*.c)
-#CPP_FILES := $(wildcard *.cpp) \
-#			 $(wildcard ../../Core/*.cpp) \
-#			 $(wildcard ../../Platforms/Teensy3Teensyduino/*.cpp)
-
 VPATH += $(dir $(TOTAL_SRC))
 
 OBJS := $(addprefix objs/,$(addsuffix .o,$(notdir $(basename $(TOTAL_SRC)))))
-
-#INTERMEDIATE_OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(TEENSYCORESOURCES_C:.c=.o) $(TEENSYCORESOURCES_CPP:.cpp=.o) $(TEENSYCORESOURCES_ASM:.S=.o)
-
-#OBJS := $(patsubst %,objs/%,$(INTERMEDIATE_OBJS))
-#OBJS := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o)
 
 # the actual makefile rules (all .o files built by GNU make's default implicit rules)
 objs/%.d : %.c | objs
@@ -133,16 +122,8 @@ objs/%.o : %.c objs/%.d | objs
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 objs/%.o : %.cpp objs/%.d | objs
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-#objs/%.o : %.c | objs
-#	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-#objs/%.o : %.cpp | objs
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-#objs/%.s : %.S | objs
-#	$(CPP) $(CPPFLAGS) $< -o $@
 objs/%.o : %.S objs/%.d | objs
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-#objs/%.o : %.s objs/%.d | objs
-#	$(AS) $(ASFLAGS) $< -o $@
 
 .PHONY: all
 
