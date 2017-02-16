@@ -124,11 +124,11 @@ OBJS := $(addprefix objs/,$(addsuffix .o,$(notdir $(basename $(TOTAL_SRC)))))
 
 # the actual makefile rules (all .o files built by GNU make's default implicit rules)
 objs/%.d : %.c | objs
-	$(CC) $(CPPFLAGS) $(CFLAGS) $< -MM -MF $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< -MM -MF $@ -MT objs/$(*F).o
 objs/%.d : %.S | objs
-	$(CC) $(CPPFLAGS) $(CFLAGS) $< -MM -MF $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< -MM -MF $@ -MT objs/$(*F).o
 objs/%.d : %.cpp | objs
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -MM -MF $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -MM -MF $@ -MT objs/$(*F).o
 objs/%.o : %.c objs/%.d | objs
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 objs/%.o : %.cpp objs/%.d | objs
