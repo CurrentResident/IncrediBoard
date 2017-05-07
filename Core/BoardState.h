@@ -27,34 +27,34 @@ struct BoardState
     {
     }
 
-    void ChangeKeyState(const uint8_t i_key, const uint8_t i_value)
+    template <uint8_t T_KEY_CODE>
+    void ChangeKeyState(const uint8_t i_value)
     {
-        m_activeKeyTable[i_key] = i_value;
+        m_activeKeyTable[T_KEY_CODE] = i_value;
 
         switch (i_value)
         {
             case 0:
-                m_keyReportArray.DeleteElement(i_key);
+                m_keyReportArray.DeleteElement(T_KEY_CODE);
                 break;
             default:
-                m_keyReportArray.PushElement(i_key);
+                m_keyReportArray.PushElement(T_KEY_CODE);
                 break;
         }
     }
 
-    void ChangeModifierState(const uint8_t i_key,
-                             const uint8_t i_modifier,
-                             const uint8_t i_value)
+    template <uint8_t T_KEY_CODE, uint8_t T_MODIFIER>
+    void ChangeModifierState(const uint8_t i_value)
     {
-        m_activeKeyTable[i_key] = i_value;
+        m_activeKeyTable[T_KEY_CODE] = i_value;
 
         switch (i_value)
         {
             case 0:
-                m_modifiers &= ~i_modifier;
+                m_modifiers &= ~T_MODIFIER;
                 break;
             default:
-                m_modifiers |= i_modifier;
+                m_modifiers |= T_MODIFIER;
                 break;
         }
     }

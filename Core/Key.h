@@ -123,7 +123,7 @@ struct ProcessKey
     {
         if (key.Process(m_inputs[colIndex], m_now))
         {
-            m_state.ChangeKeyState(T_KEY_CODE, key.GetState());
+            m_state.ChangeKeyState<T_KEY_CODE>(key.GetState());
         }
         return colIndex + 1;
     }
@@ -135,7 +135,7 @@ struct ProcessKey
     {
         if(key.Process(m_inputs[colIndex], m_now))
         {
-            m_state.ChangeModifierState(T_KEY_CODE, T_KEY_MODIFIER, key.GetState());
+            m_state.ChangeModifierState<T_KEY_CODE, T_KEY_MODIFIER>(key.GetState());
         }
         return colIndex + 1;
     }
