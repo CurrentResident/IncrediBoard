@@ -65,11 +65,16 @@ class BaseKey : public DebouncedButton<5>   // 5 msec per cherry spec.
 template <uint8_t T_KEY_CODE>
 class Key : public BaseKey
 {
+    public:
+        static const uint8_t CODE = T_KEY_CODE;
 };
 
 template <uint8_t T_KEY_CODE, uint8_t T_KEY_MODIFIER>
 class KeyModifier : public BaseKey
 {
+    public:
+        static const uint8_t CODE       = T_KEY_CODE;
+        static const uint8_t MODIFIER   = T_KEY_MODIFIER;
 };
 
 class KeyFn : public BaseKey

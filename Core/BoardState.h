@@ -27,6 +27,8 @@ struct BoardState
     {
     }
 
+    // The following template parameters can be changed to function parameters to get a decent code-size savings.
+
     template <uint8_t T_KEY_CODE>
     void ChangeKeyState(const uint8_t i_value)
     {
