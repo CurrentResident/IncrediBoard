@@ -15,12 +15,20 @@ class SuperModifier
     struct PressKeys
     {
         BoardState& state;
-        PressKeys(BoardState& io_state) : state(io_state) {}
+        bool        active;
+
+        PressKeys(BoardState& io_state, bool i_isActive) : state(io_state), active(i_isActive) {}
 
         template <uint8_t T_KEY_CODE>
         void operator()(Key<T_KEY_CODE>) const
         {
-            state.ChangeKeyState<T_KEY_CODE>(1);
+            state.ChangeKeyState<T_KEY_CODE>(active);
+        }
+
+        template <uint8_t T_KEY_CODE, uint8_t T_MODIFIER>
+        void operator()(KeyModifier<T_KEY_CODE, T_MODIFIER>) const
+        {
+            state.ChangeModifierState<T_KEY_CODE, T_MODIFIER>(active);
         }
     };
 
@@ -62,7 +70,7 @@ class SuperModifier
                             //Press::All<OtherKeysCollectionType>();
                             //TODO: Press the button.
                             //PressKeys<OtherKeysCollectionType> a;
-                            boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state));
+                            boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state, true));
                             //a(io_state);
                         }
                     }
@@ -83,6 +91,7 @@ class SuperModifier
 
                     if (m_releaseTime < Platform::GetMsec())
                     {
+                        //boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state, true));
                         //TODO: Release the buttons.
 
                         m_state = MONITORING_FOR_DOWN;
