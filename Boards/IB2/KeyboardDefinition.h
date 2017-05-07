@@ -18,7 +18,7 @@ typedef Board
             boost::fusion::vector
             <
                 MatrixComponent<Matrix>,
-                SuperModifier<KeyLSHIFT, boost::fusion::vector<> >,
+                SuperModifier<KeyLSHIFT, boost::fusion::vector<KeyLEFT_BRACE> >,
                 BootloaderJumpComponent,
                 UsbMouseComponent,
                 ConsoleComponent,
