@@ -7,6 +7,7 @@
 #include "BoardState.h"
 #include "Console.h"
 #include "ConsoleDispatcher.h"
+#include "ConsoleLister.h"
 #include "Decorators.h"
 #include "KeyCodes.h"
 
@@ -75,7 +76,7 @@ class ConsoleComponent : NeedsAllComponents, WithCommands
                         {
                             m_helpRequested = false;
 
-                            boost::fusion::for_each(io_components, ConsoleDispatcher(m_console, m_console.GetInputCommand()));
+                            boost::fusion::for_each(io_components, ConsoleLister(m_console));
                         }
 
                         m_console.ClearInputCommand();

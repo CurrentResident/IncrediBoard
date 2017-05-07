@@ -6,7 +6,7 @@
 
 #include "BoardState.h"
 #include "Platform.h"
-#include "Row.h"
+#include "ProcessRow.h"
 #include "VerifyColumnCount.h"
 
 template <typename MatrixType>
