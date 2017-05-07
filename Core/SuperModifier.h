@@ -46,7 +46,7 @@ class SuperModifier
             {
                 case MONITORING_FOR_DOWN:
 
-                    if (io_state.m_modifiers & ModifierKeyType::MODIFIER and
+                    if (io_state.m_modifiers == ModifierKeyType::MODIFIER and
                         io_state.m_keyReportArray.size() == 0)
                     {
                         m_state = MONITORING_FOR_UP;
@@ -56,22 +56,19 @@ class SuperModifier
 
                 case MONITORING_FOR_UP:
 
-                    if (io_state.m_keyReportArray.size() != 0)
+                    if (io_state.m_modifiers & ~ModifierKeyType::MODIFIER or
+                        io_state.m_keyReportArray.size() != 0)
                     {
                         m_state = NO_GO_WAIT_FOR_MOD_RELEASE;
                     }
                     else
                     {
-                        if ((io_state.m_modifiers & ModifierKeyType::MODIFIER) == 0)
+                        if (io_state.m_modifiers == 0)
                         {
                             m_state = PRESSED;
                             m_releaseTime = Platform::GetMsec() + 10;
 
-                            //Press::All<OtherKeysCollectionType>();
-                            //TODO: Press the button.
-                            //PressKeys<OtherKeysCollectionType> a;
                             boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state, true));
-                            //a(io_state);
                         }
                     }
 
@@ -80,7 +77,7 @@ class SuperModifier
                 case NO_GO_WAIT_FOR_MOD_RELEASE:
 
                     if (io_state.m_keyReportArray.size() == 0 and
-                       (io_state.m_modifiers & ModifierKeyType::MODIFIER) == 0)
+                        io_state.m_modifiers == 0)
                     {
                         m_state = MONITORING_FOR_DOWN;
                     }
@@ -91,8 +88,7 @@ class SuperModifier
 
                     if (m_releaseTime < Platform::GetMsec())
                     {
-                        //boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state, true));
-                        //TODO: Release the buttons.
+                        boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state, false));
 
                         m_state = MONITORING_FOR_DOWN;
                         m_releaseTime = 0;
@@ -100,12 +96,6 @@ class SuperModifier
                     break;
 
                 case DISABLED:
-                    if (m_releaseTime != 0)
-                    {
-                        //TODO: Release the buttons.
-                        m_releaseTime = 0;
-                    }
-
                 default:
                     break;
             }
