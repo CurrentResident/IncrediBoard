@@ -27,29 +27,36 @@ struct BoardState
     {
     }
 
-    void SetActive(const uint8_t i_key, const uint8_t i_value)
+    void ChangeKeyState(const uint8_t i_key, const uint8_t i_value)
     {
         m_activeKeyTable[i_key] = i_value;
+
+        switch (i_value)
+        {
+            case 0:
+                m_keyReportArray.DeleteElement(i_key);
+                break;
+            default:
+                m_keyReportArray.PushElement(i_key);
+                break;
+        }
     }
 
-    void SetModifier(const uint8_t i_modifier)
+    void ChangeModifierState(const uint8_t i_key,
+                             const uint8_t i_modifier,
+                             const uint8_t i_value)
     {
-        m_modifiers |= i_modifier;
-    }
+        m_activeKeyTable[i_key] = i_value;
 
-    void ClearModifier(const uint8_t i_modifier)
-    {
-        m_modifiers &= ~i_modifier;
-    }
-
-    void SetKey(const uint8_t i_key)
-    {
-        m_keyReportArray.PushElement(i_key);
-    }
-
-    void ClearKey(const uint8_t i_key)
-    {
-        m_keyReportArray.DeleteElement(i_key);
+        switch (i_value)
+        {
+            case 0:
+                m_modifiers &= ~i_modifier;
+                break;
+            default:
+                m_modifiers |= i_modifier;
+                break;
+        }
     }
 
     void SetFunctionKey(const uint8_t i_state)

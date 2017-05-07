@@ -123,19 +123,7 @@ struct ProcessKey
     {
         if (key.Process(m_inputs[colIndex], m_now))
         {
-            const uint8_t state = key.GetState();
-
-            m_state.SetActive(T_KEY_CODE, state);
-
-            switch (state)
-            {
-                case 0:
-                    m_state.ClearKey(T_KEY_CODE);
-                    break;
-                default:
-                    m_state.SetKey(T_KEY_CODE);
-                    break;
-            }
+            m_state.ChangeKeyState(T_KEY_CODE, key.GetState());
         }
         return colIndex + 1;
     }
@@ -147,19 +135,7 @@ struct ProcessKey
     {
         if(key.Process(m_inputs[colIndex], m_now))
         {
-            const uint8_t state = key.GetState();
-
-            m_state.SetActive(T_KEY_CODE, state);
-
-            switch (state)
-            {
-                case 0:
-                    m_state.ClearModifier(T_KEY_MODIFIER);
-                    break;
-                default:
-                    m_state.SetModifier(T_KEY_MODIFIER);
-                    break;
-            }
+            m_state.ChangeModifierState(T_KEY_CODE, T_KEY_MODIFIER, key.GetState());
         }
         return colIndex + 1;
     }
