@@ -8,6 +8,7 @@
 #include "Key.h"
 #include "Platform.h"
 
+#if 0
 //template <typename CollectionType>
 /*
 template <typename CollectionType>
@@ -91,7 +92,19 @@ struct PressKeys
         a(io_state);
     }
 };
+#endif
 
+struct PressKeys
+{
+    BoardState& state;
+    PressKeys(BoardState& io_state) : state(io_state) {}
+
+    template <uint8_t T_KEY_CODE>
+    void operator()(Key<T_KEY_CODE>) const
+    {
+        state.ChangeKeyState<T_KEY_CODE>(1);
+    }
+};
 /*
 namespace Press
 {
@@ -161,8 +174,9 @@ class SuperModifier
 
                             //Press::All<OtherKeysCollectionType>();
                             //TODO: Press the button.
-                            PressKeys<OtherKeysCollectionType> a;
-                            a(io_state);
+                            //PressKeys<OtherKeysCollectionType> a;
+                            boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state));
+                            //a(io_state);
                         }
                     }
 
@@ -209,7 +223,8 @@ class SuperModifier
             MONITORING_FOR_DOWN,
             MONITORING_FOR_UP,
             NO_GO_WAIT_FOR_MOD_RELEASE,
-            PRESSED
+            PRESSED,
+            RELEASE
         };
 
         StateEnum     m_state;
