@@ -94,7 +94,7 @@ class SuperModifier
                     {
                         boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state, false));
 
-                        m_state = MONITORING_FOR_DOWN;
+                        m_state = MONITORING_FOR_NO_KEYS_DOWN;
                         m_releaseTime = 0;
                     }
                     break;
