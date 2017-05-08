@@ -35,7 +35,7 @@ class SuperModifier
     public:
 
         SuperModifier() :
-            m_state      (MONITORING_FOR_DOWN),
+            m_state      (MONITORING_FOR_NO_KEYS_DOWN),
             m_releaseTime(0)
         {
         }
@@ -44,12 +44,26 @@ class SuperModifier
         {
             switch(m_state)
             {
+                case MONITORING_FOR_NO_KEYS_DOWN:
+                    if (io_state.m_modifiers == 0 and io_state.m_keyReportArray.size() == 0)
+                    {
+                        m_state = MONITORING_FOR_DOWN;
+                    }
+                    break;
+
                 case MONITORING_FOR_DOWN:
 
-                    if (io_state.m_modifiers == ModifierKeyType::MODIFIER and
-                        io_state.m_keyReportArray.size() == 0)
+                    if (io_state.m_modifiers & ~ModifierKeyType::MODIFIER or
+                        io_state.m_keyReportArray.size() != 0)
                     {
-                        m_state = MONITORING_FOR_UP;
+                        m_state = MONITORING_FOR_NO_KEYS_DOWN;
+                    }
+                    else
+                    {
+                        if (io_state.m_modifiers == ModifierKeyType::MODIFIER)
+                        {
+                            m_state = MONITORING_FOR_UP;
+                        }
                     }
 
                     break;
@@ -59,7 +73,7 @@ class SuperModifier
                     if (io_state.m_modifiers & ~ModifierKeyType::MODIFIER or
                         io_state.m_keyReportArray.size() != 0)
                     {
-                        m_state = NO_GO_WAIT_FOR_MOD_RELEASE;
+                        m_state = MONITORING_FOR_NO_KEYS_DOWN;
                     }
                     else
                     {
@@ -70,16 +84,6 @@ class SuperModifier
 
                             boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state, true));
                         }
-                    }
-
-                    break;
-
-                case NO_GO_WAIT_FOR_MOD_RELEASE:
-
-                    if (io_state.m_keyReportArray.size() == 0 and
-                        io_state.m_modifiers == 0)
-                    {
-                        m_state = MONITORING_FOR_DOWN;
                     }
 
                     break;
@@ -106,9 +110,9 @@ class SuperModifier
         enum StateEnum
         {
             DISABLED,
+            MONITORING_FOR_NO_KEYS_DOWN,
             MONITORING_FOR_DOWN,
             MONITORING_FOR_UP,
-            NO_GO_WAIT_FOR_MOD_RELEASE,
             PRESSED,
             RELEASE
         };
