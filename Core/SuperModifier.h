@@ -63,30 +63,38 @@ namespace SuperModifier
 
         BoardState& boardState;
 
-        template <typename ModifierKeyType, typename OtherKeysCollectionType>
-        void operator() (Keys<ModifierKeyType, OtherKeysCollectionType>& superMod) const
+        enum ResultEnum
         {
-            switch(superMod.state)
+            NONE,
+            PRESS,
+            RELEASE
+        };
+
+        ResultEnum ProcessStateMachine(StateEnum& io_state, unsigned long& io_releaseTime, uint8_t modBit) const
+        {
+            ResultEnum result = NONE;
+
+            switch(io_state)
             {
                 case MONITORING_FOR_NO_KEYS_DOWN:
                     if (boardState.m_modifiers == 0 and boardState.m_keyReportArray.size() == 0)
                     {
-                        superMod.state = MONITORING_FOR_DOWN;
+                        io_state = MONITORING_FOR_DOWN;
                     }
                     break;
 
                 case MONITORING_FOR_DOWN:
 
-                    if (boardState.m_modifiers & ~ModifierKeyType::MODIFIER or
+                    if (boardState.m_modifiers & ~modBit or
                         boardState.m_keyReportArray.size() != 0)
                     {
-                        superMod.state = MONITORING_FOR_NO_KEYS_DOWN;
+                        io_state = MONITORING_FOR_NO_KEYS_DOWN;
                     }
                     else
                     {
-                        if (boardState.m_modifiers == ModifierKeyType::MODIFIER)
+                        if (boardState.m_modifiers == modBit)
                         {
-                            superMod.state = MONITORING_FOR_UP;
+                            io_state = MONITORING_FOR_UP;
                         }
                     }
 
@@ -94,19 +102,19 @@ namespace SuperModifier
 
                 case MONITORING_FOR_UP:
 
-                    if (boardState.m_modifiers & ~ModifierKeyType::MODIFIER or
+                    if (boardState.m_modifiers & ~modBit or
                         boardState.m_keyReportArray.size() != 0)
                     {
-                        superMod.state = MONITORING_FOR_NO_KEYS_DOWN;
+                        io_state = MONITORING_FOR_NO_KEYS_DOWN;
                     }
                     else
                     {
                         if (boardState.m_modifiers == 0)
                         {
-                            superMod.state = PRESSED;
-                            superMod.releaseTime = Platform::GetMsec() + 10;
+                            io_state = PRESSED;
+                            io_releaseTime = Platform::GetMsec() + 10;
 
-                            boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(boardState, true));
+                            result = PRESS;
                         }
                     }
 
@@ -114,16 +122,35 @@ namespace SuperModifier
 
                 case PRESSED:
 
-                    if (superMod.releaseTime < Platform::GetMsec())
+                    if (io_releaseTime < Platform::GetMsec())
                     {
-                        boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(boardState, false));
+                        result = RELEASE;
 
-                        superMod.state = MONITORING_FOR_NO_KEYS_DOWN;
-                        superMod.releaseTime = 0;
+                        io_state = MONITORING_FOR_NO_KEYS_DOWN;
+                        io_releaseTime = 0;
                     }
                     break;
 
                 case DISABLED:
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+        template <typename ModifierKeyType, typename OtherKeysCollectionType>
+        void operator() (Keys<ModifierKeyType, OtherKeysCollectionType>& superMod) const
+        {
+            switch(ProcessStateMachine(superMod.state, superMod.releaseTime, ModifierKeyType::MODIFIER))
+            {
+                case PRESS:
+                    boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(boardState, true));
+                    break;
+                case RELEASE:
+                    boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(boardState, false));
+                    break;
+
                 default:
                     break;
             }
