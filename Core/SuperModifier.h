@@ -8,7 +8,7 @@
 #include "Key.h"
 #include "Platform.h"
 
-struct SuperModifier
+namespace SuperModifier
 {
 
     struct PressKeys
@@ -32,42 +32,30 @@ struct SuperModifier
     };
 
 
-    public:
-
-            enum StateEnum
-        {
-            DISABLED,
-            MONITORING_FOR_NO_KEYS_DOWN,
-            MONITORING_FOR_DOWN,
-            MONITORING_FOR_UP,
-            PRESSED,
-            RELEASE
-        };
+    enum StateEnum
+    {
+        DISABLED,
+        MONITORING_FOR_NO_KEYS_DOWN,
+        MONITORING_FOR_DOWN,
+        MONITORING_FOR_UP,
+        PRESSED,
+        RELEASE
+    };
 
 
     template <typename ModifierKeyType, typename OtherKeysCollectionType>
-        struct Keys
-        {
-            Keys():
-                releaseTime (0),
-                state       (MONITORING_FOR_NO_KEYS_DOWN)
-                //primaryMod  (ModifierKeyType::MODIFIER)
-            {}
+    struct Keys
+    {
+        Keys():
+            releaseTime (0),
+            state       (MONITORING_FOR_NO_KEYS_DOWN)
+        {}
 
-            unsigned long releaseTime;
+        unsigned long releaseTime;
 
-            StateEnum                       state;
-            //const uint8_t                   primaryMod;
-            typedef OtherKeysCollectionType OtherKeys;
-        };
-
-        /*
-        SuperModifier() :
-            m_state      (MONITORING_FOR_NO_KEYS_DOWN),
-            m_releaseTime(0)
-        {
-        }
-        */
+        StateEnum                       state;
+        typedef OtherKeysCollectionType OtherKeys;
+    };
 
     struct UpdateState
     {
@@ -150,77 +138,10 @@ class SuperModifierComponent
         void Process(BoardState& io_state)
         {
             boost::fusion::for_each(this->m_superModKeys, SuperModifier::UpdateState(io_state));
-
-            /*
-            switch(m_state)
-            {
-                case MONITORING_FOR_NO_KEYS_DOWN:
-                    if (io_state.m_modifiers == 0 and io_state.m_keyReportArray.size() == 0)
-                    {
-                        m_state = MONITORING_FOR_DOWN;
-                    }
-                    break;
-
-                case MONITORING_FOR_DOWN:
-
-                    if (io_state.m_modifiers & ~ModifierKeyType::MODIFIER or
-                        io_state.m_keyReportArray.size() != 0)
-                    {
-                        m_state = MONITORING_FOR_NO_KEYS_DOWN;
-                    }
-                    else
-                    {
-                        if (io_state.m_modifiers == ModifierKeyType::MODIFIER)
-                        {
-                            m_state = MONITORING_FOR_UP;
-                        }
-                    }
-
-                    break;
-
-                case MONITORING_FOR_UP:
-
-                    if (io_state.m_modifiers & ~ModifierKeyType::MODIFIER or
-                        io_state.m_keyReportArray.size() != 0)
-                    {
-                        m_state = MONITORING_FOR_NO_KEYS_DOWN;
-                    }
-                    else
-                    {
-                        if (io_state.m_modifiers == 0)
-                        {
-                            m_state = PRESSED;
-                            m_releaseTime = Platform::GetMsec() + 10;
-
-                            boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state, true));
-                        }
-                    }
-
-                    break;
-
-                case PRESSED:
-
-                    if (m_releaseTime < Platform::GetMsec())
-                    {
-                        boost::fusion::for_each(OtherKeysCollectionType(), PressKeys(io_state, false));
-
-                        m_state = MONITORING_FOR_NO_KEYS_DOWN;
-                        m_releaseTime = 0;
-                    }
-                    break;
-
-                case DISABLED:
-                default:
-                    break;
-            }
-            */
         }
 
     private:
 
-
-        //StateEnum     m_state;
-        //unsigned long m_releaseTime;
         SuperModKeysCollection m_superModKeys;
 };
 
