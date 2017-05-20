@@ -5,6 +5,7 @@
 #include <boost/fusion/iterator.hpp>
 
 #include "BoardState.h"
+#include "Decorators.h"
 #include "Key.h"
 #include "Platform.h"
 
@@ -48,7 +49,7 @@ namespace SuperModifier
     {
         Keys():
             releaseTime (0),
-            state       (MONITORING_FOR_NO_KEYS_DOWN)
+            state       (DISABLED)
         {}
 
         unsigned long releaseTime;
@@ -159,13 +160,32 @@ namespace SuperModifier
 };
 
 template <typename SuperModKeysCollection>
-class SuperModifierComponent
+class SuperModifierComponent : WithCommands
 {
     public:
         void Process(BoardState& io_state)
         {
             boost::fusion::for_each(this->m_superModKeys, SuperModifier::UpdateState(io_state));
         }
+
+        struct ToggleCommand : Console::BaseCommand
+        {
+            ToggleCommand() : Console::BaseCommand("supermod")
+            { }
+
+            void operator()(Console& cons, SuperModifierComponent& me) const
+            {
+                boost::fusion::for_each(me.m_superModKeys,
+                                        [](auto& superMod)
+                                        {
+                                            superMod.state = (superMod.state == SuperModifier::DISABLED ?
+                                                                SuperModifier::MONITORING_FOR_NO_KEYS_DOWN :
+                                                                SuperModifier::DISABLED);
+                                        });
+            }
+        };
+
+        typedef boost::fusion::vector<ToggleCommand> Commands;
 
     private:
 

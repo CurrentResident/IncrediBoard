@@ -25,7 +25,7 @@ SRC          = ../../Core/main.cpp \
                ../../Platforms/Teensy2AndPlusPlus/UsbInterface.cpp \
                $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH    = ../../libs/AVR/LUFA
-CPP_FLAGS    = -std=c++11
+CPP_FLAGS    = -std=c++14
 CC_FLAGS     = -Wno-attributes \
                \
                -DUSE_LUFA_CONFIG_HEADER \
