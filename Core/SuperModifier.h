@@ -44,6 +44,13 @@ namespace SuperModifier
     };
 
 
+    void Toggle(StateEnum& io_state)
+    {
+        io_state = (io_state == SuperModifier::DISABLED ?
+                                SuperModifier::MONITORING_FOR_NO_KEYS_DOWN :
+                                SuperModifier::DISABLED);
+    }
+
     template <typename ModifierKeyType, typename OtherKeysCollectionType>
     struct Keys
     {
@@ -178,9 +185,7 @@ class SuperModifierComponent : WithCommands
                 boost::fusion::for_each(me.m_superModKeys,
                                         [](auto& superMod)
                                         {
-                                            superMod.state = (superMod.state == SuperModifier::DISABLED ?
-                                                                SuperModifier::MONITORING_FOR_NO_KEYS_DOWN :
-                                                                SuperModifier::DISABLED);
+                                            SuperModifier::Toggle(superMod.state);
                                         });
             }
         };
