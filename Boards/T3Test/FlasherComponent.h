@@ -50,17 +50,10 @@ class FlasherComponent
 
                 case TURN_ON:
 
-                    if (m_flashCount > 0)
-                    {
-                        digitalWriteFast(LED_PIN, HIGH);
+                    digitalWriteFast(LED_PIN, HIGH);
 
-                        m_flashState = KEEP_LED_ON;
-                        m_nextFlash  = Platform::GetMsec() + 500;
-                    }
-                    else
-                    {
-                        m_flashState = WAITING_FOR_KEY;
-                    }
+                    m_flashState = KEEP_LED_ON;
+                    m_nextFlash  = Platform::GetMsec() + 500;
                     break;
 
                 case KEEP_LED_ON:
@@ -75,24 +68,16 @@ class FlasherComponent
 
                     digitalWriteFast(LED_PIN, LOW);
 
-                    --m_flashCount;
+                    m_flashState = WAIT_FOR_NEXT_FLASH;
+                    m_nextFlash  = Platform::GetMsec() + 200;
 
-                    if (m_flashCount > 0)
-                    {
-                        m_flashState = WAIT_FOR_NEXT_FLASH;
-                        m_nextFlash  = Platform::GetMsec() + 200;
-                    }
-                    else
-                    {
-                        m_flashState = WAITING_FOR_KEY;
-                    }
                     break;
 
                 case WAIT_FOR_NEXT_FLASH:
 
                     if (Platform::GetMsec() > m_nextFlash)
                     {
-                        m_flashState = TURN_ON;
+                        m_flashState = (--m_flashCount > 0 ? TURN_ON : WAITING_FOR_KEY);
                     }
                     break;
 
