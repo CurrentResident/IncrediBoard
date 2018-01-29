@@ -5,8 +5,8 @@
 
 #include "KeyClasses.h"
 
-typedef boost::fusion::vector<KeyA, KeyC> Row0;
-typedef boost::fusion::vector<KeyB, KeyD> Row1;
+typedef boost::fusion::vector<KeyA, KeyB> Row0;
+typedef boost::fusion::vector<KeyC, KeyD> Row1;
 
 typedef boost::fusion::vector<Row0, Row1> Matrix;
 

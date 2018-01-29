@@ -22,23 +22,6 @@ class FlasherComponent
 
         void Process(BoardState& io_state)
         {
-            const unsigned long NOW = Platform::GetMsec();
-            if (NOW > m_nextFlash)
-            {
-                m_nextFlash = Platform::GetMsec() + 500;
-
-                if (m_flashCount)
-                {
-                    digitalWriteFast(LED_PIN, LOW);
-                    m_flashCount = 0;
-                }
-                else
-                {
-                    digitalWriteFast(LED_PIN, HIGH);
-                    m_flashCount = 1;
-                }
-            }
-            /*
             switch (m_flashState)
             {
                 case WAITING_FOR_KEY:
@@ -117,7 +100,6 @@ class FlasherComponent
                     m_flashState = WAITING_FOR_KEY;
                     break;
             }
-        */
         }
 
     private:
