@@ -7,6 +7,7 @@
 #include "Board.h"
 #include "BootloaderJumpComponent.h"
 #include "ConsoleComponent.h"
+#include "FlasherComponent.h"
 #include "Matrix.h"
 #include "MatrixComponent.h"
 #include "UsbComponent.h"
@@ -20,6 +21,7 @@ typedef Board
                 BootloaderJumpComponent,
                 UsbMouseComponent,
                 ConsoleComponent,
+                FlasherComponent,
                 UsbComponent
             >
         >
