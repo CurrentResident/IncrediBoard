@@ -33,8 +33,8 @@ namespace Platform
     //
     template <> inline void ReadInputs<uint8_t, 2>(uint8_t (& o_inputs)[2])
     {
-        o_inputs[0]  = ~digitalReadFast(12);
-        o_inputs[1]  = ~digitalReadFast(11);
+        o_inputs[0] = (digitalReadFast(12) == 0);
+        o_inputs[1] = (digitalReadFast(11) == 0);
     }
 
     template <> inline void SetRow<0>  () { digitalWriteFast(5, LOW);  }
