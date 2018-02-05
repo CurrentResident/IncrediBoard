@@ -21,3 +21,9 @@
 *.original
 *.swp
 *.swo
+
+#
+# Everything in the cmake out-of-source build directory, except the initial generate script.
+
+/Boards/*/build/*
+!/Boards/*/build/generate.cmd
