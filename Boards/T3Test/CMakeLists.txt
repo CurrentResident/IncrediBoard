@@ -101,3 +101,20 @@ target_link_libraries (T3Test.elf
     TeensyduinoCore
     -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 -mcpu=cortex-m4 -mthumb -T${TEENSYDUINO_LIB_PATH}/${LINKER_SCRIPT})
 
+add_custom_command (OUTPUT T3Test.hex
+                    COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-objcopy -O ihex -R .eeprom T3Test.elf T3Test.hex
+                    DEPENDS T3Test.elf)
+
+add_custom_target (T3Test_hex_file
+                   ALL
+                   DEPENDS T3Test.hex)
+
+add_custom_command (OUTPUT T3Test.lss
+                    COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-objdump -S T3Test.elf > T3Test.lss
+                    DEPENDS T3Test.elf)
+
+add_custom_target (T3Test_lss_file
+                   ALL
+                   DEPENDS T3Test.lss)
+
+
