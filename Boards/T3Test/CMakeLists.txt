@@ -103,7 +103,7 @@ target_link_libraries (T3Test.elf
     -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 -mcpu=cortex-m4 -mthumb -T${TEENSYDUINO_LIB_PATH}/${LINKER_SCRIPT})
 
 # Stupid Cmake bug requires us to make a "front-end" custom target that our worker custom targets must depend on
-# to inhibit parallel build jobs from running simultaneously.
+# to inhibit parallel build jobs from running the same commands simultaneously.
 #
 # See the following:
 #
