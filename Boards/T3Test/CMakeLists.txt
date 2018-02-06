@@ -83,10 +83,9 @@ target_include_directories (TeensyduinoCore PUBLIC  ${TEENSYDUINO_LIB_PATH})
 target_compile_options     (TeensyduinoCore PRIVATE ${COMPILE_FLAGS})
 target_compile_definitions (TeensyduinoCore PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
 
-add_executable (T3Test.elf
-    ../../Core/main.cpp
-    ../../Platforms/Teensy3Teensyduino/PlatformSpecific.cpp
-    ../../Platforms/Teensy3Teensyduino/UsbInterface.cpp)
+add_executable (T3Test.elf ../../Core/main.cpp
+                           ../../Platforms/Teensy3Teensyduino/PlatformSpecific.cpp
+                           ../../Platforms/Teensy3Teensyduino/UsbInterface.cpp)
 
 target_compile_definitions (T3Test.elf PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
 target_compile_options     (T3Test.elf PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
@@ -101,20 +100,46 @@ target_link_libraries (T3Test.elf
     TeensyduinoCore
     -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 -mcpu=cortex-m4 -mthumb -T${TEENSYDUINO_LIB_PATH}/${LINKER_SCRIPT})
 
+# Stupid Cmake bug requires us to make a "front-end" custom target that our worker custom targets must depend on
+# to inhibit parallel build jobs from running simultaneously.
+#
+# See the following:
+#
+# https://samthursfield.wordpress.com/2015/11/21/cmake-dependencies-between-targets-and-files-and-custom-commands/
+# https://cmake.org/Bug/view.php?id=10082
+#
+add_custom_target (T3Test.elf.complete
+                   DEPENDS T3Test.elf)
+
+# ---------------------------------------------------------------
+# Hex file
 add_custom_command (OUTPUT T3Test.hex
                     COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-objcopy -O ihex -R .eeprom T3Test.elf T3Test.hex
                     DEPENDS T3Test.elf)
 
 add_custom_target (T3Test_hex_file
                    ALL
-                   DEPENDS T3Test.hex)
+                   DEPENDS T3Test.hex T3Test.elf.complete)
 
+# ---------------------------------------------------------------
+# Final assembly file
 add_custom_command (OUTPUT T3Test.lss
                     COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-objdump -S T3Test.elf > T3Test.lss
                     DEPENDS T3Test.elf)
 
 add_custom_target (T3Test_lss_file
                    ALL
-                   DEPENDS T3Test.lss)
+                   DEPENDS T3Test.lss T3Test.elf.complete)
 
+# ---------------------------------------------------------------
+# Size
+# We don't want this to execute in parallel, and we want it to not run until the hex and lss
+# targets are finished, so we only have the command depend on those two targets...
+add_custom_command (OUTPUT T3Test.size.txt
+                    COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-size T3Test.elf > T3Test.size.txt
+                    COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-size T3Test.elf
+                    DEPENDS T3Test.lss T3Test.hex)
 
+add_custom_target (T3Test_size_file
+                   ALL
+                   DEPENDS T3Test.size.txt)
