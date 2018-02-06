@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.1)
 
 project (IB LANGUAGES C CXX ASM)
+
 set(MCU MK20DX256)
+string(TOLOWER ${MCU}.ld LINKER_SCRIPT)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -12,7 +14,19 @@ list (APPEND COMPILE_FLAGS -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-secti
 
 list (APPEND COMPILE_FLAGS_CXX -std=gnu++11 -felide-constructors -fno-exceptions -fno-rtti)
 
-add_library (TeensyduinoCore_C STATIC
+# In the cmake-ideal world, we'd have one lib for each language and assign the language-specific
+# options to each lib accordingly.
+#
+# In the Teensyduino-real world, we have yield.cpp which implements a C namespace function that calls
+# CPP code but is itself called by C - a circular dependency.  So we have to make a monolithic library,
+# within which GCC tolerates internal circular dependencies just fine.
+#
+# The problem is that cmake doesn't make it easy to have mixed-language libraries whose compile options
+# vary by language type, so we brute-force it here.
+#
+set (CMAKE_CXX_FLAGS "-std=gnu++11 -felide-constructors -fno-exceptions -fno-rtti")
+
+add_library (TeensyduinoCore STATIC
     ${TEENSYDUINO_LIB_PATH}/analog.c
     ${TEENSYDUINO_LIB_PATH}/eeprom.c
     ${TEENSYDUINO_LIB_PATH}/keylayouts.c
@@ -40,9 +54,8 @@ add_library (TeensyduinoCore_C STATIC
     ${TEENSYDUINO_LIB_PATH}/usb_rawhid.c
     ${TEENSYDUINO_LIB_PATH}/usb_seremu.c
     ${TEENSYDUINO_LIB_PATH}/usb_serial.c
-    ${TEENSYDUINO_LIB_PATH}/usb_touch.c)
-
-add_library (TeensyduinoCore_CPP STATIC
+    ${TEENSYDUINO_LIB_PATH}/usb_touch.c
+    ${TEENSYDUINO_LIB_PATH}/yield.cpp
     ${TEENSYDUINO_LIB_PATH}/AudioStream.cpp
     ${TEENSYDUINO_LIB_PATH}/avr_emulation.cpp
     ${TEENSYDUINO_LIB_PATH}/DMAChannel.cpp
@@ -63,22 +76,28 @@ add_library (TeensyduinoCore_CPP STATIC
     ${TEENSYDUINO_LIB_PATH}/usb_inst.cpp
     ${TEENSYDUINO_LIB_PATH}/WMath.cpp
     ${TEENSYDUINO_LIB_PATH}/WString.cpp
-    ${TEENSYDUINO_LIB_PATH}/yield.cpp)
-
-add_library (TeensyduinoCore_ASM STATIC
     ${TEENSYDUINO_LIB_PATH}/memcpy-armv7m.S
     ${TEENSYDUINO_LIB_PATH}/memset.S)
-#    TeensyduinoCore_C
-#    TeensyduinoCore_CPP
 
-target_include_directories (TeensyduinoCore_ASM PUBLIC ${TEENSYDUINO_LIB_PATH})
-target_include_directories (TeensyduinoCore_C PUBLIC ${TEENSYDUINO_LIB_PATH})
-target_include_directories (TeensyduinoCore_CPP PUBLIC ${TEENSYDUINO_LIB_PATH})
+target_include_directories (TeensyduinoCore PUBLIC  ${TEENSYDUINO_LIB_PATH})
+target_compile_options     (TeensyduinoCore PRIVATE ${COMPILE_FLAGS})
+target_compile_definitions (TeensyduinoCore PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
 
-target_compile_options (TeensyduinoCore_ASM PRIVATE ${COMPILE_FLAGS})
-target_compile_options (TeensyduinoCore_C PRIVATE ${COMPILE_FLAGS})
-target_compile_options (TeensyduinoCore_CPP PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
+add_executable (T3Test.elf
+    ../../Core/main.cpp
+    ../../Platforms/Teensy3Teensyduino/PlatformSpecific.cpp
+    ../../Platforms/Teensy3Teensyduino/UsbInterface.cpp)
 
-target_compile_definitions (TeensyduinoCore_ASM PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
-target_compile_definitions (TeensyduinoCore_C PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
-target_compile_definitions (TeensyduinoCore_CPP PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
+target_compile_definitions (T3Test.elf PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
+target_compile_options     (T3Test.elf PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
+target_include_directories (T3Test.elf PUBLIC  .
+                                           ../../Core
+                                           ../../Platforms/Teensy3Teensyduino
+                                           ../../libs/boost_headers)
+
+set(CMAKE_EXE_LINKER_FLAGS "--specs=nano.specs")
+
+target_link_libraries (T3Test.elf
+    TeensyduinoCore
+    -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 -mcpu=cortex-m4 -mthumb -T${TEENSYDUINO_LIB_PATH}/${LINKER_SCRIPT})
+
