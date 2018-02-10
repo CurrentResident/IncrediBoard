@@ -16,19 +16,42 @@ list (APPEND COMPILE_FLAGS -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-secti
 
 list (APPEND COMPILE_FLAGS_CXX -std=gnu++11 -felide-constructors -fno-exceptions -fno-rtti)
 
-# In the cmake-ideal world, we'd have one lib for each language and assign the language-specific
-# options to each lib accordingly.
+# Build a monolithic Teensyduino library rather than separate ones for each language because there are circular
+# dependencies (i.e. C calling an extern-C'd CPP function that calls C), so the linker needs the offending code
+# to be within a single library.
 #
-# In the Teensyduino-real world, we have yield.cpp which implements a C namespace function that calls
-# CPP code but is itself called by C - a circular dependency.  So we have to make a monolithic library,
-# within which GCC tolerates internal circular dependencies just fine.
-#
-# The problem is that cmake doesn't make it easy to have mixed-language libraries whose compile options
-# vary by language type, so we brute-force it here.
-#
-set (CMAKE_CXX_FLAGS "-std=gnu++11 -felide-constructors -fno-exceptions -fno-rtti")
+# Here we do that by compiling the CPP code as an "object library" which can be included via source into the
+# monolithic library.
+
+add_library (TeensyduinoCore_CPP OBJECT
+    ${TEENSYDUINO_LIB_PATH}/yield.cpp
+    ${TEENSYDUINO_LIB_PATH}/AudioStream.cpp
+    ${TEENSYDUINO_LIB_PATH}/avr_emulation.cpp
+    ${TEENSYDUINO_LIB_PATH}/DMAChannel.cpp
+    ${TEENSYDUINO_LIB_PATH}/HardwareSerial1.cpp
+    ${TEENSYDUINO_LIB_PATH}/HardwareSerial2.cpp
+    ${TEENSYDUINO_LIB_PATH}/HardwareSerial3.cpp
+    ${TEENSYDUINO_LIB_PATH}/HardwareSerial4.cpp
+    ${TEENSYDUINO_LIB_PATH}/HardwareSerial5.cpp
+    ${TEENSYDUINO_LIB_PATH}/HardwareSerial6.cpp
+    ${TEENSYDUINO_LIB_PATH}/IntervalTimer.cpp
+    ${TEENSYDUINO_LIB_PATH}/IPAddress.cpp
+    ${TEENSYDUINO_LIB_PATH}/new.cpp
+    ${TEENSYDUINO_LIB_PATH}/Print.cpp
+    ${TEENSYDUINO_LIB_PATH}/Stream.cpp
+    ${TEENSYDUINO_LIB_PATH}/Tone.cpp
+    ${TEENSYDUINO_LIB_PATH}/usb_audio.cpp
+    ${TEENSYDUINO_LIB_PATH}/usb_flightsim.cpp
+    ${TEENSYDUINO_LIB_PATH}/usb_inst.cpp
+    ${TEENSYDUINO_LIB_PATH}/WMath.cpp
+    ${TEENSYDUINO_LIB_PATH}/WString.cpp)
+
+target_include_directories (TeensyduinoCore_CPP PUBLIC  ${TEENSYDUINO_LIB_PATH})
+target_compile_options     (TeensyduinoCore_CPP PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
+target_compile_definitions (TeensyduinoCore_CPP PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
 
 add_library (TeensyduinoCore STATIC
+    $<TARGET_OBJECTS:TeensyduinoCore_CPP>
     ${TEENSYDUINO_LIB_PATH}/analog.c
     ${TEENSYDUINO_LIB_PATH}/eeprom.c
     ${TEENSYDUINO_LIB_PATH}/keylayouts.c
@@ -57,27 +80,6 @@ add_library (TeensyduinoCore STATIC
     ${TEENSYDUINO_LIB_PATH}/usb_seremu.c
     ${TEENSYDUINO_LIB_PATH}/usb_serial.c
     ${TEENSYDUINO_LIB_PATH}/usb_touch.c
-    ${TEENSYDUINO_LIB_PATH}/yield.cpp
-    ${TEENSYDUINO_LIB_PATH}/AudioStream.cpp
-    ${TEENSYDUINO_LIB_PATH}/avr_emulation.cpp
-    ${TEENSYDUINO_LIB_PATH}/DMAChannel.cpp
-    ${TEENSYDUINO_LIB_PATH}/HardwareSerial1.cpp
-    ${TEENSYDUINO_LIB_PATH}/HardwareSerial2.cpp
-    ${TEENSYDUINO_LIB_PATH}/HardwareSerial3.cpp
-    ${TEENSYDUINO_LIB_PATH}/HardwareSerial4.cpp
-    ${TEENSYDUINO_LIB_PATH}/HardwareSerial5.cpp
-    ${TEENSYDUINO_LIB_PATH}/HardwareSerial6.cpp
-    ${TEENSYDUINO_LIB_PATH}/IntervalTimer.cpp
-    ${TEENSYDUINO_LIB_PATH}/IPAddress.cpp
-    ${TEENSYDUINO_LIB_PATH}/new.cpp
-    ${TEENSYDUINO_LIB_PATH}/Print.cpp
-    ${TEENSYDUINO_LIB_PATH}/Stream.cpp
-    ${TEENSYDUINO_LIB_PATH}/Tone.cpp
-    ${TEENSYDUINO_LIB_PATH}/usb_audio.cpp
-    ${TEENSYDUINO_LIB_PATH}/usb_flightsim.cpp
-    ${TEENSYDUINO_LIB_PATH}/usb_inst.cpp
-    ${TEENSYDUINO_LIB_PATH}/WMath.cpp
-    ${TEENSYDUINO_LIB_PATH}/WString.cpp
     ${TEENSYDUINO_LIB_PATH}/memcpy-armv7m.S
     ${TEENSYDUINO_LIB_PATH}/memset.S)
 
