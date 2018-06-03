@@ -1,6 +1,8 @@
 
 #include "UsbInterface.h"
 
+#include <cstring>
+
 #include "usb_dev.h"
 
 #include "usb_serial.h"
@@ -50,8 +52,14 @@ namespace UsbInterface
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
     {
-        s_keycodesPointer = i_keycodes;
-        s_keycodesCount   = i_keycodeCount;
-        s_modifiers       = i_modifiers;
+        s_keycodesCount   =  i_keycodeCount;
+        s_keycodesPointer = (i_keycodeCount > 6 ? s_keycodesRollOverError : i_keycodes);
+        s_modifiers       =  i_modifiers;
+
+        // Set the TD usb_keyboard data interfaces.
+        std::memcpy(keyboard_keys, s_keycodesPointer, 6);
+        keyboard_modifier_keys = s_modifiers;
+
+        usb_keyboard_send();
     }
 }
