@@ -38,6 +38,12 @@ class DebouncedButton
             // Because time is represented as an unsigned long with millisecond units, time will eventually
             // overflow at 49.71-ish days.  This algorithm deals with it okay (but not perfect) by just bailing
             // out of the debounce if it extends thru the overflown duration.
+            //
+            // One case to consider is if the debounce time is exactly the max possible valid time, or close
+            // enough to it, that "now" overflows before we get the chance to check.  In that case, our debounce
+            // time will be 49.71 days into the future!  In reality, this will appear to be either a keystroke
+            // that didn't take or is stuck, and the user will simply hit the key again.  Likely this would be a
+            // very rare event, and the mitigation for it is pretty low-impact.
 
             if (currentState != m_readState)
             {
