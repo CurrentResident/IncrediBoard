@@ -1,7 +1,5 @@
 #include "Platform.h"
 
-#include "Arduino.h"
-
 namespace Platform
 {
     void Init()
@@ -16,6 +14,11 @@ namespace Platform
         return millis();
     }
 
+void _reboot_Teensyduino_(void)
+{
+	// TODO: initialize R0 with a code....
+	__asm__ volatile("bkpt");
+}
     void JumpToBootloader()
     {
         _reboot_Teensyduino_();

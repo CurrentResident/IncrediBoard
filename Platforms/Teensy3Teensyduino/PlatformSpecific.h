@@ -2,6 +2,9 @@
 #error "Do not include this file directly!!!"
 #endif
 
+// The following must appear before Arduino.h due to how the Teensyduino USB library handles definitions.
+//#include "TeensyUsbStackDescriptorDefinitions.h"
+
 #include "Arduino.h"
 
 namespace Platform
