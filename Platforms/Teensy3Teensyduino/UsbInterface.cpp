@@ -1,6 +1,8 @@
 
 #include "UsbInterface.h"
 
+#include "usb_dev.h"
+
 #include "usb_serial.h"
 #include "usb_seremu.h"
 #include "usb_keyboard.h"
@@ -32,7 +34,7 @@ namespace UsbInterface
 {
     void Init()
     {
-        //usb_init();
+        usb_init();
     }
 
     void MouseSetButtons(uint8_t i_buttonBitset)
