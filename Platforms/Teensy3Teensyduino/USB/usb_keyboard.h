@@ -89,7 +89,9 @@ public:
 	void set_key6(uint8_t c) { keyboard_keys[5] = c; }
 	void set_media(uint16_t c) {
 		if (c == 0) {
-			usb_keymedia_release_all();
+#ifdef KEYMEDIA_INTERFACE                                       // Incrediboard
+            usb_keymedia_release_all();
+#endif                                                          // Incrediboard
 		} else if (c >= 0xE400 && c <= 0xE7FF) {
 			press(c);
 		}

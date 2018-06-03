@@ -9,12 +9,14 @@ string(TOLOWER ${MCU}.ld LINKER_SCRIPT)
 #
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
-list (APPEND CONFIGURE_OPTIONS F_CPU=48000000 USB_DISABLED LAYOUT_US_ENGLISH USING_MAKEFILE)
+list (APPEND CONFIGURE_OPTIONS F_CPU=48000000 LAYOUT_US_ENGLISH USING_MAKEFILE)
 list (APPEND ARDUINO_OPTIONS __${MCU}__ ARDUINO=10613 TEENSYDUINO=132)
 
 list (APPEND COMPILE_FLAGS -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-sections -fdata-sections)
 
 list (APPEND COMPILE_FLAGS_CXX -std=gnu++11 -felide-constructors -fno-exceptions -fno-rtti)
+
+list (APPEND TEENSYDUINO_CORE_OPTIONS USB_DISABLED)
 
 # Build a monolithic Teensyduino library rather than separate ones for each language because there are circular
 # dependencies (i.e. C calling an extern-C'd CPP function that calls C), so the linker needs the offending code
@@ -48,7 +50,7 @@ add_library (TeensyduinoCore_CPP OBJECT
 
 target_include_directories (TeensyduinoCore_CPP PUBLIC  ${TEENSYDUINO_LIB_PATH})
 target_compile_options     (TeensyduinoCore_CPP PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
-target_compile_definitions (TeensyduinoCore_CPP PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
+target_compile_definitions (TeensyduinoCore_CPP PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS} ${TEENSYDUINO_CORE_OPTIONS})
 
 add_library (TeensyduinoCore STATIC
     $<TARGET_OBJECTS:TeensyduinoCore_CPP>
@@ -85,7 +87,39 @@ add_library (TeensyduinoCore STATIC
 
 target_include_directories (TeensyduinoCore PUBLIC  ${TEENSYDUINO_LIB_PATH})
 target_compile_options     (TeensyduinoCore PRIVATE ${COMPILE_FLAGS})
-target_compile_definitions (TeensyduinoCore PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
+target_compile_definitions (TeensyduinoCore PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS} ${TEENSYDUINO_CORE_OPTIONS})
+
+add_library (TeensyduinoUsb_C OBJECT
+    ../../Platforms/Teensy3Teensyduino/USB/usb_desc.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_dev.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_joystick.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_keyboard.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_mem.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_midi.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_mouse.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_mtp.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_rawhid.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_seremu.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_serial.c
+    ../../Platforms/Teensy3Teensyduino/USB/usb_touch.c)
+
+target_include_directories (TeensyduinoUsb_C PUBLIC  ../../Platforms/Teensy3Teensyduino
+                                                     ../../Platforms/Teensy3Teensyduino/USB
+                                                     ${TEENSYDUINO_LIB_PATH})
+target_compile_options     (TeensyduinoUsb_C PRIVATE ${COMPILE_FLAGS})
+target_compile_definitions (TeensyduinoUsb_C PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
+
+add_library (TeensyduinoUsb STATIC
+                           $<TARGET_OBJECTS:TeensyduinoUsb_C>
+                           ../../Platforms/Teensy3Teensyduino/USB/usb_audio.cpp
+                           ../../Platforms/Teensy3Teensyduino/USB/usb_flightsim.cpp)
+                       #                           ../../Platforms/Teensy3Teensyduino/USB/usb_inst.cpp)
+
+target_include_directories (TeensyduinoUsb PUBLIC  ../../Platforms/Teensy3Teensyduino
+                                                   ../../Platforms/Teensy3Teensyduino/USB
+                                                   ${TEENSYDUINO_LIB_PATH})
+target_compile_options     (TeensyduinoUsb PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
+target_compile_definitions (TeensyduinoUsb PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
 
 add_executable (T3Test.elf ../../Core/main.cpp
                            ../../Platforms/Teensy3Teensyduino/PlatformSpecific.cpp
@@ -101,6 +135,7 @@ target_include_directories (T3Test.elf PUBLIC  .
 set(CMAKE_EXE_LINKER_FLAGS "--specs=nano.specs")
 
 target_link_libraries (T3Test.elf
+    TeensyduinoUsb
     TeensyduinoCore
     -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 -mcpu=cortex-m4 -mthumb -T${TEENSYDUINO_LIB_PATH}/${LINKER_SCRIPT})
 
