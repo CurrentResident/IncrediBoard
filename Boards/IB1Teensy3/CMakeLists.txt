@@ -150,27 +150,27 @@ target_link_libraries (${BOARD_NAME}.elf
 # https://cmake.org/Bug/view.php?id=10082
 #
 add_custom_target (${BOARD_NAME}.elf.complete
-                   DEPENDS ${BOARD_NAME}.elf)
+                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.elf)
 
 # ---------------------------------------------------------------
 # Hex file
 add_custom_command (OUTPUT ${BOARD_NAME}.hex
                     COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-objcopy -O ihex -R .eeprom ${BOARD_NAME}.elf ${BOARD_NAME}.hex
-                    DEPENDS ${BOARD_NAME}.elf)
+                    DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.elf)
 
 add_custom_target (${BOARD_NAME}_hex_file
                    ALL
-                   DEPENDS ${BOARD_NAME}.hex ${BOARD_NAME}.elf.complete)
+                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.hex ${BOARD_NAME}.elf.complete)
 
 # ---------------------------------------------------------------
 # Final assembly file
 add_custom_command (OUTPUT ${BOARD_NAME}.lss
                     COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-objdump -S ${BOARD_NAME}.elf > ${BOARD_NAME}.lss
-                    DEPENDS ${BOARD_NAME}.elf)
+                    DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.elf)
 
 add_custom_target (${BOARD_NAME}_lss_file
                    ALL
-                   DEPENDS ${BOARD_NAME}.lss ${BOARD_NAME}.elf.complete)
+                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.lss ${BOARD_NAME}.elf.complete)
 
 # ---------------------------------------------------------------
 # Size
@@ -179,8 +179,8 @@ add_custom_target (${BOARD_NAME}_lss_file
 add_custom_command (OUTPUT ${BOARD_NAME}.size.txt
                     COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-size ${BOARD_NAME}.elf > ${BOARD_NAME}.size.txt
                     COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-size ${BOARD_NAME}.elf
-                    DEPENDS ${BOARD_NAME}.lss ${BOARD_NAME}.hex)
+                    DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.lss ${CMAKE_BINARY_DIR}/${BOARD_NAME}.hex)
 
 add_custom_target (${BOARD_NAME}_size_file
                    ALL
-                   DEPENDS ${BOARD_NAME}.size.txt)
+                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.size.txt)
