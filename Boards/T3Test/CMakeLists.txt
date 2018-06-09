@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.1)
 
 project (IB LANGUAGES C CXX ASM)
 
+set(BOARD_NAME T3Test)
+
 set(MCU MK20DX256)
 string(TOLOWER ${MCU}.ld LINKER_SCRIPT)
 
@@ -14,7 +16,7 @@ list (APPEND ARDUINO_OPTIONS __${MCU}__ ARDUINO=10613 TEENSYDUINO=132)
 
 list (APPEND COMPILE_FLAGS -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-sections -fdata-sections)
 
-list (APPEND COMPILE_FLAGS_CXX -std=gnu++11 -felide-constructors -fno-exceptions -fno-rtti)
+list (APPEND COMPILE_FLAGS_CXX -std=gnu++14 -felide-constructors -fno-exceptions -fno-rtti)
 
 list (APPEND TEENSYDUINO_CORE_OPTIONS USB_DISABLED)
 
@@ -121,20 +123,20 @@ target_include_directories (TeensyduinoUsb PUBLIC  ../../Platforms/Teensy3Teensy
 target_compile_options     (TeensyduinoUsb PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
 target_compile_definitions (TeensyduinoUsb PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
 
-add_executable (T3Test.elf ../../Core/main.cpp
+add_executable (${BOARD_NAME}.elf ../../Core/main.cpp
                            ../../Platforms/Teensy3Teensyduino/PlatformSpecific.cpp
                            ../../Platforms/Teensy3Teensyduino/UsbInterface.cpp)
 
-target_compile_definitions (T3Test.elf PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
-target_compile_options     (T3Test.elf PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
-target_include_directories (T3Test.elf PUBLIC  .
+target_compile_definitions (${BOARD_NAME}.elf PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS})
+target_compile_options     (${BOARD_NAME}.elf PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
+target_include_directories (${BOARD_NAME}.elf PUBLIC  .
                                            ../../Core
                                            ../../Platforms/Teensy3Teensyduino
                                            ../../libs/boost_headers)
 
 set(CMAKE_EXE_LINKER_FLAGS "--specs=nano.specs")
 
-target_link_libraries (T3Test.elf
+target_link_libraries (${BOARD_NAME}.elf
     TeensyduinoUsb
     TeensyduinoCore
     -Os -Wl,--gc-sections,--defsym=__rtc_localtime=0 -mcpu=cortex-m4 -mthumb -T${TEENSYDUINO_LIB_PATH}/${LINKER_SCRIPT})
@@ -147,38 +149,38 @@ target_link_libraries (T3Test.elf
 # https://samthursfield.wordpress.com/2015/11/21/cmake-dependencies-between-targets-and-files-and-custom-commands/
 # https://cmake.org/Bug/view.php?id=10082
 #
-add_custom_target (T3Test.elf.complete
-                   DEPENDS T3Test.elf)
+add_custom_target (${BOARD_NAME}.elf.complete
+                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.elf)
 
 # ---------------------------------------------------------------
 # Hex file
-add_custom_command (OUTPUT T3Test.hex
-                    COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-objcopy -O ihex -R .eeprom T3Test.elf T3Test.hex
-                    DEPENDS T3Test.elf)
+add_custom_command (OUTPUT ${BOARD_NAME}.hex
+                    COMMAND ${COMPILER_PATH}/arm-none-eabi-objcopy -O ihex -R .eeprom ${BOARD_NAME}.elf ${BOARD_NAME}.hex
+                    DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.elf)
 
-add_custom_target (T3Test_hex_file
+add_custom_target (${BOARD_NAME}_hex_file
                    ALL
-                   DEPENDS T3Test.hex T3Test.elf.complete)
+                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.hex ${BOARD_NAME}.elf.complete)
 
 # ---------------------------------------------------------------
 # Final assembly file
-add_custom_command (OUTPUT T3Test.lss
-                    COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-objdump -S T3Test.elf > T3Test.lss
-                    DEPENDS T3Test.elf)
+add_custom_command (OUTPUT ${BOARD_NAME}.lss
+                    COMMAND ${COMPILER_PATH}/arm-none-eabi-objdump -S ${BOARD_NAME}.elf > ${BOARD_NAME}.lss
+                    DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.elf)
 
-add_custom_target (T3Test_lss_file
+add_custom_target (${BOARD_NAME}_lss_file
                    ALL
-                   DEPENDS T3Test.lss T3Test.elf.complete)
+                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.lss ${BOARD_NAME}.elf.complete)
 
 # ---------------------------------------------------------------
 # Size
 # We don't want this to execute in parallel, and we want it to not run until the hex and lss
 # targets are finished, so we only have the command depend on those two targets...
-add_custom_command (OUTPUT T3Test.size.txt
-                    COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-size T3Test.elf > T3Test.size.txt
-                    COMMAND ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-size T3Test.elf
-                    DEPENDS T3Test.lss T3Test.hex)
+add_custom_command (OUTPUT ${BOARD_NAME}.size.txt
+                    COMMAND ${COMPILER_PATH}/arm-none-eabi-size ${BOARD_NAME}.elf > ${BOARD_NAME}.size.txt
+                    COMMAND ${COMPILER_PATH}/arm-none-eabi-size ${BOARD_NAME}.elf
+                    DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.lss ${CMAKE_BINARY_DIR}/${BOARD_NAME}.hex)
 
-add_custom_target (T3Test_size_file
+add_custom_target (${BOARD_NAME}_size_file
                    ALL
-                   DEPENDS T3Test.size.txt)
+                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.size.txt)

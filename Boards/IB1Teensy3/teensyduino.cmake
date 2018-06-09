@@ -2,7 +2,8 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR ARM)
 
 set(TEENSYDUINO_LIB_PATH      $ENV{ARDUINOPATH}/hardware/teensy/avr/cores/teensy3)
-set(TEENSYDUINO_COMPILER_PATH $ENV{ARDUINOPATH}/hardware/tools/arm/bin)
+#set(TEENSYDUINO_COMPILER_PATH $ENV{ARDUINOPATH}/hardware/tools/arm/bin)
+set(TEENSYDUINO_COMPILER_PATH D:/gcc-arm-none-eabi-7-2017-q4-major-win32/bin)
 
 set(CMAKE_C_COMPILER   ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-gcc.exe)
 set(CMAKE_ASM_COMPILER ${TEENSYDUINO_COMPILER_PATH}/arm-none-eabi-gcc.exe)

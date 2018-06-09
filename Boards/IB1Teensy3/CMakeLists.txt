@@ -16,7 +16,7 @@ list (APPEND ARDUINO_OPTIONS __${MCU}__ ARDUINO=10613 TEENSYDUINO=132)
 
 list (APPEND COMPILE_FLAGS -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-sections -fdata-sections)
 
-list (APPEND COMPILE_FLAGS_CXX -std=gnu++11 -felide-constructors -fno-exceptions -fno-rtti)
+list (APPEND COMPILE_FLAGS_CXX -std=gnu++14 -felide-constructors -fno-exceptions -fno-rtti)
 
 list (APPEND TEENSYDUINO_CORE_OPTIONS USB_DISABLED)
 
