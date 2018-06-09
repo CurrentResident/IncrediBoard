@@ -56,27 +56,27 @@ namespace Platform
     //
     template <> inline void ReadInputs<uint8_t, 21>(uint8_t (& o_inputs)[21])
     {
-        o_inputs[0]  = ~digitalReadFast(27);
-        o_inputs[1]  = ~digitalReadFast(0);
-        o_inputs[2]  = ~digitalReadFast(1);
-        o_inputs[3]  = ~digitalReadFast(2);
-        o_inputs[4]  = ~digitalReadFast(3);
-        o_inputs[5]  = ~digitalReadFast(4);
-        o_inputs[6]  = ~digitalReadFast(5);
-        o_inputs[7]  = ~digitalReadFast(7);
-        o_inputs[8]  = ~digitalReadFast(8);
-        o_inputs[9]  = ~digitalReadFast(9);
-        o_inputs[10] = ~digitalReadFast(10);
-        o_inputs[11] = ~digitalReadFast(11);
-        o_inputs[12] = ~digitalReadFast(12);
-        o_inputs[13] = ~digitalReadFast(13);
-        o_inputs[14] = ~digitalReadFast(14);
-        o_inputs[15] = ~digitalReadFast(15);
-        o_inputs[16] = ~digitalReadFast(16);
-        o_inputs[17] = ~digitalReadFast(20);
-        o_inputs[18] = ~digitalReadFast(39);
-        o_inputs[19] = ~digitalReadFast(43);
-        o_inputs[20] = ~digitalReadFast(17);
+        o_inputs[0]  = (digitalReadFast(27) == 0);
+        o_inputs[1]  = (digitalReadFast(0) == 0);
+        o_inputs[2]  = (digitalReadFast(1) == 0);
+        o_inputs[3]  = (digitalReadFast(2) == 0);
+        o_inputs[4]  = (digitalReadFast(3) == 0);
+        o_inputs[5]  = (digitalReadFast(4) == 0);
+        o_inputs[6]  = (digitalReadFast(5) == 0);
+        o_inputs[7]  = (digitalReadFast(7) == 0);
+        o_inputs[8]  = (digitalReadFast(8) == 0);
+        o_inputs[9]  = (digitalReadFast(9) == 0);
+        o_inputs[10] = (digitalReadFast(10) == 0);
+        o_inputs[11] = (digitalReadFast(11) == 0);
+        o_inputs[12] = (digitalReadFast(12) == 0);
+        o_inputs[13] = (digitalReadFast(13) == 0);
+        o_inputs[14] = (digitalReadFast(14) == 0);
+        o_inputs[15] = (digitalReadFast(15) == 0);
+        o_inputs[16] = (digitalReadFast(16) == 0);
+        o_inputs[17] = (digitalReadFast(20) == 0);
+        o_inputs[18] = (digitalReadFast(39) == 0);
+        o_inputs[19] = (digitalReadFast(43) == 0);
+        o_inputs[20] = (digitalReadFast(17) == 0);
     }
 
     template <> inline void SetRow<0>  () { digitalWriteFast(23, LOW);  }
