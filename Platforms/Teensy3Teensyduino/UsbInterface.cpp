@@ -36,7 +36,8 @@ namespace UsbInterface
 {
     void Init()
     {
-        usb_init();
+        // usb_init() is called by the core _init_Teensyduino_internal_ in pins_teensy.c,
+        // so there's no need to do it here.
     }
 
     void MouseSetButtons(uint8_t i_buttonBitset)
