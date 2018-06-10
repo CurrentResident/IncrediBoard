@@ -87,15 +87,15 @@ public:
 	void set_key4(uint8_t c) { keyboard_keys[3] = c; }
 	void set_key5(uint8_t c) { keyboard_keys[4] = c; }
 	void set_key6(uint8_t c) { keyboard_keys[5] = c; }
+#ifdef KEYMEDIA_INTERFACE                                       // Incrediboard
 	void set_media(uint16_t c) {
 		if (c == 0) {
-#ifdef KEYMEDIA_INTERFACE                                       // Incrediboard
             usb_keymedia_release_all();
-#endif                                                          // Incrediboard
 		} else if (c >= 0xE400 && c <= 0xE7FF) {
 			press(c);
 		}
 	}
+#endif                                                          // Incrediboard
 	void send_now(void) { usb_keyboard_send(); }
 	void press(uint16_t n) { usb_keyboard_press_keycode(n); }
 	void release(uint16_t n) { usb_keyboard_release_keycode(n); }

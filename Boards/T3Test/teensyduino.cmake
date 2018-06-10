@@ -1,7 +1,9 @@
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR ARM)
 
-set(TEENSYDUINO_LIB_PATH      $ENV{ARDUINOPATH}/hardware/teensy/avr/cores/teensy3)
+#set(TEENSYDUINO_LIB_PATH      $ENV{ARDUINOPATH}/hardware/teensy/avr/cores/teensy3)
+set(TEENSYDUINO_LIB_PATH      D:/Projects/Teensy/cores/teensy3)
+
 set(TEENSYDUINO_COMPILER_PATH $ENV{ARDUINOPATH}/hardware/tools/arm/bin)
 
 set(COMPILER_PATH ${TEENSYDUINO_COMPILER_PATH})
