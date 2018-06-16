@@ -1,5 +1,5 @@
-#ifndef TEENSY_USB_STACK_DESCRIPTOR_DEFINITIONS_H_
-#define TEENSY_USB_STACK_DESCRIPTOR_DEFINITIONS_H_
+#ifndef _usb_user_desc_h_
+#define _usb_user_desc_h_
 
 // The following was crafted using the guidance given in Teensyduino's usb_desc.h.
 //
