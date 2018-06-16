@@ -19,7 +19,7 @@ list (APPEND COMPILE_FLAGS -Wall -g -Os -mcpu=cortex-m4 -mthumb -ffunction-secti
 list (APPEND COMPILE_FLAGS_CXX -std=gnu++14 -felide-constructors -fno-exceptions -fno-rtti)
 
 list (APPEND TEENSYDUINO_CORE_OPTIONS USB_DISABLED)
-list (APPEND TEENSYDUINO_USB_OPTIONS  USER_CUSTOM_INTERFACE_HEADER_FILE=TeensyUsbStackDescriptorDefinitions.h)
+list (APPEND TEENSYDUINO_USB_OPTIONS  INCLUDE_USB_USER_DESC)
 
 # Build a monolithic Teensyduino library rather than separate ones for each language because there are circular
 # dependencies (i.e. C calling an extern-C'd CPP function that calls C), so the linker needs the offending code
