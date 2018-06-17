@@ -183,4 +183,4 @@ add_custom_command (OUTPUT ${BOARD_NAME}.size.txt
 
 add_custom_target (${BOARD_NAME}_size_file
                    ALL
-                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.size.txt)
+                   DEPENDS ${CMAKE_BINARY_DIR}/${BOARD_NAME}.size.txt ${BOARD_NAME}_hex_file ${BOARD_NAME}_lss_file)
