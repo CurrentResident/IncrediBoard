@@ -23,8 +23,7 @@
 *.swo
 
 #
-# Everything in the cmake out-of-source build directory, except the initial generate script.
+# Everything in the cmake out-of-source build directory, except the scripts.
 
 /Boards/*/build/*
-!/Boards/*/build/build.cmd
-!/Boards/*/build/generate.cmd
+!/Boards/*/build/*.cmd
