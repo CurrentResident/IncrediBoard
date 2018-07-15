@@ -4,7 +4,7 @@
 
 #include <boost/utility/binary.hpp>
 
-#include "Arduino.h"
+#include "Platform.h"
 
 namespace Platform
 {
