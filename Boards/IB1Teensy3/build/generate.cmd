@@ -1,5 +1,7 @@
 @echo off
 
+call tools.cmd
+
 :: Shamelessly lifted from https://stackoverflow.com/questions/4781772/how-to-test-if-an-executable-exists-in-the-path-from-a-windows-batch-file
 ::
 for %%X in (sh.exe)    do (set FOUND_SH=%%~$PATH:X)
