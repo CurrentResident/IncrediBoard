@@ -25,5 +25,5 @@
 #
 # Everything in the cmake out-of-source build directory, except the scripts.
 
-/Boards/*/build/*
-!/Boards/*/build/*.cmd
+/Boards/*/build*/*
+!/Boards/*/build*/*.cmd
