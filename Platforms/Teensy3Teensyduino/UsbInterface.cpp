@@ -28,8 +28,8 @@ namespace
 
     // Mouse bookkeeping
     uint8_t s_mouseButtons;
-    uint8_t s_mouseX;
-    uint8_t s_mouseY;
+    int8_t  s_mouseX;
+    int8_t  s_mouseY;
 }
 
 namespace UsbInterface
@@ -45,7 +45,7 @@ namespace UsbInterface
         s_mouseButtons = i_buttonBitset;
     }
 
-    void MouseMove(uint8_t i_mouseX, uint8_t i_mouseY)
+    void MouseMove(int8_t i_mouseX, int8_t i_mouseY)
     {
         s_mouseX = i_mouseX;
         s_mouseY = i_mouseY;
@@ -62,5 +62,11 @@ namespace UsbInterface
         keyboard_modifier_keys = s_modifiers;
 
         usb_keyboard_send();
+
+        if (s_mouseButtons != 0 or s_mouseX != 0 or s_mouseY != 0)
+        {
+            usb_mouse_buttons_state = s_mouseButtons;
+            usb_mouse_move(s_mouseX, s_mouseY, 0, 0);
+        }
     }
 }

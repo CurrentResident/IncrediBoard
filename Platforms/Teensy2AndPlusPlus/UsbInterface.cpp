@@ -20,8 +20,8 @@ namespace
 
     // Mouse bookkeeping
     uint8_t s_mouseButtons;
-    uint8_t s_mouseX;
-    uint8_t s_mouseY;
+    int8_t  s_mouseX;
+    int8_t  s_mouseY;
 
     /** LUFA HID Class driver interface configuration and state information. This structure is
      *  passed to all HID Class driver functions, so that multiple instances of the same class
@@ -173,7 +173,7 @@ namespace UsbInterface
         s_mouseButtons = i_buttonBitset;
     }
 
-    void MouseMove(uint8_t i_mouseX, uint8_t i_mouseY)
+    void MouseMove(int8_t i_mouseX, int8_t i_mouseY)
     {
         s_mouseX = i_mouseX;
         s_mouseY = i_mouseY;

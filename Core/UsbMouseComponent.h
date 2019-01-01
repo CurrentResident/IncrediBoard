@@ -5,6 +5,7 @@
 
 #include "BoardState.h"
 #include "KeyCodes.h"
+#include "Platform.h"
 #include "UsbInterface.h"
 
 class UsbMouseComponent
@@ -12,10 +13,23 @@ class UsbMouseComponent
     public:
 
         UsbMouseComponent() :
-            m_mouseX     (0),
-            m_mouseY     (0),
-            m_mouseState (MOUSE_OFF)
+            m_lastUpdateTime(Platform::GetMsec()),
+            m_mouseX        (0),
+            m_mouseY        (0),
+            m_mouseState    (MOUSE_OFF)
         {
+        }
+
+        void MouseMotion(bool   i_upIsActive,
+                         bool   i_downIsActive,
+                         bool   i_leftIsActive,
+                         bool   i_rightIsActive,
+                         int8_t o_mouseX,
+                         int8_t o_mouseY)
+        {
+            const unsigned long now = Platform::GetMsec();
+
+            m_lastUpdateTime = now;
         }
 
         void Process(BoardState& io_state)
@@ -51,12 +65,13 @@ class UsbMouseComponent
                     UsbInterface::MouseSetButtons(0);
                     break;
 
-                default:
+                default:                // fall-thru
                 case MOUSE_OFF:
 
                     if (io_state.m_functionKey)
                     {
-                        m_mouseState = MOUSE_ON;
+                        m_mouseState     = MOUSE_ON;
+                        m_lastUpdateTime = Platform::GetMsec();
                     }
                     break;
             }
@@ -72,6 +87,8 @@ class UsbMouseComponent
             MOUSE_ON,
             MOUSE_TURNING_OFF
         };
+
+        unsigned long   m_lastUpdateTime;
         uint8_t         m_mouseX;
         uint8_t         m_mouseY;
         MouseStateEnum  m_mouseState;

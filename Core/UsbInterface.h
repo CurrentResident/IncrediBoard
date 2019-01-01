@@ -10,7 +10,7 @@ namespace UsbInterface
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers);
 
     void MouseSetButtons(uint8_t i_buttonBitset);
-    void MouseMove(uint8_t i_mouseX, uint8_t i_mouseY);
+    void MouseMove(int8_t i_mouseX, int8_t i_mouseY);
 }
 
 #endif
