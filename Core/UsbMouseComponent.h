@@ -18,7 +18,7 @@ class UsbMouseComponent
         UsbMouseComponent() :
             m_lastUpdateTime  (Platform::GetMsec()),
             m_mouseUnitVectors{ { { std::cos(M_PI * 0.75), std::sin(M_PI * 0.75) }, {  0l,  1l }, { std::cos(M_PI * 0.25), std::sin(M_PI * 0.25) } },
-                                { { -1l,  0l }, { 0l,  0l }, {  1l,  0l } },
+                                { {                   -1l,                    0l }, {  0l,  0l }, {                    1l,                    0l } },
                                 { { std::cos(M_PI * 1.25), std::sin(M_PI * 1.25) }, {  0l, -1l }, { std::cos(M_PI * 1.75), std::sin(M_PI * 1.75) } } },
             m_mouseMode       (MOUSE_OFF)
         {
@@ -34,20 +34,26 @@ class UsbMouseComponent
             const SignedFixedType deltaTSeconds  = deltaMsec / 1000l;
 
             const SignedFixedType MAX_VELOCITY = 1000l;          // In units per second.
+            const SignedFixedType ACCELERATION = 1000l;
 
-            const SignedFixedType actualVelocity = MAX_VELOCITY * deltaTSeconds;
+            //const SignedFixedType actualVelocity = MAX_VELOCITY * deltaTSeconds;
 
             const int row = 1 + (i_upIsActive   *  1) + (i_downIsActive  * -1);
             const int col = 1 + (i_leftIsActive * -1) + (i_rightIsActive *  1);
 
-            m_mouseState.velocity = m_mouseUnitVectors[row][col];
+            if (row == 1 and col == 1)
+            {
+                m_mouseState.velocity = 0l;
+            }
+            else
+            {
+                m_mouseState.velocity = std::min(MAX_VELOCITY, m_mouseState.velocity + ACCELERATION * deltaTSeconds);
+            }
 
-            m_mouseState.position += m_mouseState.velocity;
+            m_mouseState.position += m_mouseUnitVectors[row][col] * (m_mouseState.velocity * deltaTSeconds);
 
-            const VectorType deltaSinceReport = m_mouseState.position;
-
-            deltaSinceReport.x.Round(m_mouseState.reportDeltaX);
-            deltaSinceReport.y.Round(m_mouseState.reportDeltaY);
+            m_mouseState.position.x.Round(m_mouseState.reportDeltaX);
+            m_mouseState.position.y.Round(m_mouseState.reportDeltaY);
 
             if (m_mouseState.reportDeltaX != 0)
             {
@@ -129,10 +135,10 @@ class UsbMouseComponent
 
         struct MouseStateType
         {
-            VectorType  position;
-            VectorType  velocity;
-            int8_t      reportDeltaX;    ///< The motion X component reported on USB.
-            int8_t      reportDeltaY;    ///< The motion Y component reported on USB.
+            VectorType      position;
+            SignedFixedType velocity;
+            int8_t          reportDeltaX;    ///< The motion X component reported on USB.
+            int8_t          reportDeltaY;    ///< The motion Y component reported on USB.
 
             MouseStateType() :
                 reportDeltaX(0),

@@ -64,6 +64,11 @@ class FixedPoint
             return *this;
         }
 
+        friend bool operator<(const FixedPoint& lhs, const FixedPoint& rhs)
+        {
+            return lhs.value < rhs.value;
+        }
+
         friend FixedPoint operator+(const FixedPoint& lhs, const FixedPoint& rhs)
         {
             return FixedPoint(ForcedValueType(lhs.value + rhs.value));
