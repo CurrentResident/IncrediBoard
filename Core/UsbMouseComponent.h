@@ -4,9 +4,11 @@
 #include <stdint.h>
 
 #include "BoardState.h"
+#include "FixedPoint.h"
 #include "KeyCodes.h"
 #include "Platform.h"
 #include "UsbInterface.h"
+#include "Vector2.h"
 
 class UsbMouseComponent
 {
@@ -24,36 +26,40 @@ class UsbMouseComponent
                          bool    i_rightIsActive)
         {
             const unsigned long now       = Platform::GetMsec();
-            const int64_t       deltaMsec = static_cast<int64_t>(now - m_lastUpdateTime) << 16;
+            const SignedFixedType deltaMsec = now - m_lastUpdateTime;
 
-            const int64_t deltaTSeconds  = (deltaMsec << 16) / (1000 << 16);    // The numerator needs another half-shift for FP-divide.
+            const SignedFixedType deltaTSeconds  = deltaMsec / 1000;
 
-            const int64_t MAX_VELOCITY = 1000 << 16;          // In units per second.
+            const SignedFixedType MAX_VELOCITY = 1000;          // In units per second.
 
-            const int32_t actualVelocity = static_cast<int32_t>((MAX_VELOCITY * deltaTSeconds) >> 16);
+            const SignedFixedType actualVelocity = MAX_VELOCITY * deltaTSeconds;
 
-            m_mouseState.velocityX  = i_rightIsActive ? actualVelocity : 0;
-            m_mouseState.velocityX -= i_leftIsActive  ? actualVelocity : 0;
+            m_mouseState.velocity.x  = i_rightIsActive ? actualVelocity : 0;
+            m_mouseState.velocity.x -= i_leftIsActive  ? actualVelocity : 0;
 
-            m_mouseState.velocityY  = i_downIsActive ? actualVelocity : 0;
-            m_mouseState.velocityY -= i_upIsActive   ? actualVelocity : 0;
+            m_mouseState.velocity.y  = i_downIsActive ? actualVelocity : 0;
+            m_mouseState.velocity.y -= i_upIsActive   ? actualVelocity : 0;
 
-            m_mouseState.positionX += m_mouseState.velocityX;
-            m_mouseState.positionY += m_mouseState.velocityY;
+            m_mouseState.position += m_mouseState.velocity;
 
-            const int32_t POINT_FIVE = 1 << 15;
+            const VectorType deltaSinceReport = m_mouseState.position;// - m_mouseState.positionAtPreviousReport;
 
-            m_mouseState.reportDeltaX = static_cast<int8_t>((m_mouseState.positionX - m_mouseState.positionXAtPreviousReport + POINT_FIVE) >> 16);
-            m_mouseState.reportDeltaY = static_cast<int8_t>((m_mouseState.positionY - m_mouseState.positionYAtPreviousReport + POINT_FIVE) >> 16);
+            //m_mouseState.reportDeltaX = static_cast<int8_t>(deltaSinceReport.x);
+            //m_mouseState.reportDeltaY = static_cast<int8_t>(deltaSinceReport.y);
+
+            deltaSinceReport.x.Round(m_mouseState.reportDeltaX);
+            deltaSinceReport.y.Round(m_mouseState.reportDeltaY);
 
             if (m_mouseState.reportDeltaX != 0)
             {
-                m_mouseState.positionXAtPreviousReport = m_mouseState.positionX;
+                m_mouseState.position.x = SignedFixedType();
+                //m_mouseState.positionXAtPreviousReport = m_mouseState.positionX;
             }
 
             if (m_mouseState.reportDeltaY != 0)
             {
-                m_mouseState.positionYAtPreviousReport = m_mouseState.positionY;
+                m_mouseState.position.y = SignedFixedType();
+                //m_mouseState.positionYAtPreviousReport = m_mouseState.positionY;
             }
 
             m_lastUpdateTime = now;
@@ -117,8 +123,18 @@ class UsbMouseComponent
             MOUSE_TURNING_OFF
         };
 
+        //typedef FixedPoint<int16_t, int16_t, 4> SignedFixedType;     // 12.4
+        //typedef FixedPoint<int32_t, int32_t, 8> SignedFixedType;      // 24.8
+        typedef FixedPoint<int32_t, int64_t, 16> SignedFixedType;      // 16.16
+
+        typedef Vector2<SignedFixedType> VectorType;
+
         struct MouseStateType
         {
+            VectorType  position;
+            VectorType  velocity;
+            //VectorType positionAtPreviousReport;
+            /*
             int32_t positionX;      ///< Signed 16.16 fixed point.
             int32_t positionY;      ///< Signed 16.16 fixed point.
             int32_t velocityX;      ///< Signed 16.16 fixed point.
@@ -126,17 +142,19 @@ class UsbMouseComponent
 
             int32_t positionXAtPreviousReport;
             int32_t positionYAtPreviousReport;
-
+*/
             int8_t reportDeltaX;    ///< The motion X component reported on USB.
             int8_t reportDeltaY;    ///< The motion Y component reported on USB.
 
             MouseStateType() :
+                /*
                 positionX                (0),
                 positionY                (0),
                 velocityX                (0),
                 velocityY                (0),
                 positionXAtPreviousReport(0),
                 positionYAtPreviousReport(0),
+                */
                 reportDeltaX             (0),
                 reportDeltaY             (0)
             {
