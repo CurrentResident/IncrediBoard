@@ -36,8 +36,6 @@ class UsbMouseComponent
             const SignedFixedType MAX_VELOCITY = 1000l;          // In units per second.
             const SignedFixedType ACCELERATION = 1000l;
 
-            //const SignedFixedType actualVelocity = MAX_VELOCITY * deltaTSeconds;
-
             const int row = 1 + (i_upIsActive   *  1) + (i_downIsActive  * -1);
             const int col = 1 + (i_leftIsActive * -1) + (i_rightIsActive *  1);
 
@@ -129,6 +127,10 @@ class UsbMouseComponent
         //typedef FixedPoint<int16_t, int16_t, 4> SignedFixedType;     // 12.4
         //typedef FixedPoint<int32_t, int32_t, 8> SignedFixedType;      // 24.8
         //typedef FixedPoint<int32_t, int64_t, 16> SignedFixedType;      // 16.16
+
+        // 22.10 fixed point.  When multiplied, this leaves 12 bits for the integer part of the result, or
+        // for the numerator when divided, but it gives enough precision for the fractional part to represent
+        // thousandths of a second.
         typedef FixedPoint<int32_t, int32_t, 10> SignedFixedType;      // 22.10
 
         typedef Vector2<SignedFixedType> VectorType;
