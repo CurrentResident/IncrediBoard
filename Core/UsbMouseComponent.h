@@ -22,19 +22,6 @@ class UsbMouseComponent
                                 { { std::cos(M_PI * 1.25), std::sin(M_PI * 1.25) }, {  0l, -1l }, { std::cos(M_PI * 1.75), std::sin(M_PI * 1.75) } } },
             m_mouseMode       (MOUSE_OFF)
         {
-            //m_mouseUnitVectors = ;
-
-                /*
-            m_mouseUnitVectors[DEG_0]   = {  1l,  0l };
-            m_mouseUnitVectors[DEG_90]  = {  0l,  1l };
-            m_mouseUnitVectors[DEG_180] = { -1l,  0l };
-            m_mouseUnitVectors[DEG_270] = {  0l, -1l };
-
-            m_mouseUnitVectors[DEG_45]  = { std::cos(M_PI * 0.25), std::sin(M_PI * 0.25) };
-            m_mouseUnitVectors[DEG_135] = { std::cos(M_PI * 0.75), std::sin(M_PI * 0.75) };
-            m_mouseUnitVectors[DEG_225] = { std::cos(M_PI * 1.25), std::sin(M_PI * 1.25) };
-            m_mouseUnitVectors[DEG_315] = { std::cos(M_PI * 1.75), std::sin(M_PI * 1.75) };
-            */
         }
 
         void MouseMotion(bool i_upIsActive,
@@ -50,18 +37,10 @@ class UsbMouseComponent
 
             const SignedFixedType actualVelocity = MAX_VELOCITY * deltaTSeconds;
 
-            const int row = 1 + (i_upIsActive * 1) + (i_downIsActive * -1);
-            const int col = 1 + (i_leftIsActive * -1) + (i_rightIsActive * 1);
+            const int row = 1 + (i_upIsActive   *  1) + (i_downIsActive  * -1);
+            const int col = 1 + (i_leftIsActive * -1) + (i_rightIsActive *  1);
 
             m_mouseState.velocity = m_mouseUnitVectors[row][col];
-
-            /*
-            m_mouseState.velocity.x  = i_rightIsActive ? actualVelocity : 0l;
-            m_mouseState.velocity.x -= i_leftIsActive  ? actualVelocity : 0l;
-
-            m_mouseState.velocity.y  = i_downIsActive ? actualVelocity : 0l;
-            m_mouseState.velocity.y -= i_upIsActive   ? actualVelocity : 0l;
-            */
 
             m_mouseState.position += m_mouseState.velocity;
 
@@ -141,20 +120,6 @@ class UsbMouseComponent
             MOUSE_TURNING_OFF
         };
 
-        enum DirectionCommandEnum
-        {
-            DEG_NONE,
-            DEG_0,
-            DEG_45,
-            DEG_90,
-            DEG_135,
-            DEG_180,
-            DEG_225,
-            DEG_270,
-            DEG_315,
-            DEG_COUNT
-        };
-
         //typedef FixedPoint<int16_t, int16_t, 4> SignedFixedType;     // 12.4
         //typedef FixedPoint<int32_t, int32_t, 8> SignedFixedType;      // 24.8
         //typedef FixedPoint<int32_t, int64_t, 16> SignedFixedType;      // 16.16
@@ -178,7 +143,6 @@ class UsbMouseComponent
 
         unsigned long   m_lastUpdateTime;
         MouseStateType  m_mouseState;
-        //VectorType      m_mouseUnitVectors[DEG_COUNT];
         VectorType      m_mouseUnitVectors[3][3];           // [row][col]
         MouseModeEnum   m_mouseMode;
 };
