@@ -8,11 +8,9 @@ class FixedPoint
 {
     public:
         FixedPoint() :
-            value(0)
+            value()
         {
         }
-
-        FixedPoint(const int i) : value(static_cast<InternalType>(i) << FRACTIONAL_BITS) {}
 
         FixedPoint(const int8_t  i8) : value(static_cast<InternalType>(i8) << FRACTIONAL_BITS) {}
         FixedPoint(const uint8_t u8) : value(static_cast<InternalType>(u8) << FRACTIONAL_BITS) {}
@@ -25,6 +23,11 @@ class FixedPoint
 
         FixedPoint(const int64_t  i64) : value(static_cast<InternalType>(i64) << FRACTIONAL_BITS) {}
         FixedPoint(const uint64_t u64) : value(static_cast<InternalType>(u64) << FRACTIONAL_BITS) {}
+
+        constexpr static const InternalType FACTOR = 1 << FRACTIONAL_BITS;
+
+        FixedPoint(const double d) : value(static_cast<InternalType>(d * FACTOR)) {}
+        FixedPoint(const float  f) : value(static_cast<InternalType>(f * FACTOR)) {}
 
         ~FixedPoint() = default;
 

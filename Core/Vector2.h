@@ -5,8 +5,8 @@ template <typename ComponentType>
 struct Vector2
 {
     Vector2() :
-        x(0),
-        y(0)
+        x(),
+        y()
     {
     }
 
