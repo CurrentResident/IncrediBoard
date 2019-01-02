@@ -55,12 +55,12 @@ class UsbMouseComponent
 
             if (m_mouseState.reportDeltaX != 0)
             {
-                m_mouseState.position.x = SignedFixedType();
+                m_mouseState.position.x -= m_mouseState.reportDeltaX;
             }
 
             if (m_mouseState.reportDeltaY != 0)
             {
-                m_mouseState.position.y = SignedFixedType();
+                m_mouseState.position.y -= m_mouseState.reportDeltaY;
             }
 
             m_lastUpdateTime = now;
