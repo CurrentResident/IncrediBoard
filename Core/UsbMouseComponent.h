@@ -24,7 +24,7 @@ class UsbMouseComponent
         {
         }
 
-        void MouseMotion(bool i_upIsActive,
+        bool MouseMotion(bool i_upIsActive,
                          bool i_downIsActive,
                          bool i_leftIsActive,
                          bool i_rightIsActive)
@@ -39,8 +39,16 @@ class UsbMouseComponent
             const int row = 1 + (i_upIsActive   *  1) + (i_downIsActive  * -1);
             const int col = 1 + (i_leftIsActive * -1) + (i_rightIsActive *  1);
 
+            bool motionReportIsRequired = false;
+
             if (row == 1 and col == 1)
             {
+                // If we're stopping the mouse, we report the 0, 0 motion.
+                if (m_mouseState.velocity.GetRaw() != 0)
+                {
+                    motionReportIsRequired = true;
+                }
+
                 m_mouseState.velocity = 0l;
             }
             else
@@ -55,15 +63,19 @@ class UsbMouseComponent
 
             if (m_mouseState.reportDeltaX != 0)
             {
+                motionReportIsRequired = true;
                 m_mouseState.position.x -= m_mouseState.reportDeltaX;
             }
 
             if (m_mouseState.reportDeltaY != 0)
             {
+                motionReportIsRequired = true;
                 m_mouseState.position.y -= m_mouseState.reportDeltaY;
             }
 
             m_lastUpdateTime = now;
+
+            return motionReportIsRequired;
         }
 
         void Process(BoardState& io_state)
@@ -74,13 +86,14 @@ class UsbMouseComponent
                 case MOUSE_ON:
                     io_state.m_keyReportArray.clear();
 
-                    MouseMotion(io_state.m_activeKeyTable[IB_KEY_W] != 0,
-                                io_state.m_activeKeyTable[IB_KEY_S] != 0,
-                                io_state.m_activeKeyTable[IB_KEY_A] != 0,
-                                io_state.m_activeKeyTable[IB_KEY_D] != 0);
-
-                    UsbInterface::MouseMove(m_mouseState.reportDeltaX,
-                                            m_mouseState.reportDeltaY);
+                    if (MouseMotion(io_state.m_activeKeyTable[IB_KEY_W] != 0,
+                                    io_state.m_activeKeyTable[IB_KEY_S] != 0,
+                                    io_state.m_activeKeyTable[IB_KEY_A] != 0,
+                                    io_state.m_activeKeyTable[IB_KEY_D] != 0))
+                    {
+                        UsbInterface::MouseMove(m_mouseState.reportDeltaX,
+                                                m_mouseState.reportDeltaY);
+                    }
 
                     UsbInterface::MouseSetButtons(((io_state.m_activeKeyTable[IB_KEY_COMMA]  or io_state.m_activeKeyTable[IB_KEY_DELETE])    ? 1 : 0) |
                                                   ((io_state.m_activeKeyTable[IB_KEY_SLASH]  or io_state.m_activeKeyTable[IB_KEY_PAGE_DOWN]) ? 2 : 0) |

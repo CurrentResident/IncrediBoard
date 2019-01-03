@@ -52,12 +52,9 @@ namespace UsbInterface
 
     void MouseMove(int8_t i_mouseX, int8_t i_mouseY)
     {
-        if (s_mouseX != i_mouseX or s_mouseY != i_mouseY)
-        {
-            s_mouseX         = i_mouseX;
-            s_mouseY         = i_mouseY;
-            s_mouseIsUpdated = true;
-        }
+        s_mouseX = i_mouseX;
+        s_mouseY = i_mouseY;
+        s_mouseIsUpdated = true;
     }
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
