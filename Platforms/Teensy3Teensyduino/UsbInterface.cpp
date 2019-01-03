@@ -30,6 +30,7 @@ namespace
     uint8_t s_mouseButtons;
     int8_t  s_mouseX;
     int8_t  s_mouseY;
+    bool    s_mouseIsUpdated;
 }
 
 namespace UsbInterface
@@ -42,13 +43,21 @@ namespace UsbInterface
 
     void MouseSetButtons(uint8_t i_buttonBitset)
     {
-        s_mouseButtons = i_buttonBitset;
+        if (s_mouseButtons != i_buttonBitset)
+        {
+            s_mouseButtons   = i_buttonBitset;
+            s_mouseIsUpdated = true;
+        }
     }
 
     void MouseMove(int8_t i_mouseX, int8_t i_mouseY)
     {
-        s_mouseX = i_mouseX;
-        s_mouseY = i_mouseY;
+        if (s_mouseX != i_mouseX or s_mouseY != i_mouseY)
+        {
+            s_mouseX         = i_mouseX;
+            s_mouseY         = i_mouseY;
+            s_mouseIsUpdated = true;
+        }
     }
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
@@ -63,8 +72,10 @@ namespace UsbInterface
 
         usb_keyboard_send();
 
-        if (s_mouseButtons != 0 or s_mouseX != 0 or s_mouseY != 0)
+        if (s_mouseIsUpdated)
         {
+            s_mouseIsUpdated = false;
+
             usb_mouse_buttons_state = s_mouseButtons;
             usb_mouse_move(s_mouseX, s_mouseY, 0, 0);
         }
