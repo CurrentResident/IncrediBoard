@@ -141,6 +141,7 @@ extern "C"
 
             if (s_mouseStatePtr->reportIsRequired)
             {
+                s_mouseStatePtr->reportIsRequired = false;
                 s_timeOfMostRecentMouseReport = Platform::GetMsec();
                 s_mouseStatePtr->reportTime = s_timeOfMostRecentMouseReport;
                 forceSend = true;
@@ -179,6 +180,11 @@ namespace UsbInterface
     void UpdateMouseState(MouseStateType& io_mouseState)
     {
         s_mouseStatePtr = & io_mouseState;
+
+        if (s_mouseStatePtr->reportIsRequired)
+        {
+            HID_Device_USBTask(& Mouse_HID_Interface);
+        }
     }
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
@@ -188,7 +194,6 @@ namespace UsbInterface
         s_modifiers       = i_modifiers;
 
         HID_Device_USBTask(& Keyboard_HID_Interface);
-        HID_Device_USBTask(& Mouse_HID_Interface);
         USB_USBTask();
     }
 
