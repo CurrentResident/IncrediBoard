@@ -11,7 +11,6 @@
 namespace
 {
     uint8_t s_previousKeyboardReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
-    uint8_t s_previousMouseReportBuffer   [sizeof(USB_MouseReport_Data_t)];
 
     // Keyboard bookkeeping
     const uint8_t   s_keycodesRollOverError[6] = {1, 1, 1, 1, 1, 1};
@@ -52,8 +51,11 @@ namespace
         Keyboard_HID_Interface.Config.ReportINEndpoint.Type    = EP_TYPE_INTERRUPT;
 
         Mouse_HID_Interface.Config.InterfaceNumber          = INTERFACE_ID_Mouse;
-        Mouse_HID_Interface.Config.PrevReportINBuffer       = &s_previousMouseReportBuffer[0];
-        Mouse_HID_Interface.Config.PrevReportINBufferSize   = sizeof(s_previousMouseReportBuffer);
+        // Per the documentation in HIDClassDevice.h and the logic in HIDClassDevice.cpp,
+        // we still have to set PrevReportINBufferSize, even though we're setting PrevReportINBuffer
+        // to NULL.
+        Mouse_HID_Interface.Config.PrevReportINBuffer       = 0;
+        Mouse_HID_Interface.Config.PrevReportINBufferSize   = sizeof(USB_MouseReport_Data_t);
         Mouse_HID_Interface.Config.ReportINEndpoint.Address = MOUSE_EPADDR;
         Mouse_HID_Interface.Config.ReportINEndpoint.Banks   = 1;
         Mouse_HID_Interface.Config.ReportINEndpoint.Size    = EPSIZE;
@@ -144,6 +146,7 @@ extern "C"
                 s_mouseStatePtr->reportIsRequired = false;
                 s_timeOfMostRecentMouseReport = Platform::GetMsec();
                 s_mouseStatePtr->reportTime = s_timeOfMostRecentMouseReport;
+                s_mouseIsUpdated = true;
                 forceSend = true;
             }
         }
@@ -177,14 +180,18 @@ namespace UsbInterface
         GlobalInterruptEnable();
     }
 
-    void UpdateMouseState(MouseStateType& io_mouseState)
+    bool UpdateMouseState(MouseStateType& io_mouseState)
     {
         s_mouseStatePtr = & io_mouseState;
+
+        s_mouseIsUpdated = false;
 
         if (s_mouseStatePtr->reportIsRequired)
         {
             HID_Device_USBTask(& Mouse_HID_Interface);
         }
+
+        return s_mouseIsUpdated;
     }
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)

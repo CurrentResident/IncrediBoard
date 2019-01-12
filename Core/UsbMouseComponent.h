@@ -27,11 +27,11 @@ class UsbMouseComponent
                 case MOUSE_ON:
                     io_state.m_keyReportArray.clear();
 
-                    if (UsbInterface::GetTimeOfMostRecentMouseReport() != m_mouseFrontStatePtr->reportTime)
-                    {
-                        using std::swap;
-                        swap(m_mouseFrontStatePtr, m_mouseBackStatePtr);
-                    }
+                    //if (UsbInterface::GetTimeOfMostRecentMouseReport() != m_mouseFrontStatePtr->reportTime)
+                    //{
+                    //    using std::swap;
+                    //    swap(m_mouseFrontStatePtr, m_mouseBackStatePtr);
+                    //}
 
                     MouseStateType::MouseMotion(*m_mouseFrontStatePtr,
                                 *m_mouseBackStatePtr,
@@ -43,7 +43,11 @@ class UsbMouseComponent
                                 ((io_state.m_activeKeyTable[IB_KEY_SLASH]  or io_state.m_activeKeyTable[IB_KEY_PAGE_DOWN]) ? 2 : 0) |
                                 ((io_state.m_activeKeyTable[IB_KEY_PERIOD] or io_state.m_activeKeyTable[IB_KEY_END])       ? 4 : 0));
 
-                    UsbInterface::UpdateMouseState(*m_mouseBackStatePtr);
+                    if (UsbInterface::UpdateMouseState(*m_mouseBackStatePtr))
+                    {
+                        using std::swap;
+                        swap(m_mouseFrontStatePtr, m_mouseBackStatePtr);
+                    }
 
                     if (not io_state.m_functionKey)
                     {
@@ -59,7 +63,12 @@ class UsbMouseComponent
                     m_mouseState2 = m_mouseState1;
                     m_mouseBackStatePtr->reportIsRequired = true;
 
-                    UsbInterface::UpdateMouseState(*m_mouseBackStatePtr);
+                    if (UsbInterface::UpdateMouseState(*m_mouseBackStatePtr))
+                    {
+                        using std::swap;
+                        swap(m_mouseFrontStatePtr, m_mouseBackStatePtr);
+                    }
+
                     break;
 
                 default:                // fall-thru
@@ -68,8 +77,8 @@ class UsbMouseComponent
                     if (io_state.m_functionKey)
                     {
                         m_mouseMode      = MOUSE_ON;
-                        //m_mouseState1    = MouseStateType();
-                        //m_mouseState2    = m_mouseState1;
+                        m_mouseState1    = MouseStateType();
+                        m_mouseState2    = m_mouseState1;
                         m_mouseFrontStatePtr->reportTime = UsbInterface::GetTimeOfMostRecentMouseReport();
                     }
                     break;

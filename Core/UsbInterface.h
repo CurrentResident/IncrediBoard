@@ -11,7 +11,7 @@ namespace UsbInterface
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers);
 
-    void UpdateMouseState(MouseStateType& io_mouseState);
+    bool UpdateMouseState(MouseStateType& io_mouseState);
 
     unsigned long GetTimeOfMostRecentMouseReport();
 }
