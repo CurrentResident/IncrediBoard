@@ -6,6 +6,7 @@
 #include <LUFA/Platform/Platform.h>
 
 #include "Descriptors.h"
+#include "Platform.h"
 
 namespace
 {
@@ -19,17 +20,20 @@ namespace
     uint8_t         s_modifiers;
 
     // Mouse bookkeeping
-    uint8_t s_mouseButtons;
-    int8_t  s_mouseX;
-    int8_t  s_mouseY;
+    MouseStateType* s_mouseStatePtr;
+    unsigned long s_timeOfMostRecentMouseReport;
+    bool          s_mouseIsUpdated;
+    uint8_t       s_mouseButtons;
+    int8_t        s_mouseX;
+    int8_t        s_mouseY;
 
     /** LUFA HID Class driver interface configuration and state information. This structure is
      *  passed to all HID Class driver functions, so that multiple instances of the same class
      *  within a device can be differentiated from one another.
      */
-    USB_ClassInfo_HID_Device_t Keyboard_HID_Interface; 
-    USB_ClassInfo_HID_Device_t Mouse_HID_Interface; 
-    
+    USB_ClassInfo_HID_Device_t Keyboard_HID_Interface;
+    USB_ClassInfo_HID_Device_t Mouse_HID_Interface;
+
     // Please note that the initialization of this structure was moved to an assignment because
     // of a gcc error: "sorry, unimplemented: non-trivial designated initializers not supported"
     //
@@ -107,7 +111,7 @@ extern "C"
         if (HIDInterfaceInfo == & Keyboard_HID_Interface)
         {
             USB_KeyboardReport_Data_t* KeyboardReport = static_cast<USB_KeyboardReport_Data_t*>(ReportData);
-    
+
             if (s_keycodesCount > 6)
             {
                 std::memcpy(KeyboardReport->KeyCode, s_keycodesRollOverError, 6);
@@ -120,23 +124,27 @@ extern "C"
                 //
                 std::memcpy(KeyboardReport->KeyCode, s_keycodesPointer, 6);
             }
-    
+
             KeyboardReport->Modifier = s_modifiers;
-    
+
             *ReportSize = sizeof(USB_KeyboardReport_Data_t);
         }
         else
         {
             USB_MouseReport_Data_t* mouseReport = static_cast<USB_MouseReport_Data_t*>(ReportData);
 
-            mouseReport->Button = s_mouseButtons;
-            mouseReport->X      = s_mouseX;
-            mouseReport->Y      = s_mouseY;
+            mouseReport->Button = s_mouseStatePtr->buttons;      // s_mouseButtons;
+            mouseReport->X      = s_mouseStatePtr->reportDeltaX; // s_mouseX;
+            mouseReport->Y      = s_mouseStatePtr->reportDeltaY; // s_mouseY;
 
             *ReportSize = sizeof(USB_MouseReport_Data_t);
 
-            // If we're not doing anything with the mouse controls, no need to force the mouse report.
-            forceSend = s_mouseButtons or s_mouseX or s_mouseY;
+            if (s_mouseStatePtr->reportIsRequired)
+            {
+                s_timeOfMostRecentMouseReport = Platform::GetMsec();
+                s_mouseStatePtr->reportTime = s_timeOfMostRecentMouseReport;
+                forceSend = true;
+            }
         }
 
         return forceSend;
@@ -168,15 +176,9 @@ namespace UsbInterface
         GlobalInterruptEnable();
     }
 
-    void MouseSetButtons(uint8_t i_buttonBitset)
+    void UpdateMouseState(MouseStateType& io_mouseState)
     {
-        s_mouseButtons = i_buttonBitset;
-    }
-
-    void MouseMove(int8_t i_mouseX, int8_t i_mouseY)
-    {
-        s_mouseX = i_mouseX;
-        s_mouseY = i_mouseY;
+        s_mouseStatePtr = & io_mouseState;
     }
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
@@ -188,5 +190,10 @@ namespace UsbInterface
         HID_Device_USBTask(& Keyboard_HID_Interface);
         HID_Device_USBTask(& Mouse_HID_Interface);
         USB_USBTask();
+    }
+
+    unsigned long GetTimeOfMostRecentMouseReport()
+    {
+        return s_timeOfMostRecentMouseReport;
     }
 }

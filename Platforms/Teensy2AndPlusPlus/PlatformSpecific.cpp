@@ -1,6 +1,7 @@
 #include "Platform.h"
 
 #include <avr/interrupt.h>
+#include <util/atomic.h>
 
 namespace
 {
@@ -56,9 +57,12 @@ namespace Platform
     {
         unsigned long result;
 
-        cli();
-        result = s_msec;
-        sei();
+        //cli();
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            result = s_msec;
+        }
+        //sei();
 
         return result;
     }
