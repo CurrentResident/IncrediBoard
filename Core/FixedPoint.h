@@ -6,6 +6,10 @@
 template <typename InternalType, typename LargeType, unsigned int FRACTIONAL_BITS>
 class FixedPoint
 {
+        static_assert(FRACTIONAL_BITS != 0,                      "FRACTIONAL_BITS must be non-zero");
+        static_assert(FRACTIONAL_BITS <= sizeof(InternalType)*8, "InternalType not large enough for required FRACTIONAL_BITS");
+        static_assert(sizeof(LargeType) >= sizeof(InternalType), "LargeType must be at least as large as InternalType!");
+
     public:
         FixedPoint() :
             value()
