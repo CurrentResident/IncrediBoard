@@ -1,6 +1,7 @@
 
 #include "UsbInterface.h"
 
+#include <algorithm>
 #include <cstring>
 
 #include "Platform.h"
@@ -31,7 +32,7 @@ namespace
     // Mouse bookkeeping
     unsigned long s_timeOfLastMouseReport;
     unsigned long s_mouseReportDeltaMsec;
-    bool    s_mouseIsUpdated;
+    bool          s_mouseIsUpdated;
 }
 
 namespace UsbInterface
@@ -47,15 +48,25 @@ namespace UsbInterface
                  uint8_t         i_modifiers,
                  MouseStateType& io_mouseState)
     {
-        s_keycodesCount   =  i_keycodeCount;
-        s_keycodesPointer = (i_keycodeCount > 6 ? s_keycodesRollOverError : i_keycodes);
-        s_modifiers       =  i_modifiers;
+        const bool isCurrentlyRolledover    = s_keycodesCount > 6;
+        const bool keyboardReportIsRequired = s_keycodesCount != i_keycodeCount or
+                                              s_modifiers     != i_modifiers    or
+                                              not (isCurrentlyRolledover or
+                                                    std::equal(i_keycodes, i_keycodes + i_keycodeCount,
+                                                               keyboard_keys));
 
-        // Set the TD usb_keyboard data interfaces.
-        std::memcpy(keyboard_keys, s_keycodesPointer, 6);
-        keyboard_modifier_keys = s_modifiers;
+        if (keyboardReportIsRequired)
+        {
+            s_keycodesCount   =  i_keycodeCount;
+            s_keycodesPointer = (i_keycodeCount > 6 ? s_keycodesRollOverError : i_keycodes);
+            s_modifiers       =  i_modifiers;
 
-        usb_keyboard_send();
+            // Set the TD usb_keyboard data interfaces.
+            std::copy_n(s_keycodesPointer, 6, keyboard_keys);
+            keyboard_modifier_keys = s_modifiers;
+
+            usb_keyboard_send();
+        }
 
         if (io_mouseState.reportIsRequired)
         {
