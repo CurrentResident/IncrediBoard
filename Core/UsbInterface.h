@@ -13,7 +13,7 @@ namespace UsbInterface
 
     bool UpdateMouseState(MouseStateType& io_mouseState);
 
-    unsigned long GetTimeOfMostRecentMouseReport();
+    unsigned long GetMouseReportDeltaMsec();
 }
 
 #endif

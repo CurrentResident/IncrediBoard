@@ -22,7 +22,6 @@ struct MouseStateType
 
     typedef Vector2<SignedFixedType> VectorType;
 
-    unsigned long   reportTime;
     VectorType      position;
     SignedFixedType velocity;
     int8_t          reportDeltaX;    ///< The motion X component reported on USB.
@@ -31,7 +30,6 @@ struct MouseStateType
     bool            reportIsRequired;
 
     MouseStateType() :
-        reportTime(0),        // 0?
         reportDeltaX(0),
         reportDeltaY(0),
         buttons(0),
@@ -41,14 +39,12 @@ struct MouseStateType
 
     static const VectorType s_mouseUnitVectors[3][3];           // [row][col]
 
-    static void MouseMotion(const MouseStateType& i_lastState,
-                            MouseStateType&       o_newState,
-                            unsigned long         i_deltaMsec,
-                            bool                  i_upIsActive,
-                            bool                  i_downIsActive,
-                            bool                  i_leftIsActive,
-                            bool                  i_rightIsActive,
-                            uint8_t               i_buttons)
+    void MouseMotion(unsigned long         i_deltaMsec,
+                     bool                  i_upIsActive,
+                     bool                  i_downIsActive,
+                     bool                  i_leftIsActive,
+                     bool                  i_rightIsActive,
+                     uint8_t               i_buttons)
     {
         const SignedFixedType deltaMsec      = i_deltaMsec;
         const SignedFixedType deltaTSeconds  = deltaMsec / 1000l;
@@ -59,51 +55,45 @@ struct MouseStateType
         const int row = 1 + (i_upIsActive   *  1) + (i_downIsActive  * -1);
         const int col = 1 + (i_leftIsActive * -1) + (i_rightIsActive *  1);
 
-        o_newState.reportIsRequired = false;
+        reportIsRequired = false;
 
         if (row == 1 and col == 1)
         {
             // If we're stopping the mouse, we report the 0, 0 motion.
-            if (i_lastState.velocity.GetRaw() != 0)
+            if (velocity.GetRaw() != 0)
             {
-                o_newState.reportIsRequired = true;
+                reportIsRequired = true;
             }
 
-            o_newState.velocity = 0l;
+            velocity = 0l;
         }
         else
         {
-            o_newState.velocity = std::min(MAX_VELOCITY, i_lastState.velocity + ACCELERATION * deltaTSeconds);
+            velocity = std::min(MAX_VELOCITY, velocity + ACCELERATION * deltaTSeconds);
         }
 
-        o_newState.position = i_lastState.position + s_mouseUnitVectors[row][col] * (o_newState.velocity * deltaTSeconds);
+        position += s_mouseUnitVectors[row][col] * (velocity * deltaTSeconds);
 
-        o_newState.position.x.Round(o_newState.reportDeltaX);
-        o_newState.position.y.Round(o_newState.reportDeltaY);
+        position.x.Round(reportDeltaX);
+        position.y.Round(reportDeltaY);
 
-        //deltaMsec.Round(m_mouseState.reportDeltaX);
-
-        //Platform::DelayMillisecs<3>();
-
-        if (o_newState.reportDeltaX != 0)
+        if (reportDeltaX != 0)
         {
-            o_newState.reportIsRequired = true;
-            o_newState.position.x -= o_newState.reportDeltaX;
+            reportIsRequired = true;
+            position.x -= reportDeltaX;
         }
 
-        if (o_newState.reportDeltaY != 0)
+        if (reportDeltaY != 0)
         {
-            o_newState.reportIsRequired = true;
-            o_newState.position.y -= o_newState.reportDeltaY;
+            reportIsRequired = true;
+            position.y -= reportDeltaY;
         }
 
-        if (i_lastState.buttons != i_buttons)
+        if (buttons != i_buttons)
         {
-            o_newState.reportIsRequired = true;
-            o_newState.buttons = i_buttons;
+            reportIsRequired = true;
+            buttons = i_buttons;
         }
-
-        //m_lastUpdateTime = now;
     }
 };
 

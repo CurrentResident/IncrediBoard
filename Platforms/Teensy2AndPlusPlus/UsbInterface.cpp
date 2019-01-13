@@ -23,9 +23,6 @@ namespace
     unsigned long s_timeOfMostRecentMouseReport;
     unsigned long s_mouseReportDeltaMsec;
     bool          s_mouseIsUpdated;
-    uint8_t       s_mouseButtons;
-    int8_t        s_mouseX;
-    int8_t        s_mouseY;
 
     /** LUFA HID Class driver interface configuration and state information. This structure is
      *  passed to all HID Class driver functions, so that multiple instances of the same class
@@ -136,9 +133,9 @@ extern "C"
         {
             USB_MouseReport_Data_t* mouseReport = static_cast<USB_MouseReport_Data_t*>(ReportData);
 
-            mouseReport->Button = s_mouseStatePtr->buttons;      // s_mouseButtons;
-            mouseReport->X      = s_mouseStatePtr->reportDeltaX; // s_mouseX;
-            mouseReport->Y      = s_mouseStatePtr->reportDeltaY; // s_mouseY;
+            mouseReport->Button = s_mouseStatePtr->buttons;
+            mouseReport->X      = s_mouseStatePtr->reportDeltaX;
+            mouseReport->Y      = s_mouseStatePtr->reportDeltaY;
 
             *ReportSize = sizeof(USB_MouseReport_Data_t);
 
@@ -151,7 +148,6 @@ extern "C"
             if (s_mouseStatePtr->reportIsRequired)
             {
                 s_mouseStatePtr->reportIsRequired = false;
-                s_mouseStatePtr->reportTime = s_timeOfMostRecentMouseReport;
                 forceSend = true;
             }
         }
@@ -195,12 +191,6 @@ namespace UsbInterface
             return true;
         }
         return false;
-
-        //if (s_mouseStatePtr->reportIsRequired)
-        //{
-        //}
-
-        //return s_mouseIsUpdated;
     }
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
@@ -214,7 +204,7 @@ namespace UsbInterface
         USB_USBTask();
     }
 
-    unsigned long GetTimeOfMostRecentMouseReport()
+    unsigned long GetMouseReportDeltaMsec()
     {
         return s_mouseReportDeltaMsec;
     }
