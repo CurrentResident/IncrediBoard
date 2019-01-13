@@ -43,14 +43,14 @@ struct MouseStateType
 
     static void MouseMotion(const MouseStateType& i_lastState,
                             MouseStateType&       o_newState,
+                            unsigned long         i_deltaMsec,
                             bool                  i_upIsActive,
                             bool                  i_downIsActive,
                             bool                  i_leftIsActive,
                             bool                  i_rightIsActive,
                             uint8_t               i_buttons)
     {
-        const unsigned long   now            = Platform::GetMsec();
-        const SignedFixedType deltaMsec      = now - i_lastState.reportTime;
+        const SignedFixedType deltaMsec      = i_deltaMsec;
         const SignedFixedType deltaTSeconds  = deltaMsec / 1000l;
 
         const SignedFixedType MAX_VELOCITY = 1000l;          // In units per second.

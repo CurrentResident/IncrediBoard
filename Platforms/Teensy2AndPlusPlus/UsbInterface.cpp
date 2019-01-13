@@ -21,6 +21,7 @@ namespace
     // Mouse bookkeeping
     MouseStateType* s_mouseStatePtr;
     unsigned long s_timeOfMostRecentMouseReport;
+    unsigned long s_mouseReportDeltaMsec;
     bool          s_mouseIsUpdated;
     uint8_t       s_mouseButtons;
     int8_t        s_mouseX;
@@ -141,12 +142,16 @@ extern "C"
 
             *ReportSize = sizeof(USB_MouseReport_Data_t);
 
+            unsigned long now = Platform::GetMsec();
+            s_mouseReportDeltaMsec = now - s_timeOfMostRecentMouseReport;
+            s_timeOfMostRecentMouseReport = now;
+
+            s_mouseIsUpdated = true;
+
             if (s_mouseStatePtr->reportIsRequired)
             {
                 s_mouseStatePtr->reportIsRequired = false;
-                s_timeOfMostRecentMouseReport = Platform::GetMsec();
                 s_mouseStatePtr->reportTime = s_timeOfMostRecentMouseReport;
-                s_mouseIsUpdated = true;
                 forceSend = true;
             }
         }
@@ -184,14 +189,18 @@ namespace UsbInterface
     {
         s_mouseStatePtr = & io_mouseState;
 
-        s_mouseIsUpdated = false;
-
-        if (s_mouseStatePtr->reportIsRequired)
+        if (s_mouseIsUpdated)
         {
-            HID_Device_USBTask(& Mouse_HID_Interface);
+            s_mouseIsUpdated = false;
+            return true;
         }
+        return false;
 
-        return s_mouseIsUpdated;
+        //if (s_mouseStatePtr->reportIsRequired)
+        //{
+        //}
+
+        //return s_mouseIsUpdated;
     }
 
     void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
@@ -201,11 +210,12 @@ namespace UsbInterface
         s_modifiers       = i_modifiers;
 
         HID_Device_USBTask(& Keyboard_HID_Interface);
+        HID_Device_USBTask(& Mouse_HID_Interface);
         USB_USBTask();
     }
 
     unsigned long GetTimeOfMostRecentMouseReport()
     {
-        return s_timeOfMostRecentMouseReport;
+        return s_mouseReportDeltaMsec;
     }
 }
