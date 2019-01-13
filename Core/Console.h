@@ -158,6 +158,7 @@ class Console
         {
             BoardState::ReportType localReport;
             uint8_t                localModifiers = 0;
+            MouseStateType         localMouseState;
 
             m_nextLiftoffTime = 0;
 
@@ -170,7 +171,7 @@ class Console
 
                 while (m_nextLiftoffTime > Platform::GetMsec())
                 {
-                    UsbInterface::Process(localReport.Get(), 1, localModifiers);
+                    UsbInterface::Process(localReport.Get(), 1, localModifiers, localMouseState);
                 }
             }
         }

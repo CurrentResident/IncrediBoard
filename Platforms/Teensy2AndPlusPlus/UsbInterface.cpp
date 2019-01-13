@@ -20,9 +20,9 @@ namespace
 
     // Mouse bookkeeping
     MouseStateType* s_mouseStatePtr;
-    unsigned long s_timeOfMostRecentMouseReport;
-    unsigned long s_mouseReportDeltaMsec;
-    bool          s_mouseIsUpdated;
+    unsigned long   s_timeOfMostRecentMouseReport;
+    unsigned long   s_mouseReportDeltaMsec;
+    bool            s_mouseIsUpdated;
 
     /** LUFA HID Class driver interface configuration and state information. This structure is
      *  passed to all HID Class driver functions, so that multiple instances of the same class
@@ -129,7 +129,7 @@ extern "C"
 
             *ReportSize = sizeof(USB_KeyboardReport_Data_t);
         }
-        else
+        else if (s_mouseStatePtr != 0)
         {
             USB_MouseReport_Data_t* mouseReport = static_cast<USB_MouseReport_Data_t*>(ReportData);
 
@@ -181,10 +181,8 @@ namespace UsbInterface
         GlobalInterruptEnable();
     }
 
-    bool UpdateMouseState(MouseStateType& io_mouseState)
+    bool UpdateMouseState()
     {
-        s_mouseStatePtr = & io_mouseState;
-
         if (s_mouseIsUpdated)
         {
             s_mouseIsUpdated = false;
@@ -193,11 +191,16 @@ namespace UsbInterface
         return false;
     }
 
-    void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
+    void Process(const uint8_t*  i_keycodes,
+                 uint8_t         i_keycodeCount,
+                 uint8_t         i_modifiers,
+                 MouseStateType& io_mouseState)
     {
         s_keycodesPointer = i_keycodes;
         s_keycodesCount   = i_keycodeCount;
         s_modifiers       = i_modifiers;
+
+        s_mouseStatePtr   = & io_mouseState;
 
         HID_Device_USBTask(& Keyboard_HID_Interface);
         HID_Device_USBTask(& Mouse_HID_Interface);

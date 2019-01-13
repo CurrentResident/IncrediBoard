@@ -12,7 +12,8 @@ class UsbComponent
         {
             UsbInterface::Process(io_state.m_keyReportArray.Get(),
                                   io_state.m_keyReportArray.size(),
-                                  io_state.m_modifiers);
+                                  io_state.m_modifiers,
+                                  io_state.m_mouseState);
         }
 
 };

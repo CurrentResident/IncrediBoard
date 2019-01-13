@@ -3,7 +3,6 @@
 
 #include "BoardState.h"
 #include "KeyCodes.h"
-#include "MouseState.h"
 #include "Platform.h"
 #include "UsbInterface.h"
 
@@ -12,10 +11,8 @@ class UsbMouseComponent
     public:
 
         UsbMouseComponent() :
-            m_mouseMode       (MOUSE_OFF),
-            m_lastUpdateTime (0)
+            m_mouseMode (MOUSE_OFF)
         {
-            UsbInterface::UpdateMouseState(m_mouseState);
         }
 
         void Process(BoardState& io_state)
@@ -26,16 +23,16 @@ class UsbMouseComponent
                 case MOUSE_ON:
                     io_state.m_keyReportArray.clear();
 
-                    if (UsbInterface::UpdateMouseState(m_mouseState))
+                    if (UsbInterface::UpdateMouseState())
                     {
-                        m_mouseState.MouseMotion(UsbInterface::GetMouseReportDeltaMsec(),
-                                                 io_state.m_activeKeyTable[IB_KEY_W] != 0,
-                                                 io_state.m_activeKeyTable[IB_KEY_S] != 0,
-                                                 io_state.m_activeKeyTable[IB_KEY_A] != 0,
-                                                 io_state.m_activeKeyTable[IB_KEY_D] != 0,
-                                                 ((io_state.m_activeKeyTable[IB_KEY_COMMA]  or io_state.m_activeKeyTable[IB_KEY_DELETE])    ? 1 : 0) |
-                                                 ((io_state.m_activeKeyTable[IB_KEY_SLASH]  or io_state.m_activeKeyTable[IB_KEY_PAGE_DOWN]) ? 2 : 0) |
-                                                 ((io_state.m_activeKeyTable[IB_KEY_PERIOD] or io_state.m_activeKeyTable[IB_KEY_END])       ? 4 : 0));
+                        io_state.m_mouseState.MouseMotion(UsbInterface::GetMouseReportDeltaMsec(),
+                                                          io_state.m_activeKeyTable[IB_KEY_W] != 0,
+                                                          io_state.m_activeKeyTable[IB_KEY_S] != 0,
+                                                          io_state.m_activeKeyTable[IB_KEY_A] != 0,
+                                                          io_state.m_activeKeyTable[IB_KEY_D] != 0,
+                                                          ((io_state.m_activeKeyTable[IB_KEY_COMMA]  or io_state.m_activeKeyTable[IB_KEY_DELETE])    ? 1 : 0) |
+                                                          ((io_state.m_activeKeyTable[IB_KEY_SLASH]  or io_state.m_activeKeyTable[IB_KEY_PAGE_DOWN]) ? 2 : 0) |
+                                                          ((io_state.m_activeKeyTable[IB_KEY_PERIOD] or io_state.m_activeKeyTable[IB_KEY_END])       ? 4 : 0));
                     }
 
                     if (not io_state.m_functionKey)
@@ -46,12 +43,11 @@ class UsbMouseComponent
 
                 case MOUSE_TURNING_OFF:
 
-                    m_mouseMode = MOUSE_OFF;
+                    m_mouseMode           = MOUSE_OFF;
+                    io_state.m_mouseState = MouseStateType();
+                    io_state.m_mouseState.reportIsRequired = true;
 
-                    m_mouseState = MouseStateType();
-                    m_mouseState.reportIsRequired = true;
-
-                    UsbInterface::UpdateMouseState(m_mouseState);
+                    UsbInterface::UpdateMouseState();
 
                     break;
 
@@ -60,10 +56,11 @@ class UsbMouseComponent
 
                     if (io_state.m_functionKey)
                     {
-                        m_mouseMode  = MOUSE_ON;
-                        m_mouseState = MouseStateType();
-                        m_mouseState.reportIsRequired = true;
-                        UsbInterface::UpdateMouseState(m_mouseState);
+                        m_mouseMode           = MOUSE_ON;
+                        io_state.m_mouseState = MouseStateType();
+                        io_state.m_mouseState.reportIsRequired = true;
+
+                        UsbInterface::UpdateMouseState();
                     }
                     break;
             }
@@ -80,9 +77,7 @@ class UsbMouseComponent
             MOUSE_TURNING_OFF
         };
 
-        MouseStateType  m_mouseState;
-        MouseModeEnum   m_mouseMode;
-        unsigned long   m_lastUpdateTime;
+        MouseModeEnum m_mouseMode;
 };
 
 #endif

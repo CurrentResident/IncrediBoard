@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "FixedArray.h"
+#include "MouseState.h"
 
 struct BoardState
 {
@@ -20,6 +21,10 @@ struct BoardState
 
     /// Key truth state.
     FixedArray<uint8_t, 256, 0> m_activeKeyTable;
+
+    // Mouse state
+    // ------------------------------------------------------------------------------
+    MouseStateType m_mouseState;
 
     BoardState() :
         m_functionKey(0),
