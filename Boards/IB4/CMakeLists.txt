@@ -123,7 +123,9 @@ target_include_directories (TeensyduinoUsb PUBLIC  ../../Platforms/Teensy3Teensy
 target_compile_options     (TeensyduinoUsb PRIVATE ${COMPILE_FLAGS} ${COMPILE_FLAGS_CXX})
 target_compile_definitions (TeensyduinoUsb PRIVATE ${CONFIGURE_OPTIONS} ${ARDUINO_OPTIONS} ${TEENSYDUINO_USB_OPTIONS})
 
-add_executable (${BOARD_NAME}.elf ../../Core/main.cpp
+add_executable (${BOARD_NAME}.elf
+                           ../../Core/main.cpp
+                           ../../Core/MouseState.cpp
                            ../../Platforms/Teensy3Teensyduino/PlatformSpecific.cpp
                            ../../Platforms/Teensy3Teensyduino/UsbInterface.cpp)
 

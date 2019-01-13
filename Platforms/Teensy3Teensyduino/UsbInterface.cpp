@@ -3,6 +3,8 @@
 
 #include <cstring>
 
+#include "Platform.h"
+
 #include "usb_dev.h"
 
 #include "usb_serial.h"
@@ -27,9 +29,8 @@ namespace
     uint8_t         s_modifiers;
 
     // Mouse bookkeeping
-    uint8_t s_mouseButtons;
-    int8_t  s_mouseX;
-    int8_t  s_mouseY;
+    unsigned long s_timeOfLastMouseReport;
+    unsigned long s_mouseReportDeltaMsec;
     bool    s_mouseIsUpdated;
 }
 
@@ -41,23 +42,10 @@ namespace UsbInterface
         // so there's no need to do it here.
     }
 
-    void MouseSetButtons(uint8_t i_buttonBitset)
-    {
-        if (s_mouseButtons != i_buttonBitset)
-        {
-            s_mouseButtons   = i_buttonBitset;
-            s_mouseIsUpdated = true;
-        }
-    }
-
-    void MouseMove(int8_t i_mouseX, int8_t i_mouseY)
-    {
-        s_mouseX = i_mouseX;
-        s_mouseY = i_mouseY;
-        s_mouseIsUpdated = true;
-    }
-
-    void Process(const uint8_t* i_keycodes, uint8_t i_keycodeCount, uint8_t i_modifiers)
+    void Process(const uint8_t*  i_keycodes,
+                 uint8_t         i_keycodeCount,
+                 uint8_t         i_modifiers,
+                 MouseStateType& io_mouseState)
     {
         s_keycodesCount   =  i_keycodeCount;
         s_keycodesPointer = (i_keycodeCount > 6 ? s_keycodesRollOverError : i_keycodes);
@@ -69,12 +57,36 @@ namespace UsbInterface
 
         usb_keyboard_send();
 
+        if (io_mouseState.reportIsRequired)
+        {
+            io_mouseState.reportIsRequired = false;
+
+            usb_mouse_buttons_state = io_mouseState.buttons;
+            usb_mouse_move(io_mouseState.reportDeltaX, io_mouseState.reportDeltaY, 0, 0);
+        }
+
+        const unsigned long now = Platform::GetMsec();
+        s_mouseReportDeltaMsec  = now - s_timeOfLastMouseReport;
+        s_timeOfLastMouseReport = now;
+
+        s_mouseIsUpdated = true;
+    }
+
+
+    bool UpdateMouseState()
+    {
         if (s_mouseIsUpdated)
         {
             s_mouseIsUpdated = false;
-
-            usb_mouse_buttons_state = s_mouseButtons;
-            usb_mouse_move(s_mouseX, s_mouseY, 0, 0);
+            return true;
         }
+
+        return false;
     }
+
+    unsigned long GetMouseReportDeltaMsec()
+    {
+        return s_mouseReportDeltaMsec;
+    }
+
 }
