@@ -20,6 +20,7 @@ OPTIMIZATION = s
 TARGET       = IB1
 OBJDIR       = objs
 SRC          = ../../Core/main.cpp \
+               ../../Core/MouseState.cpp \
                ../../Platforms/Teensy2AndPlusPlus/Descriptors.c \
                ../../Platforms/Teensy2AndPlusPlus/PlatformSpecific.cpp \
                ../../Platforms/Teensy2AndPlusPlus/UsbInterface.cpp \
