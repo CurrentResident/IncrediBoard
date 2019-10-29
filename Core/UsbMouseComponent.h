@@ -6,11 +6,12 @@
 #include "Platform.h"
 #include "UsbInterface.h"
 
-class UsbMouseComponent
+template <typename LeftButtonClass, typename MiddleButtonClass, typename RightButtonClass>
+class UsbMouseComponent_T
 {
     public:
 
-        UsbMouseComponent() :
+        UsbMouseComponent_T() :
             m_mouseMode (MOUSE_OFF)
         {
         }
@@ -30,9 +31,9 @@ class UsbMouseComponent
                                                           io_state.m_activeKeyTable[IB_KEY_S] != 0,
                                                           io_state.m_activeKeyTable[IB_KEY_A] != 0,
                                                           io_state.m_activeKeyTable[IB_KEY_D] != 0,
-                                                          ((io_state.m_activeKeyTable[IB_KEY_COMMA]  or io_state.m_activeKeyTable[IB_KEY_DELETE])    ? 1 : 0) |
-                                                          ((io_state.m_activeKeyTable[IB_KEY_SLASH]  or io_state.m_activeKeyTable[IB_KEY_PAGE_DOWN]) ? 2 : 0) |
-                                                          ((io_state.m_activeKeyTable[IB_KEY_PERIOD] or io_state.m_activeKeyTable[IB_KEY_END])       ? 4 : 0));
+                                                          ((io_state.m_activeKeyTable[LeftButtonClass::CODE])   ? 1 : 0) |
+                                                          ((io_state.m_activeKeyTable[RightButtonClass::CODE])  ? 2 : 0) |
+                                                          ((io_state.m_activeKeyTable[MiddleButtonClass::CODE]) ? 4 : 0));
                     }
 
                     if (not io_state.m_functionKey)
@@ -79,5 +80,7 @@ class UsbMouseComponent
 
         MouseModeEnum m_mouseMode;
 };
+
+using UsbMouseComponent = UsbMouseComponent_T<KeyDELETE, KeyEND, KeyPAGE_DOWN>;
 
 #endif
