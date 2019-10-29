@@ -18,7 +18,9 @@ typedef Board
             <
                 MatrixComponent<Matrix>,
                 BootloaderJumpComponent,
-                UsbMouseComponent,
+                UsbMouseComponent_T<KeyRIGHT_BRACE,
+                                    KeyBACKSLASH,
+                                    KeyDELETE>,
                 ConsoleComponent,
                 UsbComponent
             >
